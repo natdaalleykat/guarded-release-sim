@@ -136,8 +136,8 @@ export const PRODUCTS: ProductDef[] = [
   { key: 'guarded', label: 'Guarded releases', blurb: 'Ship safely, auto-rollback', icon: 'shield', color: 'rgb(66,94,255)' },
   { key: 'flags', label: 'Feature flags', blurb: 'Control what ships, to whom', icon: 'flag', color: 'rgb(8,150,180)' },
   { key: 'experiments', label: 'Experimentation', blurb: 'Measure what works', icon: 'beaker', color: 'rgb(214,122,0)' },
-  { key: 'observability', label: 'Observability', blurb: 'Errors, logs, traces, sessions', icon: 'pulse', color: 'rgb(0,131,68)' },
   { key: 'aiconfigs', label: 'AI Configs', blurb: 'Models and prompts, live', icon: 'hub', color: 'rgb(135,23,205)' },
+  { key: 'observability', label: 'Observability', blurb: 'Errors, logs, traces, sessions', icon: 'pulse', color: 'rgb(0,131,68)' },
 ]
 
 /* The "regardless of where you start" rail */

@@ -371,3 +371,29 @@ export function HaveOnHandCard() {
     </div>
   )
 }
+
+/* ---- Quiet "good to know" panel (muted, no color/iconography) ----------- */
+
+export function QuietLinks() {
+  return (
+    <div className="card">
+      <div style={{ padding: '15px 18px 2px' }}>
+        <div style={{ fontSize: 14.5, fontWeight: 650 }}>Good to know</div>
+        <div className="faint" style={{ fontSize: 12, marginTop: 2 }}>Useful whichever product you pick.</div>
+      </div>
+      <div style={{ padding: '8px 8px 8px' }}>
+        {ON_HAND.map((item) => (
+          <button key={item.label} className="quiet-row">
+            <span style={{ flex: 1, minWidth: 0 }}>
+              <span style={{ display: 'block', fontSize: 13, fontWeight: 600, color: 'var(--text-2)' }}>{item.label}</span>
+              <span className="faint" style={{ display: 'block', fontSize: 11.5, marginTop: 1, lineHeight: 1.35 }}>
+                {item.blurb}
+              </span>
+            </span>
+            <span style={{ color: 'var(--text-3)', flex: '0 0 auto' }}><IcChevron size={13} /></span>
+          </button>
+        ))}
+      </div>
+    </div>
+  )
+}

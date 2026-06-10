@@ -778,6 +778,24 @@ a { color: inherit; text-decoration: none; }
 }
 .oh-row:hover .ic { background: var(--blue-tint-2); color: var(--blue); }
 
+/* quiet "good to know" rows */
+.quiet-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  width: 100%;
+  text-align: left;
+  padding: 9px 10px;
+  border: none;
+  border-radius: var(--r);
+  background: transparent;
+  transition: background 0.13s;
+  cursor: pointer;
+}
+.quiet-row:hover { background: var(--bg-hover); }
+.quiet-row:hover span:first-child > span:first-child { color: var(--text); }
+.quiet-row + .quiet-row { border-top: 1px solid var(--border-soft); }
+
 /* compact config pills (sim configure) */
 .selpill {
   display: inline-flex;
