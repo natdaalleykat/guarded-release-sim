@@ -629,6 +629,164 @@ a { color: inherit; text-decoration: none; }
 ::-webkit-scrollbar-thumb { background: rgba(7, 8, 12, 0.16); border-radius: 6px; border: 3px solid transparent; background-clip: padding-box; }
 ::-webkit-scrollbar-thumb:hover { background: rgba(7, 8, 12, 0.28); background-clip: padding-box; }
 
+/* ---- Home direction blocks --------------------------------------------- */
+
+/* value hero (Direction A) */
+.hero {
+  position: relative;
+  overflow: hidden;
+  border-radius: var(--r-lg);
+  border: 1px solid rgba(66, 94, 255, 0.28);
+  background:
+    radial-gradient(120% 140% at 100% 0%, rgba(135, 23, 205, 0.12), transparent 55%),
+    linear-gradient(180deg, var(--blue-tint), var(--bg) 75%);
+  padding: 30px 32px;
+}
+.hero-glow {
+  position: absolute;
+  right: -80px;
+  top: -80px;
+  width: 320px;
+  height: 320px;
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(66, 94, 255, 0.22), transparent 70%);
+  pointer-events: none;
+}
+.mini-rollout { display: flex; gap: 4px; margin-top: 4px; }
+.mini-cell { width: 13px; height: 13px; border-radius: 3px; background: var(--bg-ter); }
+.mini-cell.on { background: var(--blue); }
+.mini-cell.bad { background: var(--red); }
+
+/* capability strip */
+.cap-pill {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 11px 13px;
+  border-radius: var(--r-md);
+  border: 1px solid var(--border);
+  background: var(--bg);
+  transition: border-color 0.15s, transform 0.1s, box-shadow 0.15s;
+}
+.cap-pill:hover { border-color: var(--blue); transform: translateY(-2px); box-shadow: var(--shadow-card); }
+.cap-ic { width: 32px; height: 32px; border-radius: 9px; display: grid; place-items: center; flex: 0 0 auto; }
+
+/* roadmap (Direction B) */
+.road { display: flex; flex-direction: column; }
+.road-step {
+  display: flex;
+  gap: 13px;
+  padding: 13px 4px;
+  position: relative;
+  cursor: pointer;
+  border-radius: var(--r);
+  transition: background 0.15s;
+}
+.road-step:hover { background: var(--bg-sub); }
+.road-step.active { background: var(--blue-tint); }
+.road-node {
+  flex: 0 0 auto;
+  width: 30px;
+  height: 30px;
+  border-radius: 50%;
+  display: grid;
+  place-items: center;
+  background: var(--bg);
+  border: 1.5px solid var(--border);
+  color: var(--text-3);
+  z-index: 1;
+  transition: all 0.2s var(--ease);
+}
+.road-step.active .road-node { border-color: var(--blue); color: var(--blue); }
+.road-step.done .road-node { background: var(--green); border-color: var(--green); color: #fff; }
+.road-line {
+  position: absolute;
+  left: 18.5px;
+  top: 43px;
+  bottom: -13px;
+  width: 1.5px;
+  background: var(--border);
+  z-index: 0;
+}
+.road-step.done .road-line { background: var(--green); }
+.road-progress-track { height: 6px; border-radius: 999px; background: var(--bg-ter); overflow: hidden; }
+.road-progress-fill { height: 100%; background: linear-gradient(90deg, var(--blue), var(--purple)); border-radius: 999px; transition: width 0.5s var(--ease); }
+
+/* intent chips (Direction C) */
+.intent-chip {
+  display: flex;
+  align-items: center;
+  gap: 11px;
+  padding: 12px 15px;
+  border-radius: var(--r-md);
+  border: 1.5px solid var(--border);
+  background: var(--bg);
+  text-align: left;
+  transition: all 0.15s var(--ease);
+  position: relative;
+}
+.intent-chip:hover { border-color: var(--text-3); }
+.intent-chip.on { border-color: var(--blue); background: var(--blue-tint); box-shadow: 0 0 0 1px var(--blue); }
+.intent-ic { width: 34px; height: 34px; border-radius: 9px; display: grid; place-items: center; flex: 0 0 auto; }
+.intent-check {
+  position: absolute; top: 9px; right: 9px; width: 16px; height: 16px; border-radius: 50%;
+  border: 1.5px solid var(--border); display: grid; place-items: center;
+}
+.intent-chip.on .intent-check { background: var(--blue); border-color: var(--blue); color: #fff; }
+
+/* sample flag rows */
+.flagrow {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 12px 14px;
+  border-bottom: 1px solid var(--border-soft);
+}
+.flagrow:last-child { border-bottom: none; }
+.flag-toggle { width: 34px; height: 20px; border-radius: 999px; position: relative; flex: 0 0 auto; transition: background 0.2s; }
+.flag-toggle.on { background: var(--green); }
+.flag-toggle.off { background: var(--bg-ter); }
+.flag-knob { position: absolute; top: 3px; width: 14px; height: 14px; border-radius: 50%; background: #fff; box-shadow: 0 1px 2px rgba(7,8,12,0.2); transition: left 0.2s var(--ease); }
+.flag-toggle.on .flag-knob { left: 17px; }
+.flag-toggle.off .flag-knob { left: 3px; }
+
+/* direction switcher */
+.switcher {
+  position: fixed;
+  bottom: 18px;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 60;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  padding: 6px;
+  border-radius: 999px;
+  background: rgba(17, 22, 34, 0.92);
+  box-shadow: var(--shadow-pop);
+  backdrop-filter: blur(8px);
+  max-width: calc(100vw - 32px);
+}
+.switcher .lab { color: rgba(255, 255, 255, 0.55); font-size: 11.5px; font-weight: 600; padding: 0 8px 0 10px; white-space: nowrap; }
+.switcher button {
+  border: none;
+  background: transparent;
+  color: rgba(255, 255, 255, 0.7);
+  font-size: 12.5px;
+  font-weight: 600;
+  padding: 7px 13px;
+  border-radius: 999px;
+  white-space: nowrap;
+  transition: all 0.15s;
+}
+.switcher button:hover { color: #fff; background: rgba(255, 255, 255, 0.08); }
+.switcher button.on { color: #fff; background: var(--blue); }
+.switcher .thesis { color: rgba(255,255,255,0.5); font-size: 11px; padding: 0 12px 0 6px; white-space: nowrap; border-left: 1px solid rgba(255,255,255,0.12); margin-left: 2px; }
+
+@media (max-width: 720px) {
+  .switcher .thesis { display: none; }
+}
+
 /* responsive grids */
 .cols { display: grid; }
 .grid-top { grid-template-columns: 1.35fr 1fr; gap: 18px; }

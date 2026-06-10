@@ -1,12 +1,23 @@
 import { useEffect, useState } from 'react'
-import { AnimatePresence } from 'framer-motion'
+import { AnimatePresence, motion } from 'framer-motion'
 import { Sidebar } from './product/Sidebar'
 import { TopBar } from './product/TopBar'
-import { Home } from './product/Home'
+import { HomeValue } from './product/HomeValue'
+import { HomeRoadmap } from './product/HomeRoadmap'
+import { HomePersonalized } from './product/HomePersonalized'
 import { SimWizard } from './sim/SimWizard'
+
+type Dir = 'A' | 'B' | 'C'
+
+const DIRS: { key: Dir; label: string; thesis: string }[] = [
+  { key: 'A', label: 'A · Value-first', thesis: 'Lead with the simulation; earn setup later' },
+  { key: 'B', label: 'B · Roadmap', thesis: 'A guided path that teaches the model' },
+  { key: 'C', label: 'C · Adaptive', thesis: 'Home reflows to the products they pick' },
+]
 
 export default function App() {
   const [wizardOpen, setWizardOpen] = useState(false)
+  const [dir, setDir] = useState<Dir>('A')
 
   useEffect(() => {
     const onKey = (e: KeyboardEvent) => {
@@ -20,19 +31,41 @@ export default function App() {
     document.body.style.overflow = wizardOpen ? 'hidden' : ''
   }, [wizardOpen])
 
+  const open = () => setWizardOpen(true)
+
   return (
     <div className="app">
       <Sidebar />
       <div className="main">
         <TopBar />
         <div className="content">
-          <Home onWatch={() => setWizardOpen(true)} />
+          <AnimatePresence mode="wait">
+            <motion.div
+              key={dir}
+              initial={{ opacity: 0, y: 8 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -8 }}
+              transition={{ duration: 0.28, ease: [0.16, 1, 0.3, 1] }}
+            >
+              {dir === 'A' && <HomeValue onWatch={open} />}
+              {dir === 'B' && <HomeRoadmap onWatch={open} />}
+              {dir === 'C' && <HomePersonalized onWatch={open} />}
+            </motion.div>
+          </AnimatePresence>
         </div>
       </div>
 
-      <AnimatePresence>
-        {wizardOpen && <SimWizard onClose={() => setWizardOpen(false)} />}
-      </AnimatePresence>
+      <div className="switcher">
+        <span className="lab">Home concept</span>
+        {DIRS.map((d) => (
+          <button key={d.key} className={dir === d.key ? 'on' : ''} onClick={() => setDir(d.key)}>
+            {d.label}
+          </button>
+        ))}
+        <span className="thesis">{DIRS.find((d) => d.key === dir)!.thesis}</span>
+      </div>
+
+      <AnimatePresence>{wizardOpen && <SimWizard onClose={() => setWizardOpen(false)} />}</AnimatePresence>
     </div>
   )
 }
