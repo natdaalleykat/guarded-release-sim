@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react'
 import { AnimatePresence, motion } from 'framer-motion'
 import { ROADMAPS, PRODUCTS, type ProductKey, type RoadmapStepV2 } from '../data/home'
-import { WelcomeRow, ProductPicker, SimSideCard, GlyphIcon } from './blocks'
+import { WelcomeRow, ProductPicker, SimHero, GlyphIcon } from './blocks'
 import { GlobalStatsWidget } from './Widgets'
 import { ShieldHeart, ArrowRight } from '../components/icons'
 import { IcChevronDown } from '../components/navicons'
@@ -22,13 +22,22 @@ export function HomeV2Single({
 
   return (
     <div className="content-inner">
-      <WelcomeRow title="Welcome, Natalie" subtitle="Pick a product. Your roadmap reshapes around it." />
+      <WelcomeRow title="Welcome, Natalie" subtitle="See the point first. Then pick a product and walk the path." />
 
-      <ProductPicker value={product} onChange={onProduct} />
+      {/* the simulation leads, value-first framing intact */}
+      <SimHero onWatch={onWatch} />
+
+      <div style={{ margin: '26px 0 12px' }}>
+        <div style={{ display: 'flex', alignItems: 'baseline', justifyContent: 'space-between', gap: 12, marginBottom: 12 }}>
+          <h2 style={{ fontSize: 15, fontWeight: 700 }}>What do you want to ship with?</h2>
+          <span className="faint" style={{ fontSize: 12.5 }}>your roadmap reshapes around it</span>
+        </div>
+        <ProductPicker value={product} onChange={onProduct} />
+      </div>
 
       <div
         className="cols"
-        style={{ gridTemplateColumns: 'minmax(0, 1.15fr) minmax(0, 0.85fr)', gap: 20, marginTop: 22, alignItems: 'start' }}
+        style={{ gridTemplateColumns: 'minmax(0, 1.15fr) minmax(0, 0.85fr)', gap: 20, marginTop: 20, alignItems: 'start' }}
       >
         {/* roadmap */}
         <div className="card card-pad">
@@ -53,11 +62,8 @@ export function HomeV2Single({
           </AnimatePresence>
         </div>
 
-        {/* persistent sim + proof */}
-        <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
-          <SimSideCard onWatch={onWatch} />
-          <GlobalStatsWidget />
-        </div>
+        {/* proof of scale */}
+        <GlobalStatsWidget />
       </div>
     </div>
   )

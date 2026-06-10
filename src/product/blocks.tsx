@@ -119,7 +119,7 @@ export function SimHero({ onWatch }: { onWatch: () => void }) {
         </p>
         <div style={{ display: 'flex', gap: 11, marginTop: 22, flexWrap: 'wrap', alignItems: 'center' }}>
           <button className="btn lg" onClick={onWatch}>
-            <Bolt size={16} /> Watch the 90-second simulation
+            <Bolt size={16} /> Watch the 30-second simulation
           </button>
           <button className="btn default lg">Explore a sample project</button>
         </div>
