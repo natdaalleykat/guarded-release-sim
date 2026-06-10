@@ -2,10 +2,9 @@ import { useEffect, useState } from 'react'
 import { AnimatePresence, motion } from 'framer-motion'
 import { ROADMAPS, PRODUCTS, type ProductKey, type RoadmapStepV2 } from '../data/home'
 import { WelcomeRow, ProductPicker, SimHero, QuietLinks, GlyphIcon } from './blocks'
-import { ArrowRight } from '../components/icons'
-import { IcChevronDown } from '../components/navicons'
+import { Check, ShieldHeart, ArrowRight } from '../components/icons'
 
-/* per-step accent colors, echoing the "Connect your app" widgets */
+/* per-step node colors, echoing the "Connect your app" widgets */
 const STEP_COLORS = [
   'rgb(66,94,255)',
   'rgb(135,23,205)',
@@ -23,11 +22,6 @@ export function HomeV2Single({
   onProduct: (k: ProductKey) => void
   onWatch: () => void
 }) {
-  const steps = ROADMAPS[product]
-  const label = PRODUCTS.find((p) => p.key === product)!.label
-  const [open, setOpen] = useState(steps[0].key)
-  useEffect(() => setOpen(ROADMAPS[product][0].key), [product])
-
   return (
     <div className="content-inner">
       <WelcomeRow title="Welcome, Natalie" subtitle="See the point first. Setup can wait." />
@@ -49,110 +43,95 @@ export function HomeV2Single({
         className="cols"
         style={{ gridTemplateColumns: 'minmax(0, 1.5fr) minmax(0, 1fr)', gap: 18, marginTop: 20, alignItems: 'start' }}
       >
-        <div className="card">
-          <div className="card-head">
-            <div className="card-title">Your {label.toLowerCase()} roadmap</div>
-            <span className="badge" style={{ fontSize: 11 }}>{steps.length} steps</span>
-          </div>
-          <div className="card-pad" style={{ display: 'flex', flexDirection: 'column', gap: 9, paddingTop: 14 }}>
-            <AnimatePresence mode="popLayout">
-              {steps.map((s, i) => (
-                <motion.div
-                  key={`${product}-${s.key}`}
-                  initial={{ opacity: 0, y: 8 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  transition={{ duration: 0.25, delay: i * 0.04 }}
-                >
-                  <StepRow
-                    step={s}
-                    color={STEP_COLORS[i % STEP_COLORS.length]}
-                    open={open === s.key}
-                    onToggle={() => setOpen(open === s.key ? '' : s.key)}
-                    onWatch={onWatch}
-                  />
-                </motion.div>
-              ))}
-            </AnimatePresence>
-          </div>
-        </div>
-
+        <RoadmapV2Checklist product={product} onWatch={onWatch} />
         <QuietLinks />
       </div>
     </div>
   )
 }
 
-function StepRow({
-  step,
-  color,
-  open,
-  onToggle,
-  onWatch,
-}: {
-  step: RoadmapStepV2
-  color: string
-  open: boolean
-  onToggle: () => void
-  onWatch: () => void
-}) {
+/* Visually identical to direction B's roadmap pane, except the step icons
+   are filled with color, flipping to a green checkmark when completed. */
+function RoadmapV2Checklist({ product, onWatch }: { product: ProductKey; onWatch: () => void }) {
+  const steps = ROADMAPS[product]
+  const label = PRODUCTS.find((p) => p.key === product)!.label
+  const [done, setDone] = useState<Record<string, boolean>>({})
+  useEffect(() => setDone({}), [product])
+
+  const doneCount = steps.filter((s) => done[s.key]).length
+  const activeKey = steps.find((s) => !done[s.key])?.key
+
+  const act = (s: RoadmapStepV2) => {
+    if (s.sim) {
+      onWatch()
+      setDone((d) => ({ ...d, [s.key]: true }))
+    } else {
+      setDone((d) => ({ ...d, [s.key]: !d[s.key] }))
+    }
+  }
+
   return (
-    <div
-      className="setup-row"
-      onClick={onToggle}
-      style={{
-        flexDirection: 'column',
-        alignItems: 'stretch',
-        gap: 0,
-        cursor: 'pointer',
-        borderColor: open ? color : undefined,
-        transform: 'none',
-      }}
-    >
-      <div style={{ display: 'flex', alignItems: 'center', gap: 13, width: '100%' }}>
-        <span className="setup-ic" style={{ background: color }}>
-          <GlyphIcon icon={step.icon} size={19} />
-        </span>
-        <span className="body">
-          <span className="t">{step.title}</span>
-          <span className="d">{step.blurb}</span>
-        </span>
-        <span
-          style={{
-            color: 'var(--text-3)',
-            flex: '0 0 auto',
-            transform: open ? 'rotate(180deg)' : 'none',
-            transition: 'transform 0.2s',
-          }}
-        >
-          <IcChevronDown size={16} />
-        </span>
+    <div className="card card-pad">
+      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 6 }}>
+        <h2 style={{ fontSize: 15.5, fontWeight: 700 }}>Your {label.toLowerCase()} roadmap</h2>
+        <span className="badge blue" style={{ fontSize: 11 }}>{doneCount}/{steps.length}</span>
       </div>
-      <AnimatePresence initial={false}>
-        {open && (
-          <motion.div
-            initial={{ height: 0, opacity: 0 }}
-            animate={{ height: 'auto', opacity: 1 }}
-            exit={{ height: 0, opacity: 0 }}
-            transition={{ duration: 0.22, ease: [0.16, 1, 0.3, 1] }}
-            style={{ overflow: 'hidden' }}
-          >
-            <div style={{ padding: '10px 2px 4px 51px' }}>
-              <div className="muted" style={{ fontSize: 12.5, lineHeight: 1.5, maxWidth: 520 }}>{step.learn.what}</div>
-              <button
-                className="btn sm"
-                style={{ marginTop: 10, background: color }}
-                onClick={(e) => {
-                  e.stopPropagation()
-                  if (step.sim) onWatch()
-                }}
+      <p className="faint" style={{ fontSize: 12.5, marginBottom: 12 }}>Value first. Setup when you are ready.</p>
+      <div className="road-progress-track" style={{ marginBottom: 8 }}>
+        <div className="road-progress-fill" style={{ width: `${(doneCount / steps.length) * 100}%` }} />
+      </div>
+
+      <div className="road">
+        <AnimatePresence mode="popLayout">
+          {steps.map((s, i) => {
+            const isDone = !!done[s.key]
+            const isActive = s.key === activeKey
+            const color = STEP_COLORS[i % STEP_COLORS.length]
+            return (
+              <motion.div
+                key={`${product}-${s.key}`}
+                initial={{ opacity: 0, y: 8 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.25, delay: i * 0.04 }}
               >
-                {step.cta}
-                <ArrowRight size={12} />
-              </button>
-            </div>
-          </motion.div>
-        )}
-      </AnimatePresence>
+                <div
+                  className={`road-step ${isDone ? 'done' : ''} ${isActive ? 'active' : ''}`}
+                  onClick={() => act(s)}
+                >
+                  {i < steps.length - 1 && <span className="road-line" />}
+                  <span
+                    className="road-node"
+                    style={isDone ? undefined : { background: color, borderColor: color, color: '#fff' }}
+                  >
+                    {isDone ? <Check size={15} /> : <GlyphIcon icon={s.icon} size={15} />}
+                  </span>
+                  <div style={{ flex: 1, minWidth: 0 }}>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+                      <span style={{ fontSize: 13.5, fontWeight: 650 }}>{s.title}</span>
+                      {s.sim && <span className="badge green" style={{ fontSize: 9.5 }}>start here</span>}
+                    </div>
+                    <div className="muted" style={{ fontSize: 12.5, marginTop: 3, lineHeight: 1.4 }}>{s.blurb}</div>
+                    {isActive && (
+                      <button
+                        className={s.sim ? 'btn sm' : 'btn default sm'}
+                        style={{ marginTop: 9 }}
+                        onClick={(e) => {
+                          e.stopPropagation()
+                          act(s)
+                        }}
+                      >
+                        {s.sim && <ShieldHeart size={14} />}
+                        {s.cta}
+                        <ArrowRight size={13} />
+                      </button>
+                    )}
+                  </div>
+                </div>
+              </motion.div>
+            )
+          })}
+        </AnimatePresence>
+      </div>
     </div>
   )
 }
