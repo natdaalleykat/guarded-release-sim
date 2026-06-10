@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react'
 import { motion } from 'framer-motion'
 import { ROADMAPS, PRODUCTS, type ProductKey } from '../data/home'
-import { WelcomeRow, ProductPicker, SimStrip, HaveOnHandCard, GlyphIcon } from './blocks'
+import { WelcomeRow, ProductPicker, SimHero, GlyphIcon } from './blocks'
 import { ShieldHeart, ArrowRight } from '../components/icons'
 import { IcChevron } from '../components/navicons'
 
@@ -24,10 +24,13 @@ export function HomeV2Split({
 
   return (
     <div className="content-inner">
-      <WelcomeRow title="Welcome, Natalie" subtitle="Pick a starting point, then walk the path. The right side teaches each step." />
+      <WelcomeRow title="Welcome, Natalie" subtitle="See the point first. Setup can wait." />
 
-      <div style={{ display: 'flex', alignItems: 'baseline', justifyContent: 'space-between', gap: 12, marginBottom: 12 }}>
-        <h2 style={{ fontSize: 15, fontWeight: 700 }}>What do you want to try first?</h2>
+      {/* the guarded release hero from direction D */}
+      <SimHero onWatch={onWatch} />
+
+      <div style={{ display: 'flex', alignItems: 'baseline', justifyContent: 'space-between', gap: 12, margin: '28px 0 12px' }}>
+        <h2 style={{ fontSize: 15, fontWeight: 700 }}>A platform, not just flags. What do you want to try first?</h2>
         <span className="faint" style={{ fontSize: 12.5 }}>just a starting point, change anytime</span>
       </div>
       <ProductPicker value={product} onChange={onProduct} />
@@ -37,29 +40,25 @@ export function HomeV2Split({
         style={{ gridTemplateColumns: 'minmax(0, 360px) minmax(0, 1fr)', gap: 20, marginTop: 22, alignItems: 'start' }}
       >
         {/* roadmap list */}
-        <div style={{ display: 'flex', flexDirection: 'column', gap: 14 }}>
-          <div className="card" style={{ padding: '8px' }}>
-            {steps.map((s, i) => (
-              <div
-                key={`${product}-${s.key}`}
-                className={`road-step ${sel === s.key ? 'active' : ''}`}
-                onClick={() => setSel(s.key)}
-                style={{ alignItems: 'center', padding: '11px 12px' }}
-              >
-                <span className="road-node" style={{ fontSize: 12.5, fontWeight: 700 }}>{i + 1}</span>
-                <div style={{ flex: 1, minWidth: 0 }}>
-                  <div style={{ display: 'flex', alignItems: 'center', gap: 7 }}>
-                    <span style={{ fontSize: 13.5, fontWeight: 650 }}>{s.title}</span>
-                    {s.sim && <span className="badge green" style={{ fontSize: 9.5 }}>start here</span>}
-                  </div>
-                  <div className="faint" style={{ fontSize: 12, marginTop: 2 }}>{s.blurb}</div>
+        <div className="card" style={{ padding: '8px' }}>
+          {steps.map((s, i) => (
+            <div
+              key={`${product}-${s.key}`}
+              className={`road-step ${sel === s.key ? 'active' : ''}`}
+              onClick={() => setSel(s.key)}
+              style={{ alignItems: 'center', padding: '11px 12px' }}
+            >
+              <span className="road-node" style={{ fontSize: 12.5, fontWeight: 700 }}>{i + 1}</span>
+              <div style={{ flex: 1, minWidth: 0 }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: 7 }}>
+                  <span style={{ fontSize: 13.5, fontWeight: 650 }}>{s.title}</span>
+                  {s.sim && <span className="badge green" style={{ fontSize: 9.5 }}>start here</span>}
                 </div>
-                <span style={{ color: sel === s.key ? 'var(--blue)' : 'var(--text-3)' }}><IcChevron size={14} /></span>
+                <div className="faint" style={{ fontSize: 12, marginTop: 2 }}>{s.blurb}</div>
               </div>
-            ))}
-          </div>
-          <SimStrip onWatch={onWatch} />
-          <HaveOnHandCard />
+              <span style={{ color: sel === s.key ? 'var(--blue)' : 'var(--text-3)' }}><IcChevron size={14} /></span>
+            </div>
+          ))}
         </div>
 
         {/* learning pane */}

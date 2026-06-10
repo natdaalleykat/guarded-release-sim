@@ -125,7 +125,6 @@ export function SimHero({ onWatch }: { onWatch: () => void }) {
           <button className="btn lg" onClick={onWatch}>
             <Bolt size={16} /> Watch the 30-second simulation
           </button>
-          <button className="btn default lg">Explore a sample project</button>
         </div>
         <div style={{ marginTop: 26 }}>
           <div className="faint" style={{ fontSize: 11, fontWeight: 600, letterSpacing: '0.05em', textTransform: 'uppercase', marginBottom: 7 }}>

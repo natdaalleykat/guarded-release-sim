@@ -51,23 +51,28 @@ export function HomeV2Single({
 }
 
 /* Visually identical to direction B's roadmap pane, except the step icons
-   are filled with color, flipping to a green checkmark when completed. */
+   are filled with color, flipping to a green checkmark when completed.
+   Clicking a step expands it to reveal its CTA; the CTA completes it. */
 function RoadmapV2Checklist({ product, onWatch }: { product: ProductKey; onWatch: () => void }) {
   const steps = ROADMAPS[product]
   const label = PRODUCTS.find((p) => p.key === product)!.label
   const [done, setDone] = useState<Record<string, boolean>>({})
-  useEffect(() => setDone({}), [product])
+  const [open, setOpen] = useState(steps[0].key)
+  useEffect(() => {
+    setDone({})
+    setOpen(ROADMAPS[product][0].key)
+  }, [product])
 
   const doneCount = steps.filter((s) => done[s.key]).length
-  const activeKey = steps.find((s) => !done[s.key])?.key
 
-  const act = (s: RoadmapStepV2) => {
-    if (s.sim) {
-      onWatch()
-      setDone((d) => ({ ...d, [s.key]: true }))
-    } else {
-      setDone((d) => ({ ...d, [s.key]: !d[s.key] }))
-    }
+  const complete = (s: RoadmapStepV2) => {
+    if (s.sim) onWatch()
+    setDone((d) => {
+      const next = { ...d, [s.key]: true }
+      const nextOpen = steps.find((x) => !next[x.key])?.key ?? ''
+      setOpen(nextOpen)
+      return next
+    })
   }
 
   return (
@@ -85,7 +90,7 @@ function RoadmapV2Checklist({ product, onWatch }: { product: ProductKey; onWatch
         <AnimatePresence mode="popLayout">
           {steps.map((s, i) => {
             const isDone = !!done[s.key]
-            const isActive = s.key === activeKey
+            const isOpen = s.key === open
             const color = STEP_COLORS[i % STEP_COLORS.length]
             return (
               <motion.div
@@ -95,8 +100,8 @@ function RoadmapV2Checklist({ product, onWatch }: { product: ProductKey; onWatch
                 transition={{ duration: 0.25, delay: i * 0.04 }}
               >
                 <div
-                  className={`road-step ${isDone ? 'done' : ''} ${isActive ? 'active' : ''}`}
-                  onClick={() => act(s)}
+                  className={`road-step ${isDone ? 'done' : ''} ${isOpen ? 'active' : ''}`}
+                  onClick={() => setOpen(isOpen ? '' : s.key)}
                 >
                   {i < steps.length - 1 && <span className="road-line" />}
                   <span
@@ -111,20 +116,30 @@ function RoadmapV2Checklist({ product, onWatch }: { product: ProductKey; onWatch
                       {s.sim && <span className="badge green" style={{ fontSize: 9.5 }}>start here</span>}
                     </div>
                     <div className="muted" style={{ fontSize: 12.5, marginTop: 3, lineHeight: 1.4 }}>{s.blurb}</div>
-                    {isActive && (
-                      <button
-                        className={s.sim ? 'btn sm' : 'btn default sm'}
-                        style={{ marginTop: 9 }}
-                        onClick={(e) => {
-                          e.stopPropagation()
-                          act(s)
-                        }}
-                      >
-                        {s.sim && <ShieldHeart size={14} />}
-                        {s.cta}
-                        <ArrowRight size={13} />
-                      </button>
-                    )}
+                    <AnimatePresence initial={false}>
+                      {isOpen && (
+                        <motion.div
+                          initial={{ height: 0, opacity: 0 }}
+                          animate={{ height: 'auto', opacity: 1 }}
+                          exit={{ height: 0, opacity: 0 }}
+                          transition={{ duration: 0.2, ease: [0.16, 1, 0.3, 1] }}
+                          style={{ overflow: 'hidden' }}
+                        >
+                          <button
+                            className={s.sim ? 'btn sm' : 'btn default sm'}
+                            style={{ marginTop: 9 }}
+                            onClick={(e) => {
+                              e.stopPropagation()
+                              complete(s)
+                            }}
+                          >
+                            {s.sim && <ShieldHeart size={14} />}
+                            {s.cta}
+                            <ArrowRight size={13} />
+                          </button>
+                        </motion.div>
+                      )}
+                    </AnimatePresence>
                   </div>
                 </div>
               </motion.div>
