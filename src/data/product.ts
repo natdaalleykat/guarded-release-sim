@@ -207,12 +207,12 @@ export const WIDGETS: ProductWidget[] = [
 /* ---- wizard copy -------------------------------------------------------- */
 
 export const WIZARD = {
-  steps: ['Configure', 'Run', 'Results'],
+  steps: ['Configure', 'Run'],
   configure: {
     title: 'Guarded release simulation',
-    lede: 'You are about to ship a rewrite of your checkout behind a flag. Instead of flipping it on for everyone, a guarded release rolls it out a bit at a time while LaunchDarkly watches a metric you choose. If that metric breaks, it rolls back on its own.',
-    metricQ: 'Pick the metric to protect',
-    contextQ: 'Pick who gets it first',
+    lede: 'You are shipping a checkout rewrite behind a flag. A guarded release rolls it out a little at a time while LaunchDarkly watches a metric you choose. If that metric breaks, it rolls back on its own.',
+    metricQ: 'Protect',
+    contextQ: 'Roll out to',
     go: 'Start guarded rollout',
   },
 }

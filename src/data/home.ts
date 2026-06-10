@@ -5,6 +5,7 @@
 
 export type Glyph =
   | 'shield' | 'beaker' | 'hub' | 'pulse' | 'venn' | 'fingerprint' | 'ruler' | 'plug' | 'flag' | 'mcp'
+  | 'play' | 'playground'
 
 export interface Capability {
   label: string
@@ -115,3 +116,314 @@ export const SAMPLE_FLAGS: SampleFlag[] = [
 /* Segment examples used in the roadmap detail */
 export const SEGMENT_EXAMPLES = ['Beta cohort', 'Enterprise plan', 'EU users', 'Risk tier 1', 'Internal team']
 export const CONTEXT_KIND_EXAMPLES = ['user', 'account', 'organization', 'device']
+
+/* =========================================================================
+   v2 directions (D single pane, E split pane): product picker + per-product
+   roadmaps. Each step carries education content for the split-pane view.
+   ========================================================================= */
+
+export type ProductKey = 'guarded' | 'flags' | 'experiments' | 'observability' | 'aiconfigs'
+
+export interface ProductDef {
+  key: ProductKey
+  label: string
+  blurb: string
+  icon: Glyph
+  color: string
+}
+
+export const PRODUCTS: ProductDef[] = [
+  { key: 'guarded', label: 'Guarded releases', blurb: 'Ship safely, auto-rollback', icon: 'shield', color: 'rgb(66,94,255)' },
+  { key: 'flags', label: 'Feature flags', blurb: 'Control what ships, to whom', icon: 'flag', color: 'rgb(8,150,180)' },
+  { key: 'experiments', label: 'Experimentation', blurb: 'Measure what works', icon: 'beaker', color: 'rgb(214,122,0)' },
+  { key: 'observability', label: 'Observability', blurb: 'Errors, logs, traces, sessions', icon: 'pulse', color: 'rgb(0,131,68)' },
+  { key: 'aiconfigs', label: 'AI Configs', blurb: 'Models and prompts, live', icon: 'hub', color: 'rgb(135,23,205)' },
+]
+
+export interface RoadmapStepV2 {
+  key: string
+  title: string
+  blurb: string
+  cta: string
+  icon: Glyph
+  sim?: boolean
+  learn: { what: string; ideas: string[] }
+}
+
+export const ROADMAPS: Record<ProductKey, RoadmapStepV2[]> = {
+  guarded: [
+    {
+      key: 'sim',
+      title: 'See one catch a bad deploy',
+      blurb: '30-second simulation. No setup, nothing real.',
+      cta: 'Watch simulation',
+      icon: 'shield',
+      sim: true,
+      learn: {
+        what: 'A guarded release ramps a change out in stages while LaunchDarkly watches a metric you choose. The moment the metric regresses, it rolls everyone back automatically, in milliseconds, not meetings.',
+        ideas: ['Ramp 1% → 5% → 10%', 'Watch one key metric', 'Auto-rollback in 11 ms'],
+      },
+    },
+    {
+      key: 'contexts',
+      title: 'Decide who you target',
+      blurb: 'Context kinds are who flags are evaluated for.',
+      cta: 'Set up context kinds',
+      icon: 'fingerprint',
+      learn: {
+        what: 'A context kind is the "who" behind every flag decision. Most teams start with user, then add account or organization so an entire customer stays on one experience together.',
+        ideas: ['user', 'account', 'organization', 'device'],
+      },
+    },
+    {
+      key: 'metrics',
+      title: 'Choose what to guard',
+      blurb: 'The number that hurts when it breaks.',
+      cta: 'Create a metric',
+      icon: 'ruler',
+      learn: {
+        what: 'Guardian needs one metric to protect. Click and page-view metrics need no code. Error and latency metrics can flow in from observability. Anything else is a single track() call.',
+        ideas: ['Checkout error rate', 'p95 latency', 'Conversion rate', 'Crash-free sessions'],
+      },
+    },
+    {
+      key: 'sdk',
+      title: 'Connect your app',
+      blurb: 'One SDK call replaces your config file.',
+      cta: 'Install an SDK',
+      icon: 'plug',
+      learn: {
+        what: 'Wherever you read a config value today, you ask LaunchDarkly instead. There are 25+ SDKs, or let your coding agent wire it up through the MCP server.',
+        ideas: ['Node', 'Python', 'Go', 'iOS', 'MCP server'],
+      },
+    },
+    {
+      key: 'ship',
+      title: 'Run your first guarded rollout',
+      blurb: 'Flag + metric + automatic rollback.',
+      cta: 'Start guarded rollout',
+      icon: 'flag',
+      learn: {
+        what: 'On your flag’s Targeting tab choose Serve, then Guarded rollout. Pick the metric, keep automatic rollback on, and ship the change you’ve been nervous about.',
+        ideas: ['Start at 1%', '24-hour window', 'Rollback stays on'],
+      },
+    },
+  ],
+  flags: [
+    {
+      key: 'create',
+      title: 'Create your first flag',
+      blurb: 'A remote if-statement for production.',
+      cta: 'Create flag',
+      icon: 'flag',
+      learn: {
+        what: 'A flag changes behavior in production without a deploy. Start with a kill switch on something risky. The first one takes about two minutes.',
+        ideas: ['Kill switch', 'New feature gate', 'Pricing config'],
+      },
+    },
+    {
+      key: 'sdk',
+      title: 'Connect an SDK',
+      blurb: 'Evaluations are local and instant.',
+      cta: 'Install an SDK',
+      icon: 'plug',
+      learn: {
+        what: 'Install the SDK where the flagged code runs. Flag evaluations happen locally in microseconds, with no network call per check.',
+        ideas: ['Node', 'Python', 'Go', 'React', 'Mobile'],
+      },
+    },
+    {
+      key: 'contexts',
+      title: 'Model who you target',
+      blurb: 'Users, accounts, organizations, devices.',
+      cta: 'Set up context kinds',
+      icon: 'fingerprint',
+      learn: {
+        what: 'Flags are evaluated for a context. Define the kinds that match how your business works so targeting reads the way your team talks.',
+        ideas: ['user', 'account', 'organization', 'device'],
+      },
+    },
+    {
+      key: 'segments',
+      title: 'Build reusable segments',
+      blurb: 'Cohorts you target again and again.',
+      cta: 'Create a segment',
+      icon: 'venn',
+      learn: {
+        what: 'Segments are saved audiences: your beta cohort, the enterprise plan, EU users. Build them once and reuse them on every flag.',
+        ideas: ['Beta cohort', 'Enterprise plan', 'EU users', 'Risk tier 1', 'Internal team'],
+      },
+    },
+    {
+      key: 'rollout',
+      title: 'Graduate to safer rollouts',
+      blurb: 'Percentages first, then guarded.',
+      cta: 'Try a percentage rollout',
+      icon: 'shield',
+      learn: {
+        what: 'Once a flag works, stop flipping it for everyone at once. Percentage rollouts split traffic, and guarded rollouts watch a metric and roll back for you.',
+        ideas: ['10% canary', '50/50 split', 'Guarded rollout'],
+      },
+    },
+  ],
+  experiments: [
+    {
+      key: 'metric',
+      title: 'Define success',
+      blurb: 'The metric your team argues about.',
+      cta: 'Create a metric',
+      icon: 'ruler',
+      learn: {
+        what: 'An experiment is only as good as its metric. Pick the number decision-makers actually watch: conversion, activation, latency.',
+        ideas: ['Conversion', 'Activation rate', 'Revenue per visitor', 'p95 latency'],
+      },
+    },
+    {
+      key: 'experiment',
+      title: 'Create an experiment',
+      blurb: 'Attach it to any flag.',
+      cta: 'Create experiment',
+      icon: 'beaker',
+      learn: {
+        what: 'Any flag can become an experiment. Variations become treatments, and LaunchDarkly handles assignment and the statistics.',
+        ideas: ['A/B the checkout', 'Copy test', 'Algorithm shootout'],
+      },
+    },
+    {
+      key: 'audience',
+      title: 'Pick your randomization unit',
+      blurb: 'User? Account? Session?',
+      cta: 'Choose a unit',
+      icon: 'fingerprint',
+      learn: {
+        what: 'Randomize by the unit that matches the decision: users for UX changes, accounts for B2B pricing so one customer never sees two prices.',
+        ideas: ['user', 'account', 'session'],
+      },
+    },
+    {
+      key: 'events',
+      title: 'Send events',
+      blurb: 'One track() call per outcome.',
+      cta: 'Instrument events',
+      icon: 'plug',
+      learn: {
+        what: 'Conversion metrics need an event from your app: a single track() call when the outcome happens. Click and page-view metrics need none.',
+        ideas: ["track('purchase')", 'Click metric', 'Page-view metric'],
+      },
+    },
+    {
+      key: 'launch',
+      title: 'Launch and decide',
+      blurb: 'Readouts you can defend.',
+      cta: 'Start iteration',
+      icon: 'flag',
+      learn: {
+        what: 'Start the iteration, let it reach sample size, and get a readout you can defend in a planning meeting.',
+        ideas: ['Sample size guidance', 'Probability to beat control', 'Ship the winner'],
+      },
+    },
+  ],
+  observability: [
+    {
+      key: 'instrument',
+      title: 'Instrument your app',
+      blurb: 'One snippet for errors, logs, traces.',
+      cta: 'Instrument observability',
+      icon: 'plug',
+      learn: {
+        what: 'Drop in the observability SDK and you get sessions, errors, logs, and traces without wiring five tools together.',
+        ideas: ['Web sessions', 'Server traces', 'Error tracking'],
+      },
+    },
+    {
+      key: 'sessions',
+      title: 'Replay what users saw',
+      blurb: 'Sessions with console and network.',
+      cta: 'Open sessions',
+      icon: 'play',
+      learn: {
+        what: 'Watch real sessions with the console and network alongside, and stop guessing what "it’s broken" means.',
+        ideas: ['Session replay', 'Error groups', 'Live logs'],
+      },
+    },
+    {
+      key: 'flagslink',
+      title: 'Tie telemetry to flags',
+      blurb: 'Every error knows its variation.',
+      cta: 'View flag context',
+      icon: 'flag',
+      learn: {
+        what: 'Telemetry is tagged with the flag variations active at the time, so you can answer "did our release cause this?" in one click.',
+        ideas: ['Errors by variation', 'Latency by variation'],
+      },
+    },
+    {
+      key: 'guard',
+      title: 'Feed metrics into Guardian',
+      blurb: 'Observability powers auto-rollback.',
+      cta: 'Create a guarded metric',
+      icon: 'shield',
+      learn: {
+        what: 'Error and latency metrics from observability can guard your releases directly, with no extra instrumentation.',
+        ideas: ['Error-rate guardrail', 'p95 guardrail'],
+      },
+    },
+  ],
+  aiconfigs: [
+    {
+      key: 'config',
+      title: 'Create an AI Config',
+      blurb: 'Models + prompts, runtime-managed.',
+      cta: 'Create AI Config',
+      icon: 'hub',
+      learn: {
+        what: 'An AI Config holds your model choice, parameters, and prompt as variations you can change at runtime. No redeploy when a new model ships.',
+        ideas: ['GPT vs Claude', 'Prompt v2', 'Temperature tweak'],
+      },
+    },
+    {
+      key: 'playground',
+      title: 'Test in the playground',
+      blurb: 'Compare variations side by side.',
+      cta: 'Open playground',
+      icon: 'playground',
+      learn: {
+        what: 'Run variations against real prompts side by side before anything ships. Your first playground is free.',
+        ideas: ['Side-by-side outputs', 'Cost preview', 'Latency compare'],
+      },
+    },
+    {
+      key: 'sdk',
+      title: 'Connect the AI SDK',
+      blurb: 'Serve configs to your app.',
+      cta: 'Install the AI SDK',
+      icon: 'plug',
+      learn: {
+        what: 'The AI SDK fetches the right variation per context and records token usage, latency, and satisfaction automatically.',
+        ideas: ['Node', 'Python', 'LangChain'],
+      },
+    },
+    {
+      key: 'target',
+      title: 'Vary by audience',
+      blurb: 'Different models for different tiers.',
+      cta: 'Add targeting',
+      icon: 'venn',
+      learn: {
+        what: 'Serve the expensive model to enterprise accounts and the fast one to the free tier. Same code path, different config.',
+        ideas: ['Enterprise → frontier model', 'Free tier → fast model', 'Internal → beta prompt'],
+      },
+    },
+    {
+      key: 'measure',
+      title: 'Measure and iterate',
+      blurb: 'Quality and cost per variation.',
+      cta: 'View metrics',
+      icon: 'ruler',
+      learn: {
+        what: 'Track cost, latency, and feedback per variation, then run an experiment when two prompts disagree.',
+        ideas: ['Cost per conversation', 'Thumbs-up rate', 'A/B prompts'],
+      },
+    },
+  ],
+}

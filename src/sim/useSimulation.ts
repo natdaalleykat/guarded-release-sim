@@ -5,6 +5,7 @@ import {
   fmtMetric,
   fmtPop,
 } from '../data/content'
+import { ROLLBACK_MS, BLAST } from '../data/product'
 
 /* =========================================================================
    The simulation engine.
@@ -40,25 +41,27 @@ export interface SimState {
 }
 
 // --- timeline constants (sim seconds) ---
-// Tuned so the whole run lands in ~36s and the regression is caught at the
-// 10% stage: ramp 1% -> 5% -> 10%, break, auto-rollback, recover.
-const REG_START = 21
-const REG_PEAK = 26
-const REC_START = 27.5
-const REC_END = 32
-const ROLLBACK_START = 27
-const RECOVERED_T = 32.5
-export const END_T = 36
+// A 30-second run: ramp 1% -> 5% -> 10%, regression hits ~10s in,
+// auto-rollback, recover, and the value summary lands by ~24s.
+const REG_START = 10
+const REG_PEAK = 14
+const REC_START = 15.5
+const REC_END = 21
+const ROLLBACK_START = 14.6
+const RECOVERED_T = 21.5
+export const END_T = 30
+/** when the in-run value summary (blast radius etc.) appears */
+export const VALUE_T = 24
 
 const GATE: [number, number][] = [
   [0, 0],
-  [2, 1],
-  [6, 1],
-  [8, 5],
-  [16, 5],
-  [18, 10],
-  [27, 10],
-  [31, 0],
+  [1.5, 1],
+  [3.6, 1],
+  [4.6, 5],
+  [7.6, 5],
+  [8.6, 10],
+  [14.6, 10],
+  [18.5, 0],
   [END_T, 0],
 ]
 
@@ -146,18 +149,18 @@ function buildEvents(): EventDef[] {
   const v = (p: FrameParams, t: number) => fmtMetric(p.m, metricAt(p.m, t))
   return [
     { t: 0.4, kind: 'info', build: (p) => `Guarded release started. Serving new variation to 1% of ${p.c.plural}.` },
-    { t: 3.5, kind: 'check', build: (p) => `Guardrail check passed. ${cap(p.m.short)} ${v(p, 3.5)}.` },
-    { t: 8.2, kind: 'stage', build: () => `Ramped to 5%. Metric holding steady.` },
-    { t: 12.0, kind: 'check', build: (p) => `Guardrail check passed. ${cap(p.m.short)} ${v(p, 12)}.` },
-    { t: 16.5, kind: 'check', build: (p) => `Guardrail check passed. ${cap(p.m.short)} ${v(p, 16.5)}.` },
-    { t: 18.3, kind: 'stage', build: () => `Ramped to 10%.` },
-    { t: 21.0, kind: 'info', build: () => `Running guardrail check...` },
-    { t: 22.9, kind: 'warn', build: (p) => `${p.m.label} is crossing the guardrail. ${v(p, 22.9)}.` },
-    { t: 26.0, kind: 'warn', build: (p) => `Regression detected on ${p.m.label}. Guardrail: ${p.m.guardrailPhrase}.` },
-    { t: 26.8, kind: 'act', build: (p) => `Automatic rollback initiated. Returning ${p.c.plural} to the stable version.` },
-    { t: 28.5, kind: 'act', build: () => `Rollback propagating. New-variation traffic falling.` },
-    { t: 30.5, kind: 'good', build: (p) => `Rollback complete. All ${p.c.plural} are back on the stable version.` },
-    { t: 32.5, kind: 'good', build: (p) => `Guarded release stopped. ${cap(p.m.short)} recovered to ${v(p, 33)}.` },
+    { t: 2.4, kind: 'check', build: (p) => `Guardrail check passed. ${cap(p.m.short)} ${v(p, 2.4)}.` },
+    { t: 4.8, kind: 'stage', build: () => `Ramped to 5%. Metric holding steady.` },
+    { t: 7.0, kind: 'check', build: (p) => `Guardrail check passed. ${cap(p.m.short)} ${v(p, 7)}.` },
+    { t: 8.8, kind: 'stage', build: () => `Ramped to 10%.` },
+    { t: 10.8, kind: 'info', build: () => `Running guardrail check...` },
+    { t: 11.8, kind: 'warn', build: (p) => `${p.m.label} is crossing the guardrail. ${v(p, 11.8)}.` },
+    { t: 13.6, kind: 'warn', build: (p) => `Regression detected on ${p.m.label}. Guardrail: ${p.m.guardrailPhrase}.` },
+    { t: 14.7, kind: 'act', build: (p) => `Automatic rollback executed in ${ROLLBACK_MS} ms. Returning ${p.c.plural} to the stable version.` },
+    { t: 16.5, kind: 'act', build: () => `Rollback propagating. New-variation traffic falling.` },
+    { t: 19.5, kind: 'good', build: (p) => `Rollback complete. All ${p.c.plural} are back on the stable version.` },
+    { t: 21.8, kind: 'good', build: (p) => `Guarded release stopped. ${cap(p.m.short)} recovered to ${v(p, 22.5)}.` },
+    { t: 23.4, kind: 'good', build: (p) => `${BLAST.protected}% of ${p.c.plural} were never exposed to the regression.` },
   ]
 }
 

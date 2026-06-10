@@ -750,6 +750,59 @@ a { color: inherit; text-decoration: none; }
 .flag-toggle.on .flag-knob { left: 17px; }
 .flag-toggle.off .flag-knob { left: 3px; }
 
+/* compact config pills (sim configure) */
+.selpill {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 12px;
+  font-size: 12.5px;
+  font-weight: 600;
+  border-radius: 999px;
+  border: 1px solid var(--border);
+  background: var(--bg);
+  color: var(--text-2);
+  cursor: pointer;
+  transition: all 0.13s var(--ease);
+}
+.selpill:hover { border-color: var(--text-3); }
+.selpill.on {
+  border-color: var(--blue);
+  background: var(--blue-tint);
+  color: var(--blue-hover);
+  box-shadow: 0 0 0 1px var(--blue);
+}
+.selpill .mono { font-size: 11px; color: var(--text-3); }
+.selpill.on .mono { color: var(--blue); }
+
+/* live log terminal (sim run) */
+.logterm {
+  background: #171b24;
+  border: 1px solid rgba(7, 8, 12, 0.2);
+  border-radius: var(--r-md);
+  padding: 12px 14px;
+  font-family: var(--mono);
+  font-size: 12px;
+  line-height: 1.9;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-end;
+  height: 178px;
+  overflow: hidden;
+}
+.logline {
+  display: flex;
+  gap: 10px;
+  white-space: nowrap;
+  overflow: hidden;
+  color: #c5cee4;
+}
+.logline .lt { color: #5b678a; flex: 0 0 auto; }
+.logline.warn { color: #ff8198; }
+.logline.act { color: #ffcd7a; }
+.logline.good { color: #7ee0b8; }
+.logline.check { color: #9fd9c0; }
+
 /* direction switcher */
 .switcher {
   position: fixed;

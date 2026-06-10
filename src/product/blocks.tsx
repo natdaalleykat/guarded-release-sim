@@ -4,12 +4,15 @@ import {
   ROADMAP,
   INTENTS,
   SAMPLE_FLAGS,
+  PRODUCTS,
   type Glyph,
   type RoadmapStep,
+  type ProductKey,
 } from '../data/home'
 import { ShieldHeart, ArrowRight, Bolt, Check } from '../components/icons'
 import {
   IcBeaker, IcHub, IcPulse, IcVenn, IcFingerprint, IcRuler, IcPlug, IcFlag, IcMcp, IcChevron,
+  IcPlay, IcPlayground,
 } from '../components/navicons'
 
 export function WelcomeRow({ title, subtitle }: { title: string; subtitle: string }) {
@@ -39,6 +42,8 @@ export function GlyphIcon({ icon, size = 18 }: { icon: Glyph; size?: number }) {
     case 'plug': return <IcPlug size={size} />
     case 'flag': return <IcFlag size={size} />
     case 'mcp': return <IcMcp size={size} />
+    case 'play': return <IcPlay size={size} />
+    case 'playground': return <IcPlayground size={size} />
   }
 }
 
@@ -74,7 +79,7 @@ export function CapabilityStrip() {
 
 /* ---- Mini rollout animation for the hero ------------------------------- */
 
-function MiniRollout() {
+export function MiniRollout() {
   const N = 22
   const [phase, setPhase] = useState(0) // 0..5 loop
   useEffect(() => {
@@ -255,6 +260,80 @@ export function SampleFlagsCard() {
           Open the sandbox <IcChevron size={13} />
         </a>
       </div>
+    </div>
+  )
+}
+
+/* ---- v2: product picker (single select) --------------------------------- */
+
+export function ProductPicker({ value, onChange }: { value: ProductKey; onChange: (k: ProductKey) => void }) {
+  return (
+    <div className="cols" style={{ gridTemplateColumns: 'repeat(5, minmax(0, 1fr))', gap: 10 }}>
+      {PRODUCTS.map((p) => {
+        const on = value === p.key
+        return (
+          <button key={p.key} className={`intent-chip ${on ? 'on' : ''}`} onClick={() => onChange(p.key)}>
+            <span className="intent-ic" style={{ background: tint(p.color), color: p.color }}>
+              <GlyphIcon icon={p.icon} size={18} />
+            </span>
+            <div style={{ minWidth: 0 }}>
+              <div style={{ fontSize: 13, fontWeight: 650, lineHeight: 1.2 }}>{p.label}</div>
+              <div className="faint" style={{ fontSize: 11, marginTop: 2, lineHeight: 1.25 }}>{p.blurb}</div>
+            </div>
+            <span className="intent-check">{on && <Check size={11} />}</span>
+          </button>
+        )
+      })}
+    </div>
+  )
+}
+
+/* ---- v2: persistent simulation cards ------------------------------------ */
+
+export function SimSideCard({ onWatch }: { onWatch: () => void }) {
+  return (
+    <div
+      className="card card-pad"
+      style={{
+        borderColor: 'var(--blue)',
+        boxShadow: '0 0 0 1px var(--blue), var(--shadow-card)',
+        background: 'linear-gradient(180deg, var(--blue-tint), var(--bg) 75%)',
+      }}
+    >
+      <span className="badge blue" style={{ marginBottom: 10 }}>
+        <ShieldHeart size={13} /> Guarded releases
+      </span>
+      <h3 style={{ fontSize: 17, fontWeight: 750, letterSpacing: '-0.02em', lineHeight: 1.2 }}>
+        See one catch a bad deploy
+      </h3>
+      <p className="muted" style={{ fontSize: 13, lineHeight: 1.5, marginTop: 6 }}>
+        Roll out, regress, and watch it heal itself. 30 seconds, no setup, whatever product you came for.
+      </p>
+      <div style={{ margin: '14px 0 8px' }}>
+        <MiniRollout />
+      </div>
+      <div className="faint" style={{ fontSize: 11.5, marginBottom: 14 }}>
+        ramp to 10% · regression detected · rollback in 11 ms
+      </div>
+      <button className="btn" onClick={onWatch} style={{ width: '100%' }}>
+        <Bolt size={15} /> Watch the simulation
+      </button>
+    </div>
+  )
+}
+
+export function SimStrip({ onWatch }: { onWatch: () => void }) {
+  return (
+    <div
+      className="card"
+      style={{ padding: '12px 14px', display: 'flex', gap: 11, alignItems: 'center', borderColor: 'rgba(66,94,255,0.45)' }}
+    >
+      <span style={{ color: 'var(--blue)', flex: '0 0 auto' }}><ShieldHeart size={20} /></span>
+      <div style={{ flex: 1, minWidth: 0 }}>
+        <div style={{ fontSize: 13, fontWeight: 650 }}>See it before you set it up</div>
+        <div className="faint" style={{ fontSize: 11.5 }}>30-second guarded release simulation</div>
+      </div>
+      <button className="btn sm" onClick={onWatch}>Watch</button>
     </div>
   )
 }
