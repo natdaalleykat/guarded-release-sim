@@ -750,6 +750,34 @@ a { color: inherit; text-decoration: none; }
 .flag-toggle.on .flag-knob { left: 17px; }
 .flag-toggle.off .flag-knob { left: 3px; }
 
+/* "have these on hand" rows */
+.oh-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  width: 100%;
+  text-align: left;
+  padding: 8px 10px;
+  border-radius: var(--r);
+  border: none;
+  background: transparent;
+  transition: background 0.13s;
+  cursor: pointer;
+}
+.oh-row:hover { background: var(--blue-tint); }
+.oh-row .ic {
+  width: 28px;
+  height: 28px;
+  border-radius: 8px;
+  display: grid;
+  place-items: center;
+  flex: 0 0 auto;
+  background: var(--bg-ter);
+  color: var(--text-2);
+  transition: background 0.13s, color 0.13s;
+}
+.oh-row:hover .ic { background: var(--blue-tint-2); color: var(--blue); }
+
 /* compact config pills (sim configure) */
 .selpill {
   display: inline-flex;

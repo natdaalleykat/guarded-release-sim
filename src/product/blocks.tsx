@@ -5,6 +5,7 @@ import {
   INTENTS,
   SAMPLE_FLAGS,
   PRODUCTS,
+  ON_HAND,
   type Glyph,
   type RoadmapStep,
   type ProductKey,
@@ -12,7 +13,7 @@ import {
 import { ShieldHeart, ArrowRight, Bolt, Check } from '../components/icons'
 import {
   IcBeaker, IcHub, IcPulse, IcVenn, IcFingerprint, IcRuler, IcPlug, IcFlag, IcMcp, IcChevron,
-  IcPlay, IcPlayground,
+  IcPlay, IcPlayground, IcSparkle, IcUsers, IcArticle,
 } from '../components/navicons'
 
 export function WelcomeRow({ title, subtitle }: { title: string; subtitle: string }) {
@@ -44,6 +45,9 @@ export function GlyphIcon({ icon, size = 18 }: { icon: Glyph; size?: number }) {
     case 'mcp': return <IcMcp size={size} />
     case 'play': return <IcPlay size={size} />
     case 'playground': return <IcPlayground size={size} />
+    case 'sparkle': return <IcSparkle size={size} />
+    case 'users': return <IcUsers size={size} />
+    case 'article': return <IcArticle size={size} />
   }
 }
 
@@ -334,6 +338,36 @@ export function SimStrip({ onWatch }: { onWatch: () => void }) {
         <div className="faint" style={{ fontSize: 11.5 }}>30-second guarded release simulation</div>
       </div>
       <button className="btn sm" onClick={onWatch}>Watch</button>
+    </div>
+  )
+}
+
+/* ---- "Have these on hand" rail ------------------------------------------ */
+
+export function HaveOnHandCard() {
+  return (
+    <div className="card">
+      <div className="card-head">
+        <div className="card-title">Have these on hand</div>
+        <span className="badge" style={{ fontSize: 10.5 }}>any path</span>
+      </div>
+      <div style={{ padding: '8px 8px 10px' }}>
+        <p className="faint" style={{ fontSize: 12, padding: '4px 10px 8px', lineHeight: 1.4 }}>
+          Useful regardless of what you start with.
+        </p>
+        {ON_HAND.map((item) => (
+          <button key={item.label} className="oh-row">
+            <span className="ic"><GlyphIcon icon={item.icon} size={15} /></span>
+            <span style={{ flex: 1, minWidth: 0 }}>
+              <span style={{ display: 'block', fontSize: 13, fontWeight: 650 }}>{item.label}</span>
+              <span className="faint" style={{ display: 'block', fontSize: 11.5, marginTop: 1, lineHeight: 1.35 }}>
+                {item.blurb}
+              </span>
+            </span>
+            <span style={{ color: 'var(--text-3)', flex: '0 0 auto' }}><IcChevron size={14} /></span>
+          </button>
+        ))}
+      </div>
     </div>
   )
 }

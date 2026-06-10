@@ -63,7 +63,7 @@ export function HomePersonalized({ onWatch }: { onWatch: () => void }) {
 
       <div className="card card-pad">
         <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 14 }}>
-          <h2 style={{ fontSize: 15.5, fontWeight: 700 }}>What do you want to do first?</h2>
+          <h2 style={{ fontSize: 15.5, fontWeight: 700 }}>What do you want to try first?</h2>
           <span className="faint" style={{ fontSize: 12.5 }}>pick any, change anytime</span>
         </div>
         <IntentChips selected={sel} onToggle={toggle} />

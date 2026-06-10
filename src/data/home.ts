@@ -5,7 +5,7 @@
 
 export type Glyph =
   | 'shield' | 'beaker' | 'hub' | 'pulse' | 'venn' | 'fingerprint' | 'ruler' | 'plug' | 'flag' | 'mcp'
-  | 'play' | 'playground'
+  | 'play' | 'playground' | 'sparkle' | 'users' | 'article'
 
 export interface Capability {
   label: string
@@ -140,6 +140,22 @@ export const PRODUCTS: ProductDef[] = [
   { key: 'aiconfigs', label: 'AI Configs', blurb: 'Models and prompts, live', icon: 'hub', color: 'rgb(135,23,205)' },
 ]
 
+/* The "regardless of where you start" rail */
+export interface OnHandItem {
+  label: string
+  blurb: string
+  icon: Glyph
+}
+
+export const ON_HAND: OnHandItem[] = [
+  { label: 'Install the MCP server', blurb: 'Operate LaunchDarkly straight from your coding agent.', icon: 'mcp' },
+  { label: 'Browse the agent skills', blurb: 'Like the flag cleanup skill. Your agent does the chores.', icon: 'sparkle' },
+  { label: 'Explore the sandbox', blurb: 'Sample flags and rollouts to poke at. Zero risk.', icon: 'playground' },
+  { label: 'Hook up the sample app', blurb: 'A ready-made app for trying real SDK calls.', icon: 'plug' },
+  { label: 'See pricing & packaging', blurb: 'Plans, limits, and what upgrading unlocks.', icon: 'article' },
+  { label: 'Talk to sales', blurb: 'Pricing or packaging questions, answered by humans.', icon: 'users' },
+]
+
 export interface RoadmapStepV2 {
   key: string
   title: string
@@ -151,61 +167,51 @@ export interface RoadmapStepV2 {
 }
 
 export const ROADMAPS: Record<ProductKey, RoadmapStepV2[]> = {
+  /* Mirrors the "set up your first guarded release" checklist that used to
+     close the simulation — the roadmap IS the post-sim setup path. */
   guarded: [
     {
-      key: 'sim',
-      title: 'See one catch a bad deploy',
-      blurb: '30-second simulation. No setup, nothing real.',
-      cta: 'Watch simulation',
-      icon: 'shield',
-      sim: true,
-      learn: {
-        what: 'A guarded release ramps a change out in stages while LaunchDarkly watches a metric you choose. The moment the metric regresses, it rolls everyone back automatically, in milliseconds, not meetings.',
-        ideas: ['Ramp 1% → 5% → 10%', 'Watch one key metric', 'Auto-rollback in 11 ms'],
-      },
-    },
-    {
-      key: 'contexts',
-      title: 'Decide who you target',
-      blurb: 'Context kinds are who flags are evaluated for.',
-      cta: 'Set up context kinds',
-      icon: 'fingerprint',
-      learn: {
-        what: 'A context kind is the "who" behind every flag decision. Most teams start with user, then add account or organization so an entire customer stays on one experience together.',
-        ideas: ['user', 'account', 'organization', 'device'],
-      },
-    },
-    {
-      key: 'metrics',
-      title: 'Choose what to guard',
-      blurb: 'The number that hurts when it breaks.',
-      cta: 'Create a metric',
-      icon: 'ruler',
-      learn: {
-        what: 'Guardian needs one metric to protect. Click and page-view metrics need no code. Error and latency metrics can flow in from observability. Anything else is a single track() call.',
-        ideas: ['Checkout error rate', 'p95 latency', 'Conversion rate', 'Crash-free sessions'],
-      },
-    },
-    {
       key: 'sdk',
-      title: 'Connect your app',
-      blurb: 'One SDK call replaces your config file.',
-      cta: 'Install an SDK',
+      title: 'Install the SDK and connect your app',
+      blurb: 'Replaces the config file you read flags from today.',
+      cta: 'Set up an SDK',
       icon: 'plug',
       learn: {
-        what: 'Wherever you read a config value today, you ask LaunchDarkly instead. There are 25+ SDKs, or let your coding agent wire it up through the MCP server.',
+        what: 'Drop the LaunchDarkly SDK into the service that owns your change. Wherever you read a config value today, you ask LaunchDarkly instead. There are 25+ SDKs, or let your coding agent wire it up through the MCP server.',
         ideas: ['Node', 'Python', 'Go', 'iOS', 'MCP server'],
       },
     },
     {
-      key: 'ship',
-      title: 'Run your first guarded rollout',
-      blurb: 'Flag + metric + automatic rollback.',
-      cta: 'Start guarded rollout',
+      key: 'flag',
+      title: 'Wrap the change in a flag',
+      blurb: 'Same as your config switch, no deploy needed.',
+      cta: 'Create a flag',
       icon: 'flag',
       learn: {
-        what: 'On your flag’s Targeting tab choose Serve, then Guarded rollout. Pick the metric, keep automatic rollback on, and ship the change you’ve been nervous about.',
-        ideas: ['Start at 1%', '24-hour window', 'Rollback stays on'],
+        what: 'Put the risky change behind a boolean flag. Same idea as your config switch, except now you can change it in production without a deploy.',
+        ideas: ['release-new-checkout', 'Kill switch', 'Boolean first'],
+      },
+    },
+    {
+      key: 'metric',
+      title: 'Give it a metric to watch',
+      blurb: 'The number that hurts when it breaks.',
+      cta: 'Create a metric',
+      icon: 'ruler',
+      learn: {
+        what: 'A guarded release watches one metric. Click and page-view metrics need no code, error and latency metrics can come from the Observability SDK, and anything else is a single track() call.',
+        ideas: ['Checkout error rate', 'p95 latency', 'Conversion rate', 'Crash-free sessions'],
+      },
+    },
+    {
+      key: 'rollout',
+      title: 'Turn on the guarded rollout',
+      blurb: 'Targeting tab → Serve → Guarded rollout.',
+      cta: 'Start guarded rollout',
+      icon: 'shield',
+      learn: {
+        what: 'Open your flag, go to the Targeting tab, and from the Serve menu pick Guarded rollout. Choose your metric, leave automatic rollback checked, and ship. LaunchDarkly takes it from there.',
+        ideas: ['Start at 1%', '24-hour window', 'Auto-rollback stays on'],
       },
     },
   ],

@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react'
 import { AnimatePresence, motion } from 'framer-motion'
 import { ROADMAPS, PRODUCTS, type ProductKey, type RoadmapStepV2 } from '../data/home'
-import { WelcomeRow, ProductPicker, SimHero, GlyphIcon } from './blocks'
+import { WelcomeRow, ProductPicker, SimHero, HaveOnHandCard, GlyphIcon } from './blocks'
 import { GlobalStatsWidget } from './Widgets'
 import { ShieldHeart, ArrowRight } from '../components/icons'
 import { IcChevronDown } from '../components/navicons'
@@ -29,8 +29,8 @@ export function HomeV2Single({
 
       <div style={{ margin: '26px 0 12px' }}>
         <div style={{ display: 'flex', alignItems: 'baseline', justifyContent: 'space-between', gap: 12, marginBottom: 12 }}>
-          <h2 style={{ fontSize: 15, fontWeight: 700 }}>What do you want to ship with?</h2>
-          <span className="faint" style={{ fontSize: 12.5 }}>your roadmap reshapes around it</span>
+          <h2 style={{ fontSize: 15, fontWeight: 700 }}>What do you want to try first?</h2>
+          <span className="faint" style={{ fontSize: 12.5 }}>just a starting point, change anytime</span>
         </div>
         <ProductPicker value={product} onChange={onProduct} />
       </div>
@@ -62,8 +62,11 @@ export function HomeV2Single({
           </AnimatePresence>
         </div>
 
-        {/* proof of scale */}
-        <GlobalStatsWidget />
+        {/* always-useful rail + proof of scale */}
+        <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
+          <HaveOnHandCard />
+          <GlobalStatsWidget />
+        </div>
       </div>
     </div>
   )

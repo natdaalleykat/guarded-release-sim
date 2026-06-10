@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react'
 import { motion } from 'framer-motion'
 import { ROADMAPS, PRODUCTS, type ProductKey } from '../data/home'
-import { WelcomeRow, ProductPicker, SimStrip, GlyphIcon } from './blocks'
+import { WelcomeRow, ProductPicker, SimStrip, HaveOnHandCard, GlyphIcon } from './blocks'
 import { ShieldHeart, ArrowRight } from '../components/icons'
 import { IcChevron } from '../components/navicons'
 
@@ -24,8 +24,12 @@ export function HomeV2Split({
 
   return (
     <div className="content-inner">
-      <WelcomeRow title="Welcome, Natalie" subtitle="Pick a product, then walk the path. The right side teaches each step." />
+      <WelcomeRow title="Welcome, Natalie" subtitle="Pick a starting point, then walk the path. The right side teaches each step." />
 
+      <div style={{ display: 'flex', alignItems: 'baseline', justifyContent: 'space-between', gap: 12, marginBottom: 12 }}>
+        <h2 style={{ fontSize: 15, fontWeight: 700 }}>What do you want to try first?</h2>
+        <span className="faint" style={{ fontSize: 12.5 }}>just a starting point, change anytime</span>
+      </div>
       <ProductPicker value={product} onChange={onProduct} />
 
       <div
@@ -55,6 +59,7 @@ export function HomeV2Split({
             ))}
           </div>
           <SimStrip onWatch={onWatch} />
+          <HaveOnHandCard />
         </div>
 
         {/* learning pane */}
