@@ -1,6 +1,7 @@
 /* =========================================================================
-   Data for the three home-page directions explored in the jam:
-   A) Lead with value   B) Guided roadmap   C) Adaptive by intent
+   Data for the home-page directions. Roadmaps are grounded in the real
+   product (gonfalon) + launchdarkly.com/docs — each step verified against
+   the actual shortest required setup path.
    ========================================================================= */
 
 export type Glyph =
@@ -14,7 +15,7 @@ export interface Capability {
   color: string
 }
 
-/* The "we are not basic flags" strip */
+/* The "we are not basic flags" strip (legacy direction A) */
 export const CAPABILITIES: Capability[] = [
   { label: 'Guarded releases', blurb: 'Auto-rollback on regressions', icon: 'shield', color: 'rgb(66,94,255)' },
   { label: 'Experimentation', blurb: 'Measure every change', icon: 'beaker', color: 'rgb(214,122,0)' },
@@ -23,7 +24,7 @@ export const CAPABILITIES: Capability[] = [
   { label: 'Targeting & segments', blurb: 'The right users, at the right time', icon: 'venn', color: 'rgb(8,150,180)' },
 ]
 
-/* Direction B — the roadmap that teaches the mental model */
+/* Legacy direction B roadmap */
 export interface RoadmapStep {
   key: string
   title: string
@@ -37,7 +38,7 @@ export const ROADMAP: RoadmapStep[] = [
   {
     key: 'sim',
     title: 'See a guarded release in action',
-    blurb: 'Watch a rollout catch a bad deploy and heal itself. 90 seconds, no setup.',
+    blurb: 'Watch a rollout catch a bad deploy and heal itself. 30 seconds, no setup.',
     cta: 'Watch simulation',
     icon: 'shield',
     value: true,
@@ -79,7 +80,7 @@ export const ROADMAP: RoadmapStep[] = [
   },
 ]
 
-/* Direction C — intents the home adapts to */
+/* Legacy direction C intents */
 export interface Intent {
   key: string
   label: string
@@ -113,16 +114,14 @@ export const SAMPLE_FLAGS: SampleFlag[] = [
   { name: 'ai-support-agent', desc: 'AI Config · model + prompt', on: true, tag: 'AI Config', tagTone: 'green' },
 ]
 
-/* Segment examples used in the roadmap detail */
 export const SEGMENT_EXAMPLES = ['Beta cohort', 'Enterprise plan', 'EU users', 'Risk tier 1', 'Internal team']
 export const CONTEXT_KIND_EXAMPLES = ['user', 'account', 'organization', 'device']
 
 /* =========================================================================
-   v2 directions (D single pane, E split pane): product picker + per-product
-   roadmaps. Each step carries education content for the split-pane view.
+   v2 directions (D single pane, E split pane)
    ========================================================================= */
 
-export type ProductKey = 'guarded' | 'flags' | 'experiments' | 'observability' | 'aiconfigs'
+export type ProductKey = 'guarded' | 'flags' | 'experiments' | 'aiconfigs' | 'observability'
 
 export interface ProductDef {
   key: ProductKey
@@ -148,6 +147,7 @@ export interface OnHandItem {
 }
 
 export const ON_HAND: OnHandItem[] = [
+  { label: 'Invite your teammates', blurb: 'Everything here lands faster with the whole team in.', icon: 'users' },
   { label: 'Install the MCP server', blurb: 'Operate LaunchDarkly straight from your coding agent.', icon: 'mcp' },
   { label: 'Browse the agent skills', blurb: 'Like the flag cleanup skill. Your agent does the chores.', icon: 'sparkle' },
   { label: 'Explore the sandbox', blurb: 'Sample flags and rollouts to poke at. Zero risk.', icon: 'playground' },
@@ -163,55 +163,80 @@ export interface RoadmapStepV2 {
   cta: string
   icon: Glyph
   sim?: boolean
+  optional?: boolean
   learn: { what: string; ideas: string[] }
 }
 
+/* Each roadmap is the verified shortest required path, then "nice to have"
+   optional steps. Sources: gonfalon + launchdarkly.com/docs. */
 export const ROADMAPS: Record<ProductKey, RoadmapStepV2[]> = {
-  /* Mirrors the "set up your first guarded release" checklist that used to
-     close the simulation — the roadmap IS the post-sim setup path. */
   guarded: [
     {
       key: 'sdk',
       title: 'Install the SDK and connect your app',
-      blurb: 'Replaces the config file you read flags from today.',
+      blurb: 'One init call with your environment key.',
       cta: 'Set up an SDK',
       icon: 'plug',
       learn: {
-        what: 'Drop the LaunchDarkly SDK into the service that owns your change. Wherever you read a config value today, you ask LaunchDarkly instead. There are 25+ SDKs, or let your coding agent wire it up through the MCP server.',
+        what: 'Drop the SDK into the service that owns the change. Server SDKs initialize with the SDK key; browser apps use the client-side ID. Wherever you read a config value today, you ask LaunchDarkly instead — or let your coding agent wire it through the MCP server.',
         ideas: ['Node', 'Python', 'Go', 'iOS', 'MCP server'],
       },
     },
     {
       key: 'flag',
       title: 'Wrap the change in a flag',
-      blurb: 'Same as your config switch, no deploy needed.',
+      blurb: 'Evaluate it with a context. No pre-setup.',
       cta: 'Create a flag',
       icon: 'flag',
       learn: {
-        what: 'Put the risky change behind a boolean flag. Same idea as your config switch, except now you can change it in production without a deploy.',
-        ideas: ['release-new-checkout', 'Kill switch', 'Boolean first'],
+        what: 'Create a boolean flag and call variation() with a context — who is asking. You do not need to define context kinds first; they appear automatically from whatever contexts your SDK sends.',
+        ideas: ['release-new-checkout', 'Kill switch', 'Contexts are automatic'],
       },
     },
     {
       key: 'metric',
       title: 'Give it a metric to watch',
-      blurb: 'The number that hurts when it breaks.',
+      blurb: 'Clicks and page views need no code.',
       cta: 'Create a metric',
       icon: 'ruler',
       learn: {
-        what: 'A guarded release watches one metric. Click and page-view metrics need no code, error and latency metrics can come from the Observability SDK, and anything else is a single track() call.',
-        ideas: ['Checkout error rate', 'p95 latency', 'Conversion rate', 'Crash-free sessions'],
+        what: 'Guardian needs one metric receiving events. Click and page-view metrics need no code. Error and latency metrics can come from the observability plugins automatically. Anything custom is a single track() call, sent with the same context kind your flag evaluates.',
+        ideas: ['Checkout error rate', 'p95 latency', 'Conversion rate', "One track() call"],
       },
     },
     {
       key: 'rollout',
-      title: 'Turn on the guarded rollout',
+      title: 'Start the guarded rollout',
       blurb: 'Targeting tab → Serve → Guarded rollout.',
       cta: 'Start guarded rollout',
       icon: 'shield',
       learn: {
-        what: 'Open your flag, go to the Targeting tab, and from the Serve menu pick Guarded rollout. Choose your metric, leave automatic rollback checked, and ship. LaunchDarkly takes it from there.',
-        ideas: ['Start at 1%', '24-hour window', 'Auto-rollback stays on'],
+        what: 'On the flag’s Targeting tab, pick Guarded rollout from the Serve menu. Choose your metric and a monitoring window (1 hour to 1 week, 24 hours is the default), and keep automatic rollback on. Built-in health checks confirm the flag is evaluating and your metric has events before you launch.',
+        ideas: ['Health checks first', '24-hour window', 'Auto-rollback on'],
+      },
+    },
+    {
+      key: 'o11y',
+      title: 'Add observability guardrails',
+      blurb: 'Error and latency metrics, zero instrumentation.',
+      cta: 'Add the plugins',
+      icon: 'pulse',
+      optional: true,
+      learn: {
+        what: 'Install the observability plugins and LaunchDarkly auto-generates error-rate and latency metrics you can guard releases with — no track() calls anywhere.',
+        ideas: ['Error-rate guardrail', 'p95 guardrail', 'No code'],
+      },
+    },
+    {
+      key: 'alerts',
+      title: 'Wire up Slack alerts',
+      blurb: 'Hear it the moment Guardian acts.',
+      cta: 'Connect Slack',
+      icon: 'sparkle',
+      optional: true,
+      learn: {
+        what: 'Connect Slack or a webhook so the team knows the moment a regression is detected or rolled back, without anyone watching a dashboard. Approvals and scheduled rollouts slot in here too.',
+        ideas: ['Slack', 'Webhooks', 'Approvals'],
       },
     },
   ],
@@ -219,159 +244,139 @@ export const ROADMAPS: Record<ProductKey, RoadmapStepV2[]> = {
     {
       key: 'create',
       title: 'Create your first flag',
-      blurb: 'A remote if-statement for production.',
+      blurb: 'A remote if-statement. Two minutes.',
       cta: 'Create flag',
       icon: 'flag',
       learn: {
-        what: 'A flag changes behavior in production without a deploy. Start with a kill switch on something risky. The first one takes about two minutes.',
-        ideas: ['Kill switch', 'New feature gate', 'Pricing config'],
+        what: 'Create a boolean flag in the UI. You do not need context kinds, segments, or targeting set up first — start with a kill switch on something risky.',
+        ideas: ['Kill switch', 'Feature gate', 'Config value'],
       },
     },
     {
       key: 'sdk',
-      title: 'Connect an SDK',
-      blurb: 'Evaluations are local and instant.',
-      cta: 'Install an SDK',
+      title: 'Install an SDK and initialize',
+      blurb: 'Use the right key for your platform.',
+      cta: 'Set up an SDK',
       icon: 'plug',
       learn: {
-        what: 'Install the SDK where the flagged code runs. Flag evaluations happen locally in microseconds, with no network call per check.',
-        ideas: ['Node', 'Python', 'Go', 'React', 'Mobile'],
+        what: 'Server SDKs use the SDK key, browser SDKs use the client-side ID, and mobile SDKs use the mobile key — all three live in your environment settings. Evaluations happen locally in microseconds, not per-request network calls.',
+        ideas: ['Node', 'React', 'Go', 'Mobile'],
       },
     },
     {
-      key: 'contexts',
-      title: 'Model who you target',
-      blurb: 'Users, accounts, organizations, devices.',
-      cta: 'Set up context kinds',
+      key: 'evaluate',
+      title: 'Evaluate with a context',
+      blurb: 'variation() plus who is asking.',
+      cta: 'See the code',
       icon: 'fingerprint',
       learn: {
-        what: 'Flags are evaluated for a context. Define the kinds that match how your business works so targeting reads the way your team talks.',
-        ideas: ['user', 'account', 'organization', 'device'],
+        what: 'Call variation() with a context, usually a user with a key. Context kinds are created automatically from what you send — you never pre-register them. This is the moment your config file becomes a live control.',
+        ideas: ['user', 'organization', 'device'],
       },
     },
     {
-      key: 'segments',
-      title: 'Build reusable segments',
-      blurb: 'Cohorts you target again and again.',
-      cta: 'Create a segment',
+      key: 'target',
+      title: 'Target who sees it',
+      blurb: 'Individuals, rules, percentages.',
+      cta: 'Open targeting',
       icon: 'venn',
       learn: {
-        what: 'Segments are saved audiences: your beta cohort, the enterprise plan, EU users. Build them once and reuse them on every flag.',
-        ideas: ['Beta cohort', 'Enterprise plan', 'EU users', 'Risk tier 1', 'Internal team'],
+        what: 'Toggle the flag on and target: individual contexts, attribute rules, or a percentage rollout. Build a segment when you want the same audience on more than one flag — beta cohort, enterprise plan, EU users.',
+        ideas: ['Internal first', 'Beta cohort', '10% canary'],
       },
     },
     {
-      key: 'rollout',
-      title: 'Graduate to safer rollouts',
-      blurb: 'Percentages first, then guarded.',
-      cta: 'Try a percentage rollout',
+      key: 'guard',
+      title: 'Graduate to guarded rollouts',
+      blurb: 'Let releases protect themselves.',
+      cta: 'Try a guarded rollout',
       icon: 'shield',
+      optional: true,
       learn: {
-        what: 'Once a flag works, stop flipping it for everyone at once. Percentage rollouts split traffic, and guarded rollouts watch a metric and roll back for you.',
-        ideas: ['10% canary', '50/50 split', 'Guarded rollout'],
+        what: 'Once a flag matters, stop flipping it for everyone at once: a guarded rollout ramps gradually, watches a metric, and rolls back automatically when something breaks.',
+        ideas: ['Guarded rollout', 'Auto-rollback'],
+      },
+    },
+    {
+      key: 'coderefs',
+      title: 'Connect GitHub and Slack',
+      blurb: 'Find every flag in code; hear every change.',
+      cta: 'Browse integrations',
+      icon: 'mcp',
+      optional: true,
+      learn: {
+        what: 'Code references index where each flag lives in your repos, which makes cleanup safe. Slack notifications keep the team on top of flag changes without checking the dashboard.',
+        ideas: ['Code references', 'Slack updates', 'Flag triggers'],
       },
     },
   ],
   experiments: [
     {
       key: 'metric',
-      title: 'Define success',
-      blurb: 'The metric your team argues about.',
+      title: 'Create the metric that decides',
+      blurb: 'The number the team argues about.',
       cta: 'Create a metric',
       icon: 'ruler',
       learn: {
-        what: 'An experiment is only as good as its metric. Pick the number decision-makers actually watch: conversion, activation, latency.',
-        ideas: ['Conversion', 'Activation rate', 'Revenue per visitor', 'p95 latency'],
+        what: 'Pick the number decision-makers actually watch. Click and page-view metrics need no code; conversion and numeric metrics are one track() call when the outcome happens.',
+        ideas: ['Conversion', 'Revenue per visitor', 'Activation rate'],
       },
     },
     {
-      key: 'experiment',
-      title: 'Create an experiment',
-      blurb: 'Attach it to any flag.',
+      key: 'flag',
+      title: 'Pick a flag with two variations',
+      blurb: 'Variations become the treatments.',
+      cta: 'Create a flag',
+      icon: 'flag',
+      learn: {
+        what: 'Any flag can power an experiment — its variations become the treatments. Create one for the change you want to measure if it does not exist yet.',
+        ideas: ['A/B the checkout', 'Copy test', 'Algorithm v2'],
+      },
+    },
+    {
+      key: 'design',
+      title: 'Build the experiment',
+      blurb: 'Hypothesis, audience, control. Stats are preset.',
       cta: 'Create experiment',
       icon: 'beaker',
       learn: {
-        what: 'Any flag can become an experiment. Variations become treatments, and LaunchDarkly handles assignment and the statistics.',
-        ideas: ['A/B the checkout', 'Copy test', 'Algorithm shootout'],
-      },
-    },
-    {
-      key: 'audience',
-      title: 'Pick your randomization unit',
-      blurb: 'User? Account? Session?',
-      cta: 'Choose a unit',
-      icon: 'fingerprint',
-      learn: {
-        what: 'Randomize by the unit that matches the decision: users for UX changes, accounts for B2B pricing so one customer never sees two prices.',
-        ideas: ['user', 'account', 'session'],
+        what: 'Name it, write the hypothesis, choose the randomization unit (user for UX, account for B2B), attach your metrics, pick the flag rule to run on, and designate the control. The statistics are pre-configured — Bayesian with sensible defaults — so there is nothing to tune.',
+        ideas: ['Randomize by user', '50% audience', 'Stats preset'],
       },
     },
     {
       key: 'events',
-      title: 'Send events',
-      blurb: 'One track() call per outcome.',
-      cta: 'Instrument events',
-      icon: 'plug',
-      learn: {
-        what: 'Conversion metrics need an event from your app: a single track() call when the outcome happens. Click and page-view metrics need none.',
-        ideas: ["track('purchase')", 'Click metric', 'Page-view metric'],
-      },
-    },
-    {
-      key: 'launch',
-      title: 'Launch and decide',
-      blurb: 'Readouts you can defend.',
+      title: 'Start it and send events',
+      blurb: 'Same context kind, or it will not attribute.',
       cta: 'Start iteration',
-      icon: 'flag',
-      learn: {
-        what: 'Start the iteration, let it reach sample size, and get a readout you can defend in a planning meeting.',
-        ideas: ['Sample size guidance', 'Probability to beat control', 'Ship the winner'],
-      },
-    },
-  ],
-  observability: [
-    {
-      key: 'instrument',
-      title: 'Instrument your app',
-      blurb: 'One snippet for errors, logs, traces.',
-      cta: 'Instrument observability',
       icon: 'plug',
       learn: {
-        what: 'Drop in the observability SDK and you get sessions, errors, logs, and traces without wiring five tools together.',
-        ideas: ['Web sessions', 'Server traces', 'Error tracking'],
+        what: 'Start the iteration, then make sure events flow: track() must use the same context kind you randomized by, or conversions will not attribute. Click and page-view events flow automatically from the JS SDK.',
+        ideas: ["track('purchase')", 'Match the unit', 'Watch live events'],
       },
     },
     {
-      key: 'sessions',
-      title: 'Replay what users saw',
-      blurb: 'Sessions with console and network.',
-      cta: 'Open sessions',
-      icon: 'play',
+      key: 'holdout',
+      title: 'Add a holdout or layer',
+      blurb: 'Long-term impact; no collisions.',
+      cta: 'Explore holdouts',
+      icon: 'venn',
+      optional: true,
       learn: {
-        what: 'Watch real sessions with the console and network alongside, and stop guessing what "it’s broken" means.',
-        ideas: ['Session replay', 'Error groups', 'Live logs'],
+        what: 'Holdouts keep a slice of traffic out of all experiments so you can measure long-term impact. Layers make experiments mutually exclusive so they do not contaminate each other.',
+        ideas: ['Holdout', 'Layers'],
       },
     },
     {
-      key: 'flagslink',
-      title: 'Tie telemetry to flags',
-      blurb: 'Every error knows its variation.',
-      cta: 'View flag context',
-      icon: 'flag',
+      key: 'funnel',
+      title: 'Group metrics into a funnel',
+      blurb: 'Measure the journey, not one step.',
+      cta: 'Create metric group',
+      icon: 'ruler',
+      optional: true,
       learn: {
-        what: 'Telemetry is tagged with the flag variations active at the time, so you can answer "did our release cause this?" in one click.',
-        ideas: ['Errors by variation', 'Latency by variation'],
-      },
-    },
-    {
-      key: 'guard',
-      title: 'Feed metrics into Guardian',
-      blurb: 'Observability powers auto-rollback.',
-      cta: 'Create a guarded metric',
-      icon: 'shield',
-      learn: {
-        what: 'Error and latency metrics from observability can guard your releases directly, with no extra instrumentation.',
-        ideas: ['Error-rate guardrail', 'p95 guardrail'],
+        what: 'Metric groups let one experiment read a whole funnel — view, add to cart, purchase — instead of a single conversion step.',
+        ideas: ['Funnel group', 'Standard group'],
       },
     },
   ],
@@ -379,56 +384,139 @@ export const ROADMAPS: Record<ProductKey, RoadmapStepV2[]> = {
     {
       key: 'config',
       title: 'Create an AI Config',
-      blurb: 'Models + prompts, runtime-managed.',
+      blurb: 'Model + messages as a variation.',
       cta: 'Create AI Config',
       icon: 'hub',
       learn: {
-        what: 'An AI Config holds your model choice, parameters, and prompt as variations you can change at runtime. No redeploy when a new model ships.',
-        ideas: ['GPT vs Claude', 'Prompt v2', 'Temperature tweak'],
+        what: 'Create a completion-mode AI Config with one variation: the model plus your system and user messages. It is targeted like a flag, so you can change models and prompts at runtime without a deploy.',
+        ideas: ['GPT vs Claude', 'Prompt v2', 'Runtime swap'],
       },
     },
     {
       key: 'playground',
-      title: 'Test in the playground',
-      blurb: 'Compare variations side by side.',
+      title: 'Try it in the playground',
+      blurb: 'No code. Bring your provider key.',
       cta: 'Open playground',
       icon: 'playground',
       learn: {
-        what: 'Run variations against real prompts side by side before anything ships. Your first playground is free.',
-        ideas: ['Side-by-side outputs', 'Cost preview', 'Latency compare'],
+        what: 'The playground runs your variation against real prompts with zero code — the fastest proof it works. You bring your own OpenAI or Anthropic API key; LaunchDarkly does not proxy or manage provider keys.',
+        ideas: ['Side-by-side outputs', 'Token counts', 'Your own key'],
       },
     },
     {
       key: 'sdk',
-      title: 'Connect the AI SDK',
-      blurb: 'Serve configs to your app.',
-      cta: 'Install the AI SDK',
+      title: 'Install the AI SDK',
+      blurb: 'Same SDK key as flags. Your provider client.',
+      cta: 'Install AI SDK',
       icon: 'plug',
       learn: {
-        what: 'The AI SDK fetches the right variation per context and records token usage, latency, and satisfaction automatically.',
-        ideas: ['Node', 'Python', 'LangChain'],
+        what: 'Add the AI package on top of the server SDK (same SDK key as flags — there is no separate AI key). Your code fetches the config, then calls your own provider client with it: LaunchDarkly delivers the config, the model call stays yours.',
+        ideas: ['server-sdk-ai', 'Your provider client', 'No separate key'],
+      },
+    },
+    {
+      key: 'track',
+      title: 'Track what the model does',
+      blurb: 'Tokens, latency, satisfaction per variation.',
+      cta: 'Enable tracking',
+      icon: 'ruler',
+      learn: {
+        what: 'The AI SDK’s tracking helpers record token usage, latency, and satisfaction per variation, so you can compare prompts and models on production traffic.',
+        ideas: ['Tokens', 'Latency', 'Thumbs-up rate'],
       },
     },
     {
       key: 'target',
       title: 'Vary by audience',
-      blurb: 'Different models for different tiers.',
+      blurb: 'Frontier model for some, fast for the rest.',
       cta: 'Add targeting',
       icon: 'venn',
+      optional: true,
       learn: {
-        what: 'Serve the expensive model to enterprise accounts and the fast one to the free tier. Same code path, different config.',
-        ideas: ['Enterprise → frontier model', 'Free tier → fast model', 'Internal → beta prompt'],
+        what: 'Serve the expensive model to enterprise accounts and the fast one to the free tier — same code path, different config. Reuses the exact targeting you know from flags.',
+        ideas: ['Enterprise → frontier', 'Free tier → fast', 'Internal → beta prompt'],
       },
     },
     {
-      key: 'measure',
-      title: 'Measure and iterate',
-      blurb: 'Quality and cost per variation.',
-      cta: 'View metrics',
-      icon: 'ruler',
+      key: 'exp',
+      title: 'Experiment on prompts',
+      blurb: 'Let the metric pick the prompt.',
+      cta: 'Create experiment',
+      icon: 'beaker',
+      optional: true,
       learn: {
-        what: 'Track cost, latency, and feedback per variation, then run an experiment when two prompts disagree.',
-        ideas: ['Cost per conversation', 'Thumbs-up rate', 'A/B prompts'],
+        what: 'When two prompts disagree, run an experiment on the AI Config and let your metric decide — same experimentation engine, pointed at models.',
+        ideas: ['Prompt A/B', 'Cost vs quality'],
+      },
+    },
+  ],
+  observability: [
+    {
+      key: 'plugins',
+      title: 'Add the observability plugins',
+      blurb: 'Two packages into your existing SDK init.',
+      cta: 'Add the plugins',
+      icon: 'plug',
+      learn: {
+        what: 'In the browser, pass the observability and session-replay plugins to the JS SDK init with your client-side ID. On the server, add the observability plugin to the Node or Python SDK. No separate agent to deploy.',
+        ideas: ['2 plugins client-side', 'Node + Python server', 'Same SDK init'],
+      },
+    },
+    {
+      key: 'sessions',
+      title: 'Watch sessions and errors arrive',
+      blurb: 'Automatic from the moment it ships.',
+      cta: 'Open sessions',
+      icon: 'play',
+      learn: {
+        what: 'Sessions and errors flow automatically once the plugins ship — nothing else to configure. Session replay defaults to strict privacy, so text and images are masked until you choose to loosen it.',
+        ideas: ['Session replay', 'Error groups', 'Strict privacy default'],
+      },
+    },
+    {
+      key: 'traces',
+      title: 'Instrument logs and traces',
+      blurb: 'One-line calls, or your existing OTel.',
+      cta: 'See the snippets',
+      icon: 'article',
+      learn: {
+        what: 'Logs and traces need one-line calls (record a log, start a span) or your existing OpenTelemetry instrumentation. Everything arrives tagged with the flag variations active at the time, so "did our release cause this?" is one click.',
+        ideas: ['start_span', 'OTel compatible', 'Variation-tagged'],
+      },
+    },
+    {
+      key: 'guard',
+      title: 'Turn telemetry into guardrails',
+      blurb: 'Auto-generated metrics, no track() calls.',
+      cta: 'Create a guarded metric',
+      icon: 'shield',
+      learn: {
+        what: 'LaunchDarkly auto-generates error-rate and latency metrics from observability events. Use them in guarded rollouts and experiments without writing a single track() call.',
+        ideas: ['Error-rate guardrail', 'p95 guardrail', 'No track() needed'],
+      },
+    },
+    {
+      key: 'alerts',
+      title: 'Set up alerts',
+      blurb: 'Error spikes and latency, to Slack.',
+      cta: 'Create an alert',
+      icon: 'sparkle',
+      optional: true,
+      learn: {
+        what: 'Alert on error spikes, session anomalies, or latency thresholds, delivered to Slack or webhooks — so the dashboard checks you.',
+        ideas: ['Error spike', 'Latency threshold', 'Slack'],
+      },
+    },
+    {
+      key: 'privacy',
+      title: 'Tune privacy and sampling',
+      blurb: 'Masking levels, excluded users, volume.',
+      cta: 'Open settings',
+      icon: 'venn',
+      optional: true,
+      learn: {
+        what: 'Privacy starts strict (everything masked). Tune masking, exclude specific users from replay, and set sampling so you keep the sessions that matter at a volume you want to pay for.',
+        ideas: ['Masking levels', 'Sampling', 'Excluded users'],
       },
     },
   ],

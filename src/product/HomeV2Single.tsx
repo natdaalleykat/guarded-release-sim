@@ -26,10 +26,10 @@ export function HomeV2Single({
     <div className="content-inner">
       <WelcomeRow title="Welcome, Natalie" subtitle="See the point first. Setup can wait." />
 
-      {/* value-first hero, straight from direction A */}
+      {/* value-first hero */}
       <SimHero onWatch={onWatch} />
 
-      {/* the capability strip, reframed as a low-commitment product picker */}
+      {/* low-commitment product picker */}
       <div style={{ margin: '28px 0 0' }}>
         <div style={{ display: 'flex', alignItems: 'baseline', justifyContent: 'space-between', gap: 12, marginBottom: 12 }}>
           <h2 style={{ fontSize: 15, fontWeight: 700 }}>A platform, not just flags. What do you want to try first?</h2>
@@ -50,11 +50,12 @@ export function HomeV2Single({
   )
 }
 
-/* Visually identical to direction B's roadmap pane, except the step icons
-   are filled with color, flipping to a green checkmark when completed.
-   Clicking a step expands it to reveal its CTA; the CTA completes it. */
+/* B's roadmap pane with color-filled nodes; required steps drive progress,
+   optional "nice to have" steps render muted below a divider. */
 function RoadmapV2Checklist({ product, onWatch }: { product: ProductKey; onWatch: () => void }) {
   const steps = ROADMAPS[product]
+  const required = steps.filter((s) => !s.optional)
+  const optional = steps.filter((s) => s.optional)
   const label = PRODUCTS.find((p) => p.key === product)!.label
   const [done, setDone] = useState<Record<string, boolean>>({})
   const [open, setOpen] = useState(steps[0].key)
@@ -63,7 +64,7 @@ function RoadmapV2Checklist({ product, onWatch }: { product: ProductKey; onWatch
     setOpen(ROADMAPS[product][0].key)
   }, [product])
 
-  const doneCount = steps.filter((s) => done[s.key]).length
+  const doneCount = required.filter((s) => done[s.key]).length
 
   const complete = (s: RoadmapStepV2) => {
     if (s.sim) onWatch()
@@ -75,78 +76,99 @@ function RoadmapV2Checklist({ product, onWatch }: { product: ProductKey; onWatch
     })
   }
 
+  const row = (s: RoadmapStepV2, i: number, group: RoadmapStepV2[]) => {
+    const isDone = !!done[s.key]
+    const isOpen = s.key === open
+    const color = STEP_COLORS[i % STEP_COLORS.length]
+    const nodeStyle = isDone
+      ? undefined
+      : s.optional
+        ? undefined // muted: default gray outline node
+        : { background: color, borderColor: color, color: '#fff' }
+    return (
+      <motion.div
+        key={`${product}-${s.key}`}
+        initial={{ opacity: 0, y: 8 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.25, delay: i * 0.04 }}
+      >
+        <div
+          className={`road-step ${isDone ? 'done' : ''} ${isOpen ? 'active' : ''}`}
+          onClick={() => setOpen(isOpen ? '' : s.key)}
+        >
+          {i < group.length - 1 && <span className="road-line" />}
+          <span className="road-node" style={nodeStyle}>
+            {isDone ? <Check size={15} /> : <GlyphIcon icon={s.icon} size={15} />}
+          </span>
+          <div style={{ flex: 1, minWidth: 0 }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+              <span style={{ fontSize: 13.5, fontWeight: 650 }}>{s.title}</span>
+              {s.sim && <span className="badge green" style={{ fontSize: 9.5 }}>start here</span>}
+            </div>
+            <div className="muted" style={{ fontSize: 12.5, marginTop: 3, lineHeight: 1.4 }}>{s.blurb}</div>
+            <AnimatePresence initial={false}>
+              {isOpen && (
+                <motion.div
+                  initial={{ height: 0, opacity: 0 }}
+                  animate={{ height: 'auto', opacity: 1 }}
+                  exit={{ height: 0, opacity: 0 }}
+                  transition={{ duration: 0.2, ease: [0.16, 1, 0.3, 1] }}
+                  style={{ overflow: 'hidden' }}
+                >
+                  <div className="faint" style={{ fontSize: 12, marginTop: 6, lineHeight: 1.45, maxWidth: 480 }}>
+                    {s.learn.what}
+                  </div>
+                  <button
+                    className={s.sim ? 'btn sm' : 'btn default sm'}
+                    style={{ marginTop: 9 }}
+                    onClick={(e) => {
+                      e.stopPropagation()
+                      complete(s)
+                    }}
+                  >
+                    {s.sim && <ShieldHeart size={14} />}
+                    {s.cta}
+                    <ArrowRight size={13} />
+                  </button>
+                </motion.div>
+              )}
+            </AnimatePresence>
+          </div>
+        </div>
+      </motion.div>
+    )
+  }
+
   return (
     <div className="card card-pad">
       <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 6 }}>
         <h2 style={{ fontSize: 15.5, fontWeight: 700 }}>Your {label.toLowerCase()} roadmap</h2>
-        <span className="badge blue" style={{ fontSize: 11 }}>{doneCount}/{steps.length}</span>
+        <span className="badge blue" style={{ fontSize: 11 }}>{doneCount}/{required.length}</span>
       </div>
-      <p className="faint" style={{ fontSize: 12.5, marginBottom: 12 }}>Value first. Setup when you are ready.</p>
+      <p className="faint" style={{ fontSize: 12.5, marginBottom: 12 }}>
+        Complete these {required.length} and you are live.
+      </p>
       <div className="road-progress-track" style={{ marginBottom: 8 }}>
-        <div className="road-progress-fill" style={{ width: `${(doneCount / steps.length) * 100}%` }} />
+        <div className="road-progress-fill" style={{ width: `${(doneCount / required.length) * 100}%` }} />
       </div>
 
       <div className="road">
-        <AnimatePresence mode="popLayout">
-          {steps.map((s, i) => {
-            const isDone = !!done[s.key]
-            const isOpen = s.key === open
-            const color = STEP_COLORS[i % STEP_COLORS.length]
-            return (
-              <motion.div
-                key={`${product}-${s.key}`}
-                initial={{ opacity: 0, y: 8 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.25, delay: i * 0.04 }}
-              >
-                <div
-                  className={`road-step ${isDone ? 'done' : ''} ${isOpen ? 'active' : ''}`}
-                  onClick={() => setOpen(isOpen ? '' : s.key)}
-                >
-                  {i < steps.length - 1 && <span className="road-line" />}
-                  <span
-                    className="road-node"
-                    style={isDone ? undefined : { background: color, borderColor: color, color: '#fff' }}
-                  >
-                    {isDone ? <Check size={15} /> : <GlyphIcon icon={s.icon} size={15} />}
-                  </span>
-                  <div style={{ flex: 1, minWidth: 0 }}>
-                    <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-                      <span style={{ fontSize: 13.5, fontWeight: 650 }}>{s.title}</span>
-                      {s.sim && <span className="badge green" style={{ fontSize: 9.5 }}>start here</span>}
-                    </div>
-                    <div className="muted" style={{ fontSize: 12.5, marginTop: 3, lineHeight: 1.4 }}>{s.blurb}</div>
-                    <AnimatePresence initial={false}>
-                      {isOpen && (
-                        <motion.div
-                          initial={{ height: 0, opacity: 0 }}
-                          animate={{ height: 'auto', opacity: 1 }}
-                          exit={{ height: 0, opacity: 0 }}
-                          transition={{ duration: 0.2, ease: [0.16, 1, 0.3, 1] }}
-                          style={{ overflow: 'hidden' }}
-                        >
-                          <button
-                            className={s.sim ? 'btn sm' : 'btn default sm'}
-                            style={{ marginTop: 9 }}
-                            onClick={(e) => {
-                              e.stopPropagation()
-                              complete(s)
-                            }}
-                          >
-                            {s.sim && <ShieldHeart size={14} />}
-                            {s.cta}
-                            <ArrowRight size={13} />
-                          </button>
-                        </motion.div>
-                      )}
-                    </AnimatePresence>
-                  </div>
-                </div>
-              </motion.div>
-            )
-          })}
-        </AnimatePresence>
+        <AnimatePresence mode="popLayout">{required.map((s, i) => row(s, i, required))}</AnimatePresence>
       </div>
+
+      {optional.length > 0 && (
+        <>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 10, margin: '14px 0 4px' }}>
+            <span className="faint" style={{ fontSize: 11, fontWeight: 600, letterSpacing: '0.06em', textTransform: 'uppercase', whiteSpace: 'nowrap' }}>
+              Nice to have
+            </span>
+            <span className="hairline" />
+          </div>
+          <div className="road">
+            <AnimatePresence mode="popLayout">{optional.map((s, i) => row(s, i, optional))}</AnimatePresence>
+          </div>
+        </>
+      )}
     </div>
   )
 }
