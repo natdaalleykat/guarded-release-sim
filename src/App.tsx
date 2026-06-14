@@ -7,11 +7,12 @@ import { HomeV2Split } from './product/HomeV2Split'
 import { SimWizard } from './sim/SimWizard'
 import type { ProductKey } from './data/home'
 
-type Dir = 'D' | 'E'
+type Dir = 'D' | 'E' | 'F'
 
 const DIRS: { key: Dir; label: string; thesis: string }[] = [
   { key: 'D', label: 'D · Single pane', thesis: 'One roadmap pane, expandable steps' },
   { key: 'E', label: 'E · Split pane', thesis: 'Roadmap left, learning pane right' },
+  { key: 'F', label: 'F · Gonfalon chart', thesis: 'Single pane, production-style results chart' },
 ]
 
 export default function App() {
@@ -54,7 +55,7 @@ export default function App() {
               exit={{ opacity: 0, y: -8 }}
               transition={{ duration: 0.28, ease: [0.16, 1, 0.3, 1] }}
             >
-              {dir === 'D' && <HomeV2Single product={product} onProduct={setProduct} onWatch={open} />}
+              {(dir === 'D' || dir === 'F') && <HomeV2Single product={product} onProduct={setProduct} onWatch={open} />}
               {dir === 'E' && <HomeV2Split product={product} onProduct={setProduct} onWatch={open} />}
             </motion.div>
           </AnimatePresence>
@@ -72,7 +73,13 @@ export default function App() {
       </div>
 
       <AnimatePresence>
-        {wizardOpen && <SimWizard onClose={() => setWizardOpen(false)} onFinish={finish} />}
+        {wizardOpen && (
+          <SimWizard
+            onClose={() => setWizardOpen(false)}
+            onFinish={finish}
+            chartVariant={dir === 'F' ? 'gonfalon' : 'default'}
+          />
+        )}
       </AnimatePresence>
     </div>
   )

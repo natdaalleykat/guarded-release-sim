@@ -24,7 +24,17 @@ export interface ConfigValue {
   pace: PaceKey
 }
 
-export function SimWizard({ onClose, onFinish }: { onClose: () => void; onFinish: () => void }) {
+export type ChartVariant = 'default' | 'gonfalon'
+
+export function SimWizard({
+  onClose,
+  onFinish,
+  chartVariant = 'default',
+}: {
+  onClose: () => void
+  onFinish: () => void
+  chartVariant?: ChartVariant
+}) {
   const [step, setStep] = useState(0)
   const [runId, setRunId] = useState(0)
   const [config, setConfig] = useState<ConfigValue>({ ...DEFAULTS })
@@ -66,7 +76,12 @@ export function SimWizard({ onClose, onFinish }: { onClose: () => void; onFinish
                 />
               )}
               {step === 1 && (
-                <StepRun config={config} onFinish={onFinish} onReplay={() => setRunId((r) => r + 1)} />
+                <StepRun
+                  config={config}
+                  onFinish={onFinish}
+                  onReplay={() => setRunId((r) => r + 1)}
+                  chartVariant={chartVariant}
+                />
               )}
             </motion.div>
           </AnimatePresence>

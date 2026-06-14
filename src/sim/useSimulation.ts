@@ -53,6 +53,13 @@ export const END_T = 30
 /** when the in-run value summary (blast radius etc.) appears */
 export const VALUE_T = 24
 
+// An early "safe blip": the metric rises toward the guardrail, the system
+// shows it's tracked, it stays under the line, and recovers — no rollback.
+const SPIKE_START = 3.2
+const SPIKE_PEAK = 5.4
+const SPIKE_END = 8.2
+const SPIKE_FACTOR = 0.8 // fraction of the way from baseline to the guardrail
+
 const GATE: [number, number][] = [
   [0, 0],
   [1.5, 1],
@@ -88,8 +95,13 @@ function lerpKeyframes(t: number, kf: [number, number][]) {
 }
 
 function metricAt(m: MetricOption, t: number): number {
+  // early blip rises toward, but stays under, the guardrail
+  const near = m.baseline + (m.threshold - m.baseline) * SPIKE_FACTOR
   let base: number
-  if (t < REG_START) base = m.baseline
+  if (t < SPIKE_START) base = m.baseline
+  else if (t < SPIKE_PEAK) base = lerp(m.baseline, near, easeInOut((t - SPIKE_START) / (SPIKE_PEAK - SPIKE_START)))
+  else if (t < SPIKE_END) base = lerp(near, m.baseline, easeInOut((t - SPIKE_PEAK) / (SPIKE_END - SPIKE_PEAK)))
+  else if (t < REG_START) base = m.baseline
   else if (t < REG_PEAK) base = lerp(m.baseline, m.regressed, easeInOut((t - REG_START) / (REG_PEAK - REG_START)))
   else if (t < REC_START) base = m.regressed
   else if (t < REC_END) base = lerp(m.regressed, m.baseline, easeInOut((t - REC_START) / (REC_END - REC_START)))
@@ -149,9 +161,11 @@ function buildEvents(): EventDef[] {
   const v = (p: FrameParams, t: number) => fmtMetric(p.m, metricAt(p.m, t))
   return [
     { t: 0.4, kind: 'info', build: (p) => `Guarded release started. Serving new variation to 1% of ${p.c.plural}.` },
-    { t: 2.4, kind: 'check', build: (p) => `Guardrail check passed. ${cap(p.m.short)} ${v(p, 2.4)}.` },
-    { t: 4.8, kind: 'stage', build: () => `Ramped to 5%. Metric holding steady.` },
-    { t: 7.0, kind: 'check', build: (p) => `Guardrail check passed. ${cap(p.m.short)} ${v(p, 7)}.` },
+    { t: 2.2, kind: 'check', build: (p) => `Guardrail check passed. ${cap(p.m.short)} ${v(p, 2.2)}.` },
+    { t: 4.4, kind: 'stage', build: () => `Ramped to 5%.` },
+    { t: 5.2, kind: 'info', build: (p) => `${cap(p.m.short)} ticking up — ${v(p, 5.2)}. Tracking against the guardrail.` },
+    { t: 6.0, kind: 'check', build: (p) => `${cap(p.m.short)} ${v(p, 6.0)}, still under the guardrail. Holding, no rollback.` },
+    { t: 7.8, kind: 'good', build: (p) => `Blip cleared. ${cap(p.m.short)} back to ${v(p, 7.8)}. Stayed in the safe zone.` },
     { t: 8.8, kind: 'stage', build: () => `Ramped to 10%.` },
     { t: 10.8, kind: 'info', build: () => `Running guardrail check...` },
     { t: 11.8, kind: 'warn', build: (p) => `${p.m.label} is crossing the guardrail. ${v(p, 11.8)}.` },

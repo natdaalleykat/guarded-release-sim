@@ -3,7 +3,8 @@ import { getMetric, getContext, fmtMetric, fmtPop } from '../data/content'
 import { FLAG_KEY, TREATMENT, CONTROL, ROLLBACK_MS, BLAST } from '../data/product'
 import { useSimulation, fmtElapsed, VALUE_T, type Phase } from './useSimulation'
 import { DiffChart } from './DiffChart'
-import type { ConfigValue } from './SimWizard'
+import { GonfalonChart } from './GonfalonChart'
+import type { ConfigValue, ChartVariant } from './SimWizard'
 import { CheckCircle, AlertDiamond, Rollback, ArrowRight, Replay } from '../components/icons'
 
 function statusBadge(phase: Phase) {
@@ -23,10 +24,12 @@ export function StepRun({
   config,
   onFinish,
   onReplay,
+  chartVariant = 'default',
 }: {
   config: ConfigValue
   onFinish: () => void
   onReplay: () => void
+  chartVariant?: ChartVariant
 }) {
   const m = getMetric(config.metric)
   const c = getContext(config.context)
@@ -113,12 +116,18 @@ export function StepRun({
             </span>
           </div>
 
-          <div style={{ padding: '12px 14px 6px' }}>
-            <DiffChart metric={m} history={state.history} tNow={state.t} treatmentNow={state.metricValue} controlNow={control} breach={breach} />
-            <div className="diff-legend" style={{ margin: '6px 2px 8px' }}>
-              <span className="k"><span className="ln" style={{ background: 'var(--blue)' }} /> {TREATMENT.name} (treatment)</span>
-              <span className="k"><span className="ln" style={{ borderTop: '2px dashed var(--text-3)', background: 'transparent', height: 0 }} /> {CONTROL.name} (control)</span>
-            </div>
+          <div style={{ padding: '12px 16px 10px' }}>
+            {chartVariant === 'gonfalon' ? (
+              <GonfalonChart metric={m} context={c} state={state} />
+            ) : (
+              <>
+                <DiffChart metric={m} history={state.history} tNow={state.t} treatmentNow={state.metricValue} controlNow={control} breach={breach} />
+                <div className="diff-legend" style={{ margin: '6px 2px 8px' }}>
+                  <span className="k"><span className="ln" style={{ background: 'var(--blue)' }} /> {TREATMENT.name} (treatment)</span>
+                  <span className="k"><span className="ln" style={{ borderTop: '2px dashed var(--text-3)', background: 'transparent', height: 0 }} /> {CONTROL.name} (control)</span>
+                </div>
+              </>
+            )}
           </div>
         </div>
 
