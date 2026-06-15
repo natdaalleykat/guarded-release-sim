@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { AnimatePresence, motion } from 'framer-motion'
+import { motion } from 'framer-motion'
 import {
   METRICS,
   CONTEXTS,
@@ -60,14 +60,12 @@ export function SimWizard({
         </div>
 
         <div className="modal-body">
-          <AnimatePresence mode="wait">
-            <motion.div
-              key={`${step}-${runId}`}
-              initial={{ opacity: 0, y: 10 }}
-              animate={{ opacity: 1, y: 0 }}
-              exit={{ opacity: 0, y: -10 }}
-              transition={{ duration: 0.28, ease: [0.16, 1, 0.3, 1] }}
-            >
+          <motion.div
+            key={`${step}-${runId}`}
+            initial={{ opacity: 0, y: 10 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.28, ease: [0.16, 1, 0.3, 1] }}
+          >
               {step === 0 && (
                 <StepConfigure
                   config={config}
@@ -83,8 +81,7 @@ export function SimWizard({
                   chartVariant={chartVariant}
                 />
               )}
-            </motion.div>
-          </AnimatePresence>
+          </motion.div>
         </div>
       </motion.div>
     </div>
@@ -152,7 +149,7 @@ function StepConfigure({
         </div>
         <div style={{ minWidth: 0 }}>
           <h3 style={{ fontSize: 17, fontWeight: 750, letterSpacing: '-0.02em' }}>
-            Watch a guarded release catch a bad deploy
+            Watch a guarded release catch bad code
           </h3>
           <p className="muted" style={{ fontSize: 13.5, lineHeight: 1.5, marginTop: 4 }}>{WIZARD.configure.lede}</p>
           <div style={{ display: 'flex', gap: 7, marginTop: 10, flexWrap: 'wrap' }}>

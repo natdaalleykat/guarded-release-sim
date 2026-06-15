@@ -1,6 +1,13 @@
 import { useEffect, useState } from 'react'
 import { AnimatePresence, motion } from 'framer-motion'
-import { ROADMAPS, PRODUCTS, type ProductKey, type RoadmapStepV2 } from '../data/home'
+import {
+  ROADMAPS,
+  ROADMAPS_UNIFIED,
+  PRODUCTS,
+  PRODUCTS_UNIFIED,
+  type ProductKey,
+  type RoadmapStepV2,
+} from '../data/home'
 import { WelcomeRow, ProductPicker, SimHero, QuietLinks, GlyphIcon } from './blocks'
 import { Check, ShieldHeart, ArrowRight } from '../components/icons'
 
@@ -17,11 +24,17 @@ export function HomeV2Single({
   product,
   onProduct,
   onWatch,
+  unified = false,
 }: {
   product: ProductKey
   onProduct: (k: ProductKey) => void
   onWatch: () => void
+  unified?: boolean
 }) {
+  const products = unified ? PRODUCTS_UNIFIED : PRODUCTS
+  // in unified mode there is no separate "guarded" tile; show it as flags
+  const activeProduct = unified && product === 'guarded' ? 'flags' : product
+
   return (
     <div className="content-inner">
       <WelcomeRow title="Welcome, Natalie" subtitle="See the point first. Setup can wait." />
@@ -32,10 +45,14 @@ export function HomeV2Single({
       {/* low-commitment product picker */}
       <div style={{ margin: '28px 0 0' }}>
         <div style={{ display: 'flex', alignItems: 'baseline', justifyContent: 'space-between', gap: 12, marginBottom: 12 }}>
-          <h2 style={{ fontSize: 15, fontWeight: 700 }}>A platform, not just flags. What do you want to try first?</h2>
+          <h2 style={{ fontSize: 15, fontWeight: 700 }}>
+            {unified
+              ? 'One platform. What do you want to try first?'
+              : 'A platform, not just flags. What do you want to try first?'}
+          </h2>
           <span className="faint" style={{ fontSize: 12.5 }}>just a starting point, change anytime</span>
         </div>
-        <ProductPicker value={product} onChange={onProduct} />
+        <ProductPicker value={activeProduct} onChange={onProduct} products={products} />
       </div>
 
       {/* roadmap left (visual focus), quiet panel right */}
@@ -43,7 +60,7 @@ export function HomeV2Single({
         className="cols"
         style={{ gridTemplateColumns: 'minmax(0, 1.5fr) minmax(0, 1fr)', gap: 18, marginTop: 20, alignItems: 'start' }}
       >
-        <RoadmapV2Checklist product={product} onWatch={onWatch} />
+        <RoadmapV2Checklist product={activeProduct} unified={unified} onWatch={onWatch} />
         <QuietLinks />
       </div>
     </div>
@@ -52,17 +69,20 @@ export function HomeV2Single({
 
 /* B's roadmap pane with color-filled nodes; required steps drive progress,
    optional "nice to have" steps render muted below a divider. */
-function RoadmapV2Checklist({ product, onWatch }: { product: ProductKey; onWatch: () => void }) {
-  const steps = ROADMAPS[product]
+function RoadmapV2Checklist({ product, unified, onWatch }: { product: ProductKey; unified: boolean; onWatch: () => void }) {
+  const roadmaps = unified ? ROADMAPS_UNIFIED : ROADMAPS
+  const productList = unified ? PRODUCTS_UNIFIED : PRODUCTS
+  const steps = roadmaps[product]
   const required = steps.filter((s) => !s.optional)
   const optional = steps.filter((s) => s.optional)
-  const label = PRODUCTS.find((p) => p.key === product)!.label
+  const label = productList.find((p) => p.key === product)!.label
   const [done, setDone] = useState<Record<string, boolean>>({})
   const [open, setOpen] = useState(steps[0].key)
   useEffect(() => {
     setDone({})
-    setOpen(ROADMAPS[product][0].key)
-  }, [product])
+    setOpen(roadmaps[product][0].key)
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [product, unified])
 
   const doneCount = required.filter((s) => done[s.key]).length
 

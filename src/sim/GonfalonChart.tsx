@@ -73,9 +73,8 @@ function GonfalonChartInner({
 
         {/* regression threshold */}
         <line x1={padL} y1={y(thr)} x2={W - padR} y2={y(thr)} stroke="var(--red)" strokeWidth="1.4" strokeDasharray="5 5" opacity="0.85" />
-        <text x={W - padR + 7} y={y(thr) - 1} fontSize="10.5" fontWeight="600" fill="var(--red)">
-          <tspan x={W - padR + 7} dy="0">regression</tspan>
-          <tspan x={W - padR + 7} dy="11">threshold</tspan>
+        <text x={W - padR + 7} y={y(thr) + 4} fontSize="10.5" fontWeight="600" fill="var(--red)">
+          guardrail
         </text>
 
         {/* difference series */}
@@ -122,7 +121,7 @@ function GonfalonChartInner({
         </tbody>
       </table>
       <div className="faint" style={{ fontSize: 11, marginTop: 8, lineHeight: 1.4 }}>
-        A regression is called when the whole interval crosses the threshold. Rolling out by {context.singular}.
+        A regression is called when the whole interval crosses the guardrail. Rolling out by {context.singular}.
       </div>
     </div>
   )

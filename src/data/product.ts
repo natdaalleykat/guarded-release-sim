@@ -12,7 +12,7 @@ export const CONTROL = { name: 'Checkout v1', color: 'rgb(137,142,148)' }
 
 /* How fast the rollback reaches every SDK once the guardrail trips, and the
    blast-radius story for the results screen. */
-export const ROLLBACK_MS = 11
+export const ROLLBACK_MS = 200
 export const BLAST = { exposed: 10, protected: 90 }
 
 /* Live, global "what LaunchDarkly is doing right now" counters.
@@ -210,7 +210,7 @@ export const WIZARD = {
   steps: ['Configure', 'Run'],
   configure: {
     title: 'Guarded release simulation',
-    lede: 'You are shipping a checkout rewrite behind a flag. A guarded release rolls it out a little at a time while LaunchDarkly watches a metric you choose. If that metric breaks, it rolls back on its own.',
+    lede: 'You are shipping a checkout rewrite behind a flag. A guarded release rolls it out progressively while LaunchDarkly watches a metric you choose. If that metric breaks, it rolls back on its own before it reaches the rest of your customers.',
     metricQ: 'Protect',
     contextQ: 'Roll out to',
     go: 'Start guarded rollout',

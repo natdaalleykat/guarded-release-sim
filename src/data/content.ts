@@ -148,20 +148,20 @@ export const PACES: PaceOption[] = [
   {
     key: 'cautious',
     label: 'Cautious',
-    perStep: '2 days per step',
-    blurb: 'For risky changes or lower-traffic apps that need more soak time.',
+    perStep: '1% → 5% → 10%',
+    blurb: 'Small steps. The most traffic protected while you watch.',
   },
   {
     key: 'balanced',
     label: 'Balanced',
-    perStep: '24 hours per step',
-    blurb: 'The usual choice. Balances how fast you move against how safe you are.',
+    perStep: '5% → 25% → 50%',
+    blurb: 'A middle path. The usual choice.',
   },
   {
     key: 'fast',
     label: 'Fast',
-    perStep: '1 hour per step',
-    blurb: 'For high-traffic changes you want out the door quickly.',
+    perStep: '25% → 50% → 100%',
+    blurb: 'Big jumps. For low-risk changes you want out quickly.',
   },
 ]
 

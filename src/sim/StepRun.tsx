@@ -4,6 +4,7 @@ import { FLAG_KEY, TREATMENT, CONTROL, ROLLBACK_MS, BLAST } from '../data/produc
 import { useSimulation, fmtElapsed, VALUE_T, type Phase } from './useSimulation'
 import { DiffChart } from './DiffChart'
 import { GonfalonChart } from './GonfalonChart'
+import { CheckoutApp } from './CheckoutApp'
 import type { ConfigValue, ChartVariant } from './SimWizard'
 import { CheckCircle, AlertDiamond, Rollback, ArrowRight, Replay } from '../components/icons'
 
@@ -12,7 +13,7 @@ function statusBadge(phase: Phase) {
     case 'regression':
       return { cls: 'red', label: 'Regression detected', icon: <AlertDiamond size={13} /> }
     case 'rollback':
-      return { cls: 'purple', label: `Rolling back · ${ROLLBACK_MS} ms`, icon: <Rollback size={13} /> }
+      return { cls: 'purple', label: `Rolling back · ~${ROLLBACK_MS} ms`, icon: <Rollback size={13} /> }
     case 'recovered':
       return { cls: 'green', label: 'Rolled back · stable', icon: <CheckCircle size={13} /> }
     default:
@@ -70,6 +71,13 @@ export function StepRun({
       </div>
 
       <div style={{ padding: '16px 22px 20px' }}>
+        {/* option F: connect the chart to real customers clicking checkout */}
+        {chartVariant === 'gonfalon' && (
+          <div style={{ marginBottom: 14 }}>
+            <CheckoutApp breach={breach} />
+          </div>
+        )}
+
         {/* the chart is the hero */}
         <div className="metric-card">
           <div className="metric-card-head">
@@ -166,7 +174,7 @@ export function StepRun({
                 </div>
                 <div className="stat-tile">
                   <div className="k">Rolled back in</div>
-                  <div className="v">{ROLLBACK_MS} ms</div>
+                  <div className="v">~{ROLLBACK_MS} ms</div>
                   <div className="faint" style={{ fontSize: 12, marginTop: 3 }}>automatically, no human</div>
                 </div>
               </div>

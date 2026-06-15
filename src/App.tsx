@@ -7,12 +7,13 @@ import { HomeV2Split } from './product/HomeV2Split'
 import { SimWizard } from './sim/SimWizard'
 import type { ProductKey } from './data/home'
 
-type Dir = 'D' | 'E' | 'F'
+type Dir = 'D' | 'E' | 'F' | 'G'
 
 const DIRS: { key: Dir; label: string; thesis: string }[] = [
-  { key: 'D', label: 'D · Single pane', thesis: 'One roadmap pane, expandable steps' },
-  { key: 'E', label: 'E · Split pane', thesis: 'Roadmap left, learning pane right' },
-  { key: 'F', label: 'F · Gonfalon chart', thesis: 'Single pane, production-style results chart' },
+  { key: 'D', label: '1 · Single pane', thesis: 'One roadmap pane, expandable steps' },
+  { key: 'E', label: '2 · Split pane', thesis: 'Roadmap left, learning pane right' },
+  { key: 'F', label: '3 · Gonfalon chart', thesis: 'Production-style results chart + live checkout view' },
+  { key: 'G', label: '4 · Unified', thesis: 'Flags and guarded releases as one, no separate Guardian' },
 ]
 
 export default function App() {
@@ -34,11 +35,11 @@ export default function App() {
 
   const open = () => setWizardOpen(true)
 
-  // Finishing the sim closes the wizard and lands you on the guarded
-  // releases roadmap in whichever pane concept is active.
+  // Finishing the sim closes the wizard and lands you on the guarded-release
+  // setup path. In the unified concept that path lives under Feature flags.
   const finish = () => {
     setWizardOpen(false)
-    setProduct('guarded')
+    setProduct(dir === 'G' ? 'flags' : 'guarded')
   }
 
   return (
@@ -55,7 +56,9 @@ export default function App() {
               exit={{ opacity: 0, y: -8 }}
               transition={{ duration: 0.28, ease: [0.16, 1, 0.3, 1] }}
             >
-              {(dir === 'D' || dir === 'F') && <HomeV2Single product={product} onProduct={setProduct} onWatch={open} />}
+              {dir === 'D' && <HomeV2Single product={product} onProduct={setProduct} onWatch={open} />}
+              {dir === 'F' && <HomeV2Single product={product} onProduct={setProduct} onWatch={open} />}
+              {dir === 'G' && <HomeV2Single product={product} onProduct={setProduct} onWatch={open} unified />}
               {dir === 'E' && <HomeV2Split product={product} onProduct={setProduct} onWatch={open} />}
             </motion.div>
           </AnimatePresence>

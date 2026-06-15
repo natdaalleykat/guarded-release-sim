@@ -118,8 +118,8 @@ export function SimHero({ onWatch }: { onWatch: () => void }) {
           see what LaunchDarkly actually does.
         </h1>
         <p className="muted" style={{ fontSize: 16, lineHeight: 1.5, marginTop: 12, maxWidth: 560 }}>
-          Flags are the foundation. The point is shipping risky changes safely: roll out gradually, watch a metric,
-          and roll back on its own the moment something breaks.
+          Flags are the foundation. The point is shipping risky changes safely: roll out progressively, watch a metric,
+          and roll back on its own before bad code reaches the rest of your customers.
         </p>
         <div style={{ display: 'flex', gap: 11, marginTop: 22, flexWrap: 'wrap', alignItems: 'center' }}>
           <button className="btn lg" onClick={onWatch}>
@@ -132,7 +132,7 @@ export function SimHero({ onWatch }: { onWatch: () => void }) {
           </div>
           <MiniRollout />
           <div className="faint" style={{ fontSize: 12, marginTop: 8 }}>
-            ramp to 10% · regression detected · automatic rollback in 11 ms
+            ramp to 10% · regression detected · automatic rollback in ~200 ms
           </div>
         </div>
       </div>
@@ -269,10 +269,18 @@ export function SampleFlagsCard() {
 
 /* ---- v2: product picker (single select) --------------------------------- */
 
-export function ProductPicker({ value, onChange }: { value: ProductKey; onChange: (k: ProductKey) => void }) {
+export function ProductPicker({
+  value,
+  onChange,
+  products = PRODUCTS,
+}: {
+  value: ProductKey
+  onChange: (k: ProductKey) => void
+  products?: typeof PRODUCTS
+}) {
   return (
-    <div className="cols" style={{ gridTemplateColumns: 'repeat(5, minmax(0, 1fr))', gap: 10 }}>
-      {PRODUCTS.map((p) => {
+    <div className="cols" style={{ gridTemplateColumns: `repeat(${products.length}, minmax(0, 1fr))`, gap: 10 }}>
+      {products.map((p) => {
         const on = value === p.key
         return (
           <button key={p.key} className={`intent-chip ${on ? 'on' : ''}`} onClick={() => onChange(p.key)}>
@@ -307,7 +315,7 @@ export function SimSideCard({ onWatch }: { onWatch: () => void }) {
         <ShieldHeart size={13} /> Guarded releases
       </span>
       <h3 style={{ fontSize: 17, fontWeight: 750, letterSpacing: '-0.02em', lineHeight: 1.2 }}>
-        See one catch a bad deploy
+        See one catch bad code
       </h3>
       <p className="muted" style={{ fontSize: 13, lineHeight: 1.5, marginTop: 6 }}>
         Roll out, regress, and watch it heal itself. 30 seconds, no setup, whatever product you came for.
@@ -316,7 +324,7 @@ export function SimSideCard({ onWatch }: { onWatch: () => void }) {
         <MiniRollout />
       </div>
       <div className="faint" style={{ fontSize: 11.5, marginBottom: 14 }}>
-        ramp to 10% · regression detected · rollback in 11 ms
+        ramp to 10% · regression detected · rollback in ~200 ms
       </div>
       <button className="btn" onClick={onWatch} style={{ width: '100%' }}>
         <Bolt size={15} /> Watch the simulation

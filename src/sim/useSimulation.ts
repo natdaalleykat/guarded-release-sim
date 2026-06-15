@@ -170,7 +170,7 @@ function buildEvents(): EventDef[] {
     { t: 10.8, kind: 'info', build: () => `Running guardrail check...` },
     { t: 11.8, kind: 'warn', build: (p) => `${p.m.label} is crossing the guardrail. ${v(p, 11.8)}.` },
     { t: 13.6, kind: 'warn', build: (p) => `Regression detected on ${p.m.label}. Guardrail: ${p.m.guardrailPhrase}.` },
-    { t: 14.7, kind: 'act', build: (p) => `Automatic rollback executed in ${ROLLBACK_MS} ms. Returning ${p.c.plural} to the stable version.` },
+    { t: 14.7, kind: 'act', build: (p) => `Automatic rollback executed in ~${ROLLBACK_MS} ms. Returning ${p.c.plural} to the stable version.` },
     { t: 16.5, kind: 'act', build: () => `Rollback propagating. New-variation traffic falling.` },
     { t: 19.5, kind: 'good', build: (p) => `Rollback complete. All ${p.c.plural} are back on the stable version.` },
     { t: 21.8, kind: 'good', build: (p) => `Guarded release stopped. ${cap(p.m.short)} recovered to ${v(p, 22.5)}.` },
