@@ -121,7 +121,7 @@ export function HomeDSSplit({
           </div>
 
           <div style={{ marginTop: 'var(--lp-spacing-700)', display: 'flex', alignItems: 'center', gap: 'var(--lp-spacing-400)' }}>
-            <DsButton variant={step.sim ? 'primary' : 'default'} onClick={step.sim ? onWatch : undefined}>
+            <DsButton variant="primary" onClick={step.sim ? onWatch : undefined}>
               {step.sim && <LpIcon name="shield-heart" size={16} />}
               {step.cta}
               <LpIcon name="arrow-right-thin" size={16} />
