@@ -133,10 +133,19 @@ export function HomeV2Split({
               {step.cta}
               <ArrowRight size={14} />
             </button>
-            {!step.sim && (
-              <span className="faint" style={{ fontSize: 12 }}>opens the {def.label.toLowerCase()} setup in the real product</span>
-            )}
+            {step.est && <span className="faint" style={{ fontSize: 12 }}>{step.est}</span>}
           </div>
+
+          {step.docs && step.docs.length > 0 && (
+            <div style={{ marginTop: 12, display: 'flex', alignItems: 'center', gap: 14, flexWrap: 'wrap' }}>
+              <span className="faint" style={{ fontSize: 10.5, fontWeight: 600, letterSpacing: '0.06em', textTransform: 'uppercase' }}>Docs</span>
+              {step.docs.map((d) => (
+                <a key={d.href} href={d.href} target="_blank" rel="noreferrer" className="doc-link" style={{ fontSize: 12.5, color: 'var(--blue)', textDecoration: 'none' }}>
+                  {d.label} ↗
+                </a>
+              ))}
+            </div>
+          )}
         </motion.div>
       </div>
     </div>

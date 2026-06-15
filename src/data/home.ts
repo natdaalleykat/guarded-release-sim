@@ -164,6 +164,10 @@ export interface RoadmapStepV2 {
   icon: Glyph
   sim?: boolean
   optional?: boolean
+  /* short effort/time hint shown next to the CTA */
+  est?: string
+  /* inline "learn more" links to the real docs */
+  docs?: { label: string; href: string }[]
   learn: { what: string; ideas: string[] }
 }
 
@@ -180,7 +184,11 @@ export interface RoadmapStepV2 {
      "rolls back automatically or just alerts you" rather than claiming a default.
    - MCP is only an alternative install method (a chip on the SDK step), never
      its own step. GitHub code references live only in the flags path. Slack
-     appears only where there is something to be notified about. */
+     appears only where there is something to be notified about.
+   - In the split concept, flags and guarded releases are separate products, so
+     the flags path keeps the whole guarded journey (metric, ship guarded,
+     integrations) as nice-to-have. The unified concept keeps "ship as a guarded
+     release" required, because that is its entire thesis. */
 export const ROADMAPS: Record<ProductKey, RoadmapStepV2[]> = {
   guarded: [
     {
@@ -189,6 +197,7 @@ export const ROADMAPS: Record<ProductKey, RoadmapStepV2[]> = {
       blurb: 'One init call with your environment key.',
       cta: 'Set up an SDK',
       icon: 'plug',
+      est: '~5 min',
       learn: {
         what: 'Drop the SDK into the service that owns the change. Server SDKs initialize with the SDK key; browser apps use the client-side ID. Wherever you read a config value today, you ask LaunchDarkly instead, or let your coding agent wire it through the MCP server. The same SDK powers a guarded rollout, so there is nothing extra to install for safety.',
         ideas: ['Node', 'Python', 'Go', 'iOS', 'MCP server'],
@@ -200,6 +209,7 @@ export const ROADMAPS: Record<ProductKey, RoadmapStepV2[]> = {
       blurb: 'Evaluate it with a context, same as any flag.',
       cta: 'Create a flag',
       icon: 'flag',
+      est: '~2 min',
       learn: {
         what: 'Create a boolean flag and call variation() with a context, which is who is asking. You pass the context object in code; LaunchDarkly registers the context kind on its own the first time the flag is evaluated, so there is no separate setup in the UI. The built-in user kind works out of the box.',
         ideas: ['release-new-checkout', 'Kill switch', 'Context in code'],
@@ -211,6 +221,8 @@ export const ROADMAPS: Record<ProductKey, RoadmapStepV2[]> = {
       blurb: 'Clicks and page views need no code.',
       cta: 'Create a metric',
       icon: 'ruler',
+      est: 'No-code option',
+      docs: [{ label: 'Creating metrics', href: 'https://launchdarkly.com/docs/home/metrics/create-metrics' }],
       learn: {
         what: 'A guarded rollout needs at least one LaunchDarkly metric, and it has to share the context kind your flag evaluates. Click and page-view metrics need no code. Already sending observability or OTEL data? Those metrics are generated for you. Anything custom is one track() call. Set the metric up before you start, since it is the step teams most often forget.',
         ideas: ['Checkout error rate', 'p95 latency', 'Conversion rate', 'One track() call'],
@@ -222,6 +234,11 @@ export const ROADMAPS: Record<ProductKey, RoadmapStepV2[]> = {
       blurb: 'Targeting tab, Serve, Guarded rollout.',
       cta: 'Start guarded rollout',
       icon: 'shield',
+      est: '~3 min',
+      docs: [
+        { label: 'Create a guarded rollout', href: 'https://launchdarkly.com/docs/home/releases/creating-guarded-rollouts' },
+        { label: 'Health checks', href: 'https://launchdarkly.com/docs/home/releases/guarded-health-checks' },
+      ],
       learn: {
         what: 'On the flag’s Targeting tab, pick Guarded rollout from the Serve menu, choose your metric, and set a monitoring window (1 hour to 1 week; 24 hours is the default). Per metric, decide whether a regression rolls back automatically or just alerts you. Health checks confirm the flag is evaluating and the metric is receiving events before launch, and a rollout needs a minimum number of contexts per stage to measure (about 30 by default).',
         ideas: ['Health checks first', '24-hour window', 'Auto-rollback or notify'],
@@ -234,6 +251,8 @@ export const ROADMAPS: Record<ProductKey, RoadmapStepV2[]> = {
       cta: 'Add the plugins',
       icon: 'pulse',
       optional: true,
+      est: '~10 min',
+      docs: [{ label: 'Guardrails from telemetry', href: 'https://launchdarkly.com/docs/home/metrics/autogen-metrics' }],
       learn: {
         what: 'Add the observability plugins, or dual-send your existing Datadog or OTEL data. LaunchDarkly generates error-rate and latency metrics from that telemetry, so you can guard releases on them with no track() calls to write.',
         ideas: ['Error-rate guardrail', 'p95 guardrail', 'Reuse Datadog/OTEL'],
@@ -246,6 +265,7 @@ export const ROADMAPS: Record<ProductKey, RoadmapStepV2[]> = {
       cta: 'Connect Slack',
       icon: 'sparkle',
       optional: true,
+      est: 'One-time',
       learn: {
         what: 'In-app and email notifications are built in. Connect Slack or a webhook so the team hears the moment a regression is detected or a release rolls back, without anyone watching a dashboard. Approvals and scheduled rollouts slot in here too.',
         ideas: ['Slack', 'Webhooks', 'Approvals'],
@@ -259,6 +279,7 @@ export const ROADMAPS: Record<ProductKey, RoadmapStepV2[]> = {
       blurb: 'A remote if-statement. Two minutes.',
       cta: 'Create flag',
       icon: 'flag',
+      est: '~2 min',
       learn: {
         what: 'Create a boolean flag in the UI. You do not need context kinds, segments, or targeting set up first. Start with a kill switch on something risky.',
         ideas: ['Kill switch', 'Feature gate', 'Config value'],
@@ -270,6 +291,7 @@ export const ROADMAPS: Record<ProductKey, RoadmapStepV2[]> = {
       blurb: 'One install. The snippet evaluates it too.',
       cta: 'Set up an SDK',
       icon: 'plug',
+      est: '~5 min',
       learn: {
         what: 'Install the SDK and initialize it with the right key: server SDKs use the SDK key, browser SDKs use the client-side ID, mobile SDKs use the mobile key. The install snippet already calls variation() with a context, so install and first evaluation are one step. Context kinds register automatically from that call, with no separate UI step. Evaluations run locally in microseconds.',
         ideas: ['Node', 'React', 'Go', 'Mobile', 'MCP server'],
@@ -281,6 +303,7 @@ export const ROADMAPS: Record<ProductKey, RoadmapStepV2[]> = {
       blurb: 'Flip the flag, see your app react live.',
       cta: 'Open the flag',
       icon: 'play',
+      est: 'Instant',
       learn: {
         what: 'Turn the flag on and watch your running app pick up the change with no redeploy. This is the moment your config file becomes a live control you can flip in seconds, for everyone or no one.',
         ideas: ['Serve true', 'Instant kill switch', 'No redeploy'],
@@ -289,25 +312,48 @@ export const ROADMAPS: Record<ProductKey, RoadmapStepV2[]> = {
     {
       key: 'target',
       title: 'Target who sees it',
-      blurb: 'Individuals, rules, percentages.',
+      blurb: 'Individuals, rules, segments, cohorts.',
       cta: 'Open targeting',
       icon: 'venn',
-      optional: true,
+      est: '~3 min',
+      docs: [{ label: 'Targeting and segments', href: 'https://launchdarkly.com/docs/home/flags/target' }],
       learn: {
-        what: 'Go past on and off: target individual contexts, attribute rules, or a percentage rollout. None of it needs a segment. Build a reusable segment only when you want the same audience across more than one flag, like a beta cohort, enterprise plan, or EU users.',
-        ideas: ['Internal first', 'Beta cohort', '10% canary'],
+        what: 'Go past on and off: target individual contexts, attribute rules, or a percentage rollout. Build a reusable segment when you want the same audience across more than one flag, like a beta cohort, enterprise plan, EU users, or a risk tier. Segments are the audiences you reuse everywhere else in LaunchDarkly.',
+        ideas: ['Internal first', 'Beta cohort', 'Risk tier', '10% canary'],
       },
     },
     {
-      key: 'guard',
-      title: 'Graduate to guarded rollouts',
-      blurb: 'Let releases protect themselves.',
-      cta: 'Try a guarded rollout',
+      key: 'metric',
+      title: 'Give it a metric to guard itself',
+      blurb: 'The number a rollout watches for regressions.',
+      cta: 'Create a metric',
+      icon: 'ruler',
+      optional: true,
+      est: 'No-code option',
+      docs: [
+        { label: 'Creating metrics', href: 'https://launchdarkly.com/docs/home/metrics/create-metrics' },
+        { label: 'Guardrails from telemetry', href: 'https://launchdarkly.com/docs/home/metrics/autogen-metrics' },
+      ],
+      learn: {
+        what: 'When a flag matters, give it a metric so the release can watch itself. Click and page-view metrics need no code. Error-rate and latency guardrails come straight from the observability plugins or your existing Datadog and OTEL data, with no track() calls. Anything custom is one track() call. This is the setup that makes a guarded release possible.',
+        ideas: ['Checkout error rate', 'p95 latency', 'No-code clicks'],
+      },
+    },
+    {
+      key: 'ship',
+      title: 'Ship it as a guarded release',
+      blurb: 'Ramp progressively; roll back on a regression.',
+      cta: 'Start guarded rollout',
       icon: 'shield',
       optional: true,
+      est: '~3 min',
+      docs: [
+        { label: 'Guarded rollouts', href: 'https://launchdarkly.com/docs/home/releases/guarded-rollouts' },
+        { label: 'Set one up', href: 'https://launchdarkly.com/docs/home/releases/creating-guarded-rollouts' },
+      ],
       learn: {
-        what: 'Once a flag matters, stop flipping it for everyone at once. A guarded rollout ramps progressively, watches a metric, and can roll back automatically when something breaks.',
-        ideas: ['Guarded rollout', 'Auto-rollback'],
+        what: 'Instead of flipping a risky flag for everyone, ship it as a guarded release: it ramps progressively, watches your metric, and rolls back automatically (or just alerts you, your call per metric) the moment something regresses. This is the safest way to release a flag, and the heart of the simulation up top.',
+        ideas: ['Progressive ramp', 'Auto-rollback or notify', '24-hour window'],
       },
     },
     {
@@ -317,6 +363,7 @@ export const ROADMAPS: Record<ProductKey, RoadmapStepV2[]> = {
       cta: 'Browse integrations',
       icon: 'mcp',
       optional: true,
+      est: 'One-time',
       learn: {
         what: 'Code references index where each flag lives in your repos, which makes cleanup safe later. Slack notifications keep the team on top of flag changes without checking the dashboard.',
         ideas: ['Code references', 'Slack updates', 'Flag triggers'],
@@ -330,6 +377,7 @@ export const ROADMAPS: Record<ProductKey, RoadmapStepV2[]> = {
       blurb: 'Needed to serve variations and send events.',
       cta: 'Set up an SDK',
       icon: 'plug',
+      est: '~5 min',
       learn: {
         what: 'An experiment cannot start until a live SDK is sending data; the Start button stays disabled until LaunchDarkly sees traffic. Use a browser SDK (JavaScript, React) if you want the no-code click and page-view metrics. The context you evaluate with becomes the unit you can randomize by.',
         ideas: ['JavaScript', 'React', 'Node', 'Mobile'],
@@ -341,6 +389,7 @@ export const ROADMAPS: Record<ProductKey, RoadmapStepV2[]> = {
       blurb: 'Variations become the treatments.',
       cta: 'Create a flag',
       icon: 'flag',
+      est: '~2 min',
       learn: {
         what: 'Any flag can power an experiment; its variations become control and treatment. Create one for the change you want to measure if it does not exist yet. You can scaffold the flag inline while building the experiment.',
         ideas: ['A/B the checkout', 'Copy test', 'Algorithm v2'],
@@ -352,6 +401,8 @@ export const ROADMAPS: Record<ProductKey, RoadmapStepV2[]> = {
       blurb: 'The number the team argues about.',
       cta: 'Create a metric',
       icon: 'ruler',
+      est: 'No-code option',
+      docs: [{ label: 'Creating metrics', href: 'https://launchdarkly.com/docs/home/metrics/create-metrics' }],
       learn: {
         what: 'Pick the number decision-makers actually watch. Click and page-view metrics need no track() call, but they do need a browser SDK on the page. Conversion and numeric metrics are one track() call when the outcome happens. You can also create the metric inline during setup.',
         ideas: ['Conversion', 'Revenue per visitor', 'Activation rate'],
@@ -363,6 +414,8 @@ export const ROADMAPS: Record<ProductKey, RoadmapStepV2[]> = {
       blurb: 'Hypothesis, audience, control.',
       cta: 'Create experiment',
       icon: 'beaker',
+      est: '~5 min',
+      docs: [{ label: 'Creating experiments', href: 'https://launchdarkly.com/docs/home/experimentation/create' }],
       learn: {
         what: 'Name it, write the hypothesis, choose the randomization unit (user for UX, account for B2B), attach your metric, pick the flag rule to run on, and designate the control. Statistics default to Bayesian and are configurable, so there is little to tune. A custom randomization unit has to be turned on for experiments first; the user kind is ready by default.',
         ideas: ['Randomize by user', '50% audience', 'Bayesian default'],
@@ -374,6 +427,7 @@ export const ROADMAPS: Record<ProductKey, RoadmapStepV2[]> = {
       blurb: 'Same context kind, or it will not attribute.',
       cta: 'Start iteration',
       icon: 'play',
+      est: '~2 min',
       learn: {
         what: 'Toggle the flag on, then start the iteration. Make sure events flow: track() must use the same context kind you randomized by, or conversions will not attribute. Click and page-view events flow on their own from the browser SDK.',
         ideas: ["track('purchase')", 'Match the unit', 'Watch live events'],
@@ -386,6 +440,7 @@ export const ROADMAPS: Record<ProductKey, RoadmapStepV2[]> = {
       cta: 'Explore holdouts',
       icon: 'venn',
       optional: true,
+      est: '~3 min',
       learn: {
         what: 'Holdouts keep a slice of traffic out of all experiments so you can measure long-term impact. Layers make experiments mutually exclusive so they do not contaminate each other.',
         ideas: ['Holdout', 'Layers'],
@@ -398,6 +453,7 @@ export const ROADMAPS: Record<ProductKey, RoadmapStepV2[]> = {
       cta: 'Create metric group',
       icon: 'ruler',
       optional: true,
+      est: '~3 min',
       learn: {
         what: 'Metric groups let one experiment read a whole funnel, from view to add-to-cart to purchase, instead of a single conversion step.',
         ideas: ['Funnel group', 'Standard group'],
@@ -411,6 +467,8 @@ export const ROADMAPS: Record<ProductKey, RoadmapStepV2[]> = {
       blurb: 'Model + messages as a variation.',
       cta: 'Create AI Config',
       icon: 'hub',
+      est: '~3 min',
+      docs: [{ label: 'AI Configs quickstart', href: 'https://launchdarkly.com/docs/home/ai-configs/quickstart' }],
       learn: {
         what: 'Create an AI Config and add its first variation: the model plus your system and user messages. Completion mode is the right default (agent and judge modes are there when you need them). It is targeted like a flag, so you can change models and prompts at runtime with no deploy.',
         ideas: ['GPT vs Claude', 'Prompt v2', 'Runtime swap'],
@@ -422,6 +480,7 @@ export const ROADMAPS: Record<ProductKey, RoadmapStepV2[]> = {
       blurb: 'Same SDK key as flags. Your provider client.',
       cta: 'Install AI SDK',
       icon: 'plug',
+      est: '~10 min',
       learn: {
         what: 'Add the AI package on top of the server SDK; it uses the same SDK key as flags, with no separate AI key. Fetch the config with a context and a fallback value, then call your own provider client with what it returns. LaunchDarkly delivers the config; the model call stays yours.',
         ideas: ['server-sdk-ai', 'Your provider client', 'Context + fallback'],
@@ -434,6 +493,7 @@ export const ROADMAPS: Record<ProductKey, RoadmapStepV2[]> = {
       cta: 'Open playground',
       icon: 'playground',
       optional: true,
+      est: 'No code',
       learn: {
         what: 'The fastest proof it works, with no code: run your variation against real prompts right in LaunchDarkly. You paste your own OpenAI or Anthropic key, LaunchDarkly runs the prompt for that session, and the key is dropped afterward. In production the model call goes through your own client.',
         ideas: ['Side-by-side outputs', 'Token counts', 'Key dropped after session'],
@@ -446,6 +506,7 @@ export const ROADMAPS: Record<ProductKey, RoadmapStepV2[]> = {
       cta: 'Enable tracking',
       icon: 'ruler',
       optional: true,
+      est: '~5 min',
       learn: {
         what: 'A config serves fine without it, but the tracking helpers are what fill the Monitoring tab and power experiments. They record token usage, latency, and satisfaction per variation, so you can compare prompts and models on real traffic. Recommended.',
         ideas: ['Tokens', 'Latency', 'Thumbs-up rate'],
@@ -458,6 +519,7 @@ export const ROADMAPS: Record<ProductKey, RoadmapStepV2[]> = {
       cta: 'Add targeting',
       icon: 'venn',
       optional: true,
+      est: '~3 min',
       learn: {
         what: 'Serve the expensive model to enterprise accounts and the fast one to the free tier, same code path, different config. Reuses the exact targeting you know from flags.',
         ideas: ['Enterprise to frontier', 'Free tier to fast', 'Internal to beta prompt'],
@@ -470,6 +532,7 @@ export const ROADMAPS: Record<ProductKey, RoadmapStepV2[]> = {
       cta: 'Create experiment',
       icon: 'beaker',
       optional: true,
+      est: '~5 min',
       learn: {
         what: 'When two prompts disagree, run an experiment on the AI Config and let your metric decide, the same experimentation engine pointed at models.',
         ideas: ['Prompt A/B', 'Cost vs quality'],
@@ -483,6 +546,8 @@ export const ROADMAPS: Record<ProductKey, RoadmapStepV2[]> = {
       blurb: 'Observability layers on the LaunchDarkly SDK.',
       cta: 'Add the plugins',
       icon: 'plug',
+      est: '~5 min',
+      docs: [{ label: 'Observability SDK setup', href: 'https://launchdarkly.com/docs/sdk/observability/javascript' }],
       learn: {
         what: 'Observability is not a separate agent; it is a plugin on the LaunchDarkly SDK. In the browser, initialize the JS SDK with your client-side ID and pass the session-replay and observability plugins. On the server, add the observability plugin to the Node or Python SDK. That single install starts capturing replays, errors, console, network, and performance automatically.',
         ideas: ['JS SDK + 2 plugins', 'Node / Python server', 'One init'],
@@ -494,6 +559,7 @@ export const ROADMAPS: Record<ProductKey, RoadmapStepV2[]> = {
       blurb: 'See exactly what your users saw.',
       cta: 'Open session replay',
       icon: 'play',
+      est: 'Instant',
       learn: {
         what: 'This is the payoff of the install, and why most teams start here: replay exactly what a user saw, with the console and network right beside it, and errors already captured. Replays are tied to the flag variations that were active at the time. Privacy is strict by default, so text and images are masked until you loosen it.',
         ideas: ['Session replay', 'Console + network', 'Strict privacy default'],
@@ -506,6 +572,7 @@ export const ROADMAPS: Record<ProductKey, RoadmapStepV2[]> = {
       cta: 'See the snippets',
       icon: 'article',
       optional: true,
+      est: '~5 min',
       learn: {
         what: 'Browser errors, logs, and traces are captured by the plugin on their own. Add one-line calls (record a log, start a span) or wire up your existing OpenTelemetry only when you want deeper coverage on the server or around specific code. Everything stays tagged with the active flag variations.',
         ideas: ['start_span', 'OTel compatible', 'Variation-tagged'],
@@ -518,6 +585,8 @@ export const ROADMAPS: Record<ProductKey, RoadmapStepV2[]> = {
       cta: 'Create a guarded metric',
       icon: 'shield',
       optional: true,
+      est: 'No-code option',
+      docs: [{ label: 'Guardrails from telemetry', href: 'https://launchdarkly.com/docs/home/metrics/autogen-metrics' }],
       learn: {
         what: 'The signature payoff: LaunchDarkly generates error-rate and latency metrics from your observability and OTEL data, ready to guard rollouts and experiments with no track() calls. This is what ties observability back to safe releases.',
         ideas: ['Error-rate guardrail', 'p95 guardrail', 'Autogenerated metrics'],
@@ -530,6 +599,7 @@ export const ROADMAPS: Record<ProductKey, RoadmapStepV2[]> = {
       cta: 'Browse integrations',
       icon: 'venn',
       optional: true,
+      est: '~10 min',
       learn: {
         what: 'Already invested in Datadog or an OpenTelemetry tool? Dual-send that data to LaunchDarkly too, with no re-instrumentation. New Relic over OTEL is supported, with fuller support coming.',
         ideas: ['Datadog dual-send', 'Open-source OTEL', 'New Relic OTEL'],
@@ -542,6 +612,7 @@ export const ROADMAPS: Record<ProductKey, RoadmapStepV2[]> = {
       cta: 'Create an alert',
       icon: 'sparkle',
       optional: true,
+      est: 'One-time',
       learn: {
         what: 'Alert on error spikes, session anomalies, or latency thresholds, delivered to Slack or a webhook, so the dashboard checks you instead of the other way around.',
         ideas: ['Error spike', 'Latency threshold', 'Slack'],
@@ -554,6 +625,7 @@ export const ROADMAPS: Record<ProductKey, RoadmapStepV2[]> = {
       cta: 'Open settings',
       icon: 'fingerprint',
       optional: true,
+      est: '~3 min',
       learn: {
         what: 'Privacy starts strict, with everything masked. Loosen masking where you need detail, exclude specific users from replay, and set sampling so you keep the sessions that matter at a volume you want to pay for.',
         ideas: ['Masking levels', 'Sampling', 'Excluded users'],
@@ -581,6 +653,7 @@ const FLAGS_UNIFIED: RoadmapStepV2[] = [
     blurb: 'One init call. Powers flags and guarded rollouts.',
     cta: 'Set up an SDK',
     icon: 'plug',
+    est: '~5 min',
     learn: {
       what: 'Drop the SDK into the service that owns the change. Server SDKs use the SDK key, browser apps use the client-side ID. The install snippet evaluates a flag with a context too, so you are live in one step. The same SDK powers plain flags and guarded rollouts; there is nothing separate to install for safety.',
       ideas: ['Node', 'Python', 'Go', 'iOS', 'MCP server'],
@@ -592,6 +665,7 @@ const FLAGS_UNIFIED: RoadmapStepV2[] = [
     blurb: 'Evaluate it with a context, same as any flag.',
     cta: 'Create a flag',
     icon: 'flag',
+    est: '~2 min',
     learn: {
       what: 'Create a boolean flag and call variation() with a context, which is who is asking. You pass the context in code; LaunchDarkly registers the context kind on its own as the flag is evaluated, with no separate UI setup. The built-in user kind works out of the box.',
       ideas: ['release-new-checkout', 'Kill switch', 'Context in code'],
@@ -603,6 +677,11 @@ const FLAGS_UNIFIED: RoadmapStepV2[] = [
     blurb: 'So the rollout can guard itself.',
     cta: 'Create a metric',
     icon: 'ruler',
+    est: 'No-code option',
+    docs: [
+      { label: 'Creating metrics', href: 'https://launchdarkly.com/docs/home/metrics/create-metrics' },
+      { label: 'Guardrails from telemetry', href: 'https://launchdarkly.com/docs/home/metrics/autogen-metrics' },
+    ],
     learn: {
       what: 'Create a LaunchDarkly metric for the number that hurts when it breaks, sharing the context kind your flag evaluates. Click and page-view metrics need no code; error and latency metrics are generated from observability or OTEL data; anything custom is one track() call. Set it up before you ship.',
       ideas: ['Checkout error rate', 'p95 latency', 'Conversion rate', 'One track() call'],
@@ -610,10 +689,15 @@ const FLAGS_UNIFIED: RoadmapStepV2[] = [
   },
   {
     key: 'ship',
-    title: 'Ship it as a guarded rollout',
+    title: 'Ship it as a guarded release',
     blurb: 'The safe default way to release a flag.',
     cta: 'Start guarded rollout',
     icon: 'shield',
+    est: '~3 min',
+    docs: [
+      { label: 'Guarded rollouts', href: 'https://launchdarkly.com/docs/home/releases/guarded-rollouts' },
+      { label: 'Set one up', href: 'https://launchdarkly.com/docs/home/releases/creating-guarded-rollouts' },
+    ],
     learn: {
       what: 'This is just how you ship a flag safely: roll out progressively, watch your metric, and decide per metric whether a regression rolls back automatically or just alerts you. Health checks confirm the flag is evaluating and the metric has events first, and a rollout needs a minimum number of contexts per stage to measure.',
       ideas: ['Progressive rollout', 'Auto-rollback or notify', '24-hour window'],
@@ -626,6 +710,7 @@ const FLAGS_UNIFIED: RoadmapStepV2[] = [
     cta: 'Create a segment',
     icon: 'venn',
     optional: true,
+    est: '~3 min',
     learn: {
       what: 'Targeting individuals, rules, and percentages needs no segment. Build a reusable segment when you want the same audience across more than one flag, like a beta cohort, enterprise plan, EU users, or risk tier 1.',
       ideas: ['Beta cohort', 'Enterprise plan', 'EU users'],
@@ -638,6 +723,8 @@ const FLAGS_UNIFIED: RoadmapStepV2[] = [
     cta: 'Add the plugins',
     icon: 'pulse',
     optional: true,
+    est: '~10 min',
+    docs: [{ label: 'Guardrails from telemetry', href: 'https://launchdarkly.com/docs/home/metrics/autogen-metrics' }],
     learn: {
       what: 'Add the observability plugins, or dual-send your existing Datadog or OTEL data. LaunchDarkly generates error-rate and latency metrics from that telemetry to guard releases on, with no track() calls to write.',
       ideas: ['Error-rate guardrail', 'p95 guardrail', 'Reuse Datadog/OTEL'],
@@ -650,6 +737,7 @@ const FLAGS_UNIFIED: RoadmapStepV2[] = [
     cta: 'Browse integrations',
     icon: 'mcp',
     optional: true,
+    est: 'One-time',
     learn: {
       what: 'Code references index where each flag lives in your repos so cleanup is safe later. Slack keeps the team on top of changes and rollbacks without watching a dashboard.',
       ideas: ['Code references', 'Slack updates', 'Flag triggers'],

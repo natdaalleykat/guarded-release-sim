@@ -126,10 +126,19 @@ export function HomeDSSplit({
               {step.cta}
               <LpIcon name="arrow-right-thin" size={16} />
             </DsButton>
-            {!step.sim && (
-              <span className="ds-muted" style={{ fontSize: 'var(--lp-font-size-100)' }}>opens the {def.label.toLowerCase()} setup in the real product</span>
-            )}
+            {step.est && <span className="ds-muted" style={{ fontSize: 'var(--lp-font-size-100)' }}>{step.est}</span>}
           </div>
+
+          {step.docs && step.docs.length > 0 && (
+            <div style={{ marginTop: 'var(--lp-spacing-400)', display: 'flex', alignItems: 'center', gap: 'var(--lp-spacing-400)', flexWrap: 'wrap' }}>
+              <span className="ds-section-label">Docs</span>
+              {step.docs.map((d) => (
+                <a key={d.href} href={d.href} target="_blank" rel="noreferrer" className="doc-link" style={{ fontSize: 'var(--lp-font-size-200)', color: 'var(--lp-color-fill-interactive-primary)', textDecoration: 'none', fontWeight: 'var(--lp-font-weight-medium)' }}>
+                  {d.label} ↗
+                </a>
+              ))}
+            </div>
+          )}
         </motion.div>
       </div>
     </div>
