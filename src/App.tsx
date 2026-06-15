@@ -13,7 +13,7 @@ const DIRS: { key: Dir; label: string; thesis: string }[] = [
   { key: 'D', label: '1 · Single pane', thesis: 'One roadmap pane, expandable steps' },
   { key: 'E', label: '2 · Split pane', thesis: 'Roadmap left, learning pane right' },
   { key: 'F', label: '3 · Gonfalon chart', thesis: 'Production-style results chart + live checkout view' },
-  { key: 'G', label: '4 · Unified', thesis: 'Flags and guarded releases as one, no separate Guardian' },
+  { key: 'G', label: '4 · Unified', thesis: 'Split pane with flags and guarded releases as one, no separate Guardian' },
 ]
 
 export default function App() {
@@ -58,8 +58,8 @@ export default function App() {
             >
               {dir === 'D' && <HomeV2Single product={product} onProduct={setProduct} onWatch={open} />}
               {dir === 'F' && <HomeV2Single product={product} onProduct={setProduct} onWatch={open} />}
-              {dir === 'G' && <HomeV2Single product={product} onProduct={setProduct} onWatch={open} unified />}
               {dir === 'E' && <HomeV2Split product={product} onProduct={setProduct} onWatch={open} />}
+              {dir === 'G' && <HomeV2Split product={product} onProduct={setProduct} onWatch={open} unified />}
             </motion.div>
           </AnimatePresence>
         </div>

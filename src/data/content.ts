@@ -149,19 +149,19 @@ export const PACES: PaceOption[] = [
     key: 'cautious',
     label: 'Cautious',
     perStep: '1% → 5% → 10%',
-    blurb: 'Small steps. The most traffic protected while you watch.',
+    blurb: 'Small steps. The fewest customers exposed while you watch.',
   },
   {
     key: 'balanced',
     label: 'Balanced',
     perStep: '5% → 25% → 50%',
-    blurb: 'A middle path. The usual choice.',
+    blurb: 'Moderate steps. The usual choice.',
   },
   {
     key: 'fast',
     label: 'Fast',
     perStep: '25% → 50% → 100%',
-    blurb: 'Big jumps. For low-risk changes you want out quickly.',
+    blurb: 'Big steps, out to everyone quickly.',
   },
 ]
 

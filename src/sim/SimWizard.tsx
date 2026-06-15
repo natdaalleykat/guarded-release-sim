@@ -181,7 +181,7 @@ function StepConfigure({
         <CfgRow label="Ramp" caption={p.blurb}>
           {PACES.map((x) => (
             <Pill key={x.key} on={config.pace === x.key} onClick={() => onChange({ pace: x.key })}>
-              {x.label} · {x.perStep}
+              {x.label}
             </Pill>
           ))}
         </CfgRow>

@@ -1,6 +1,13 @@
 import { useEffect, useState } from 'react'
 import { motion } from 'framer-motion'
-import { ROADMAPS, PRODUCTS, type ProductKey, type RoadmapStepV2 } from '../data/home'
+import {
+  ROADMAPS,
+  ROADMAPS_UNIFIED,
+  PRODUCTS,
+  PRODUCTS_UNIFIED,
+  type ProductKey,
+  type RoadmapStepV2,
+} from '../data/home'
 import { WelcomeRow, ProductPicker, SimHero, GlyphIcon } from './blocks'
 import { ShieldHeart, ArrowRight } from '../components/icons'
 import { IcChevron } from '../components/navicons'
@@ -9,17 +16,24 @@ export function HomeV2Split({
   product,
   onProduct,
   onWatch,
+  unified = false,
 }: {
   product: ProductKey
   onProduct: (k: ProductKey) => void
   onWatch: () => void
+  unified?: boolean
 }) {
-  const steps = ROADMAPS[product]
+  const roadmaps = unified ? ROADMAPS_UNIFIED : ROADMAPS
+  const products = unified ? PRODUCTS_UNIFIED : PRODUCTS
+  // in unified mode there is no separate "guarded" tile; show it as flags
+  const activeProduct = unified && product === 'guarded' ? 'flags' : product
+  const steps = roadmaps[activeProduct]
   const required = steps.filter((s) => !s.optional)
   const optional = steps.filter((s) => s.optional)
-  const def = PRODUCTS.find((p) => p.key === product)!
+  const def = products.find((p) => p.key === activeProduct)!
   const [sel, setSel] = useState(steps[0].key)
-  useEffect(() => setSel(ROADMAPS[product][0].key), [product])
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  useEffect(() => setSel(roadmaps[activeProduct][0].key), [activeProduct, unified])
 
   const idx = Math.max(0, steps.findIndex((s) => s.key === sel))
   const step = steps[idx]
@@ -27,7 +41,7 @@ export function HomeV2Split({
 
   const listRow = (s: RoadmapStepV2, i: number, isOptional: boolean) => (
     <div
-      key={`${product}-${s.key}`}
+      key={`${activeProduct}-${s.key}`}
       className={`road-step ${sel === s.key ? 'active' : ''}`}
       onClick={() => setSel(s.key)}
       style={{ alignItems: 'center', padding: '11px 12px' }}
@@ -55,10 +69,12 @@ export function HomeV2Split({
 
       <div style={{ margin: '28px 0 12px' }}>
         <div style={{ display: 'flex', alignItems: 'baseline', justifyContent: 'space-between', gap: 12, marginBottom: 12 }}>
-          <h2 style={{ fontSize: 15, fontWeight: 700 }}>What do you want to try first?</h2>
+          <h2 style={{ fontSize: 15, fontWeight: 700 }}>
+            {unified ? 'One platform. What do you want to try first?' : 'What do you want to try first?'}
+          </h2>
           <span className="faint" style={{ fontSize: 12.5 }}>just a starting point, change anytime</span>
         </div>
-        <ProductPicker value={product} onChange={onProduct} />
+        <ProductPicker value={activeProduct} onChange={onProduct} products={products} />
       </div>
 
       <div
@@ -81,7 +97,7 @@ export function HomeV2Split({
 
         {/* learning pane */}
         <motion.div
-          key={`${product}-${sel}`}
+          key={`${activeProduct}-${sel}`}
           className="card card-pad"
           initial={{ opacity: 0, x: 10 }}
           animate={{ opacity: 1, x: 0 }}
