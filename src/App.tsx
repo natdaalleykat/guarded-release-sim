@@ -2,23 +2,25 @@ import { useEffect, useState } from 'react'
 import { AnimatePresence, motion } from 'framer-motion'
 import { Sidebar } from './product/Sidebar'
 import { TopBar } from './product/TopBar'
-import { HomeV2Single } from './product/HomeV2Single'
 import { HomeV2Split } from './product/HomeV2Split'
+import { HomeDSSplit } from './product/HomeDSSplit'
 import { SimWizard } from './sim/SimWizard'
 import type { ProductKey } from './data/home'
 
-type Dir = 'D' | 'E' | 'F' | 'G'
+type Dir = 'split' | 'unified' | 'ds-split' | 'ds-unified'
 
 const DIRS: { key: Dir; label: string; thesis: string }[] = [
-  { key: 'D', label: '1 · Single pane', thesis: 'One roadmap pane, expandable steps' },
-  { key: 'E', label: '2 · Split pane', thesis: 'Roadmap left, learning pane right' },
-  { key: 'F', label: '3 · Gonfalon chart', thesis: 'Production-style results chart + live checkout view' },
-  { key: 'G', label: '4 · Unified', thesis: 'Split pane with flags and guarded releases as one, no separate Guardian' },
+  { key: 'split', label: '1 · Split pane', thesis: 'Roadmap left, learning pane right' },
+  { key: 'unified', label: '2 · Unified', thesis: 'Flags and guarded releases as one, no separate Guardian' },
+  { key: 'ds-split', label: '3 · Split pane (LP)', thesis: 'Same as 1, restyled in the Launchpad design system' },
+  { key: 'ds-unified', label: '4 · Unified (LP)', thesis: 'Same as 2, restyled in the Launchpad design system' },
 ]
+
+const UNIFIED = new Set<Dir>(['unified', 'ds-unified'])
 
 export default function App() {
   const [wizardOpen, setWizardOpen] = useState(false)
-  const [dir, setDir] = useState<Dir>('D')
+  const [dir, setDir] = useState<Dir>('split')
   const [product, setProduct] = useState<ProductKey>('guarded')
 
   useEffect(() => {
@@ -35,11 +37,11 @@ export default function App() {
 
   const open = () => setWizardOpen(true)
 
-  // Finishing the sim closes the wizard and lands you on the guarded-release
-  // setup path. In the unified concept that path lives under Feature flags.
+  // Finishing the sim lands on the guarded-release setup path. In the unified
+  // concepts that path lives under Feature flags.
   const finish = () => {
     setWizardOpen(false)
-    setProduct(dir === 'G' ? 'flags' : 'guarded')
+    setProduct(UNIFIED.has(dir) ? 'flags' : 'guarded')
   }
 
   return (
@@ -56,10 +58,10 @@ export default function App() {
               exit={{ opacity: 0, y: -8 }}
               transition={{ duration: 0.28, ease: [0.16, 1, 0.3, 1] }}
             >
-              {dir === 'D' && <HomeV2Single product={product} onProduct={setProduct} onWatch={open} />}
-              {dir === 'F' && <HomeV2Single product={product} onProduct={setProduct} onWatch={open} />}
-              {dir === 'E' && <HomeV2Split product={product} onProduct={setProduct} onWatch={open} />}
-              {dir === 'G' && <HomeV2Split product={product} onProduct={setProduct} onWatch={open} unified />}
+              {dir === 'split' && <HomeV2Split product={product} onProduct={setProduct} onWatch={open} />}
+              {dir === 'unified' && <HomeV2Split product={product} onProduct={setProduct} onWatch={open} unified />}
+              {dir === 'ds-split' && <HomeDSSplit product={product} onProduct={setProduct} onWatch={open} />}
+              {dir === 'ds-unified' && <HomeDSSplit product={product} onProduct={setProduct} onWatch={open} unified />}
             </motion.div>
           </AnimatePresence>
         </div>
@@ -76,13 +78,7 @@ export default function App() {
       </div>
 
       <AnimatePresence>
-        {wizardOpen && (
-          <SimWizard
-            onClose={() => setWizardOpen(false)}
-            onFinish={finish}
-            chartVariant={dir === 'F' ? 'gonfalon' : 'default'}
-          />
-        )}
+        {wizardOpen && <SimWizard onClose={() => setWizardOpen(false)} onFinish={finish} />}
       </AnimatePresence>
     </div>
   )

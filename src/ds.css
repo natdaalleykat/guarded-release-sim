@@ -1,0 +1,170 @@
+/* =========================================================================
+   Design-system styling for the "(design system)" home options.
+   Everything here uses Launchpad tokens (--lp-*) and the Launchpad display
+   font, so these pages look like the real product. Scoped under .ds-scope.
+   ========================================================================= */
+
+.ds-scope {
+  font-family: var(--lp-font-family-base);
+  color: var(--lp-color-text-ui-primary-base);
+}
+
+.ds-display {
+  font-family: var(--lp-font-family-display);
+  font-weight: var(--lp-font-weight-regular);
+  letter-spacing: -0.01em;
+  line-height: 1.1;
+}
+.ds-muted { color: var(--lp-color-text-ui-secondary); }
+
+.ds-card {
+  background: var(--lp-color-bg-ui-primary);
+  border: 1px solid var(--lp-color-border-ui-primary);
+  border-radius: var(--lp-border-radius-medium);
+}
+.ds-card-pad { padding: var(--lp-spacing-600); }
+
+.ds-section-label {
+  font-size: var(--lp-font-size-100);
+  font-weight: var(--lp-font-weight-semibold);
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--lp-color-text-ui-secondary);
+}
+
+/* chips / tags */
+.ds-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--lp-spacing-200);
+  padding: 2px var(--lp-spacing-300);
+  border-radius: 999px;
+  font-size: var(--lp-font-size-100);
+  font-weight: var(--lp-font-weight-semibold);
+  background: var(--lp-color-bg-ui-tertiary);
+  color: var(--lp-color-text-ui-secondary);
+}
+.ds-chip.brand { background: var(--lp-color-bg-feedback-info); color: var(--lp-color-text-feedback-info); }
+.ds-chip.success { background: var(--lp-color-bg-feedback-success); color: var(--lp-color-text-feedback-success); }
+.ds-chip.warning { background: var(--lp-color-bg-feedback-warning); color: var(--lp-color-text-feedback-warning); }
+
+/* hero */
+.ds-hero {
+  position: relative;
+  overflow: hidden;
+  border-radius: var(--lp-border-radius-medium);
+  border: 1px solid var(--lp-color-border-ui-primary);
+  background:
+    radial-gradient(120% 140% at 100% 0%, rgba(135, 23, 205, 0.08), transparent 55%),
+    linear-gradient(180deg, var(--lp-color-bg-feedback-info) 0%, var(--lp-color-bg-ui-primary) 70%);
+  padding: var(--lp-spacing-800);
+}
+
+/* product picker */
+.ds-pick {
+  display: flex;
+  align-items: center;
+  gap: var(--lp-spacing-400);
+  padding: var(--lp-spacing-400);
+  border-radius: var(--lp-border-radius-medium);
+  border: 1.5px solid var(--lp-color-border-ui-primary);
+  background: var(--lp-color-bg-ui-primary);
+  text-align: left;
+  position: relative;
+  transition: border-color 0.12s ease;
+}
+.ds-pick:hover { border-color: var(--lp-color-border-ui-secondary); }
+.ds-pick.on {
+  border-color: var(--lp-color-border-interactive-selected);
+  background: var(--lp-color-bg-interactive-selected);
+  box-shadow: 0 0 0 1px var(--lp-color-border-interactive-selected);
+}
+.ds-pick-ic {
+  width: 34px;
+  height: 34px;
+  border-radius: var(--lp-border-radius-medium);
+  display: grid;
+  place-items: center;
+  flex: 0 0 auto;
+  color: #fff;
+}
+.ds-pick-check {
+  position: absolute;
+  top: var(--lp-spacing-300);
+  right: var(--lp-spacing-300);
+  color: var(--lp-color-fill-interactive-primary);
+}
+
+/* roadmap list */
+.ds-step {
+  display: flex;
+  align-items: center;
+  gap: var(--lp-spacing-400);
+  padding: var(--lp-spacing-400);
+  border-radius: var(--lp-border-radius-medium);
+  cursor: pointer;
+  transition: background 0.12s ease;
+}
+.ds-step:hover { background: var(--lp-color-bg-ui-secondary); }
+.ds-step.active { background: var(--lp-color-bg-interactive-selected); }
+.ds-node {
+  flex: 0 0 auto;
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  display: grid;
+  place-items: center;
+  background: var(--lp-color-bg-ui-secondary);
+  border: 1.5px solid var(--lp-color-border-ui-primary);
+  color: var(--lp-color-text-ui-secondary);
+  font-size: var(--lp-font-size-200);
+  font-weight: var(--lp-font-weight-bold);
+  font-variant-numeric: tabular-nums;
+}
+.ds-step.active .ds-node {
+  border-color: var(--lp-color-border-interactive-selected);
+  color: var(--lp-color-fill-interactive-primary);
+}
+
+/* learning-pane step icon */
+.ds-step-ic {
+  width: 38px;
+  height: 38px;
+  border-radius: var(--lp-border-radius-medium);
+  display: grid;
+  place-items: center;
+  flex: 0 0 auto;
+  color: #fff;
+}
+
+.ds-hairline { height: 1px; background: var(--lp-color-border-ui-primary); width: 100%; }
+
+/* token-faithful Launchpad-style buttons */
+.ds-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--lp-spacing-200);
+  border: 1px solid transparent;
+  border-radius: var(--lp-border-radius-medium);
+  font-family: var(--lp-font-family-base);
+  font-weight: var(--lp-font-weight-semibold);
+  font-size: var(--lp-font-size-200);
+  line-height: 1;
+  padding: var(--lp-spacing-300) var(--lp-spacing-500);
+  cursor: pointer;
+  transition: background 0.12s ease;
+}
+.ds-btn.lg { font-size: var(--lp-font-size-300); padding: var(--lp-spacing-400) var(--lp-spacing-600); }
+.ds-btn.primary { background: var(--lp-color-bg-interactive-primary-base); color: var(--lp-color-text-ui-primary-inverted); }
+.ds-btn.primary:hover { background: var(--lp-color-bg-interactive-primary-hover); }
+.ds-btn.default { background: var(--lp-color-bg-ui-primary); color: var(--lp-color-text-ui-primary-base); border-color: var(--lp-color-border-ui-primary); }
+.ds-btn.default:hover { background: var(--lp-color-bg-ui-secondary); }
+.ds-btn.minimal { background: transparent; color: var(--lp-color-text-ui-primary-base); }
+.ds-btn.minimal:hover { background: var(--lp-color-bg-ui-secondary); }
+
+/* mini rollout dots in the hero */
+.ds-mini { display: flex; gap: 4px; }
+.ds-mini-cell { width: 13px; height: 13px; border-radius: var(--lp-border-radius-regular); background: var(--lp-color-bg-ui-tertiary); }
+.ds-mini-cell.on { background: var(--lp-color-fill-interactive-primary); }
+.ds-mini-cell.bad { background: var(--lp-color-fill-feedback-error); }

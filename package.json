@@ -12,6 +12,7 @@
     "@launchpad-ui/components": "^0.20.0",
     "@launchpad-ui/icons": "^0.26.0",
     "@launchpad-ui/tokens": "^0.16.0",
+    "@react-stately/utils": "^3.12.1",
     "framer-motion": "^11.18.0",
     "react": "^19.1.0",
     "react-dom": "^19.1.0"
