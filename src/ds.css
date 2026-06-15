@@ -9,11 +9,13 @@
   color: var(--lp-color-text-ui-primary-base);
 }
 
+/* Headings use the real product font (Inter). Audimat 3000 is Launchpad's
+   --lp-text-display-1 token only (60px marketing display), not product UI. */
 .ds-display {
-  font-family: var(--lp-font-family-display);
-  font-weight: var(--lp-font-weight-regular);
-  letter-spacing: -0.01em;
-  line-height: 1.1;
+  font-family: var(--lp-font-family-base);
+  font-weight: var(--lp-font-weight-semibold);
+  letter-spacing: -0.02em;
+  line-height: 1.15;
 }
 .ds-muted { color: var(--lp-color-text-ui-secondary); }
 

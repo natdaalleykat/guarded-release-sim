@@ -42,7 +42,7 @@ export function HomeDSSplit({
       className={`ds-step ${sel === s.key ? 'active' : ''}`}
       onClick={() => setSel(s.key)}
     >
-      <span className="ds-node">{isOptional ? '+' : i + 1}</span>
+      <span className="ds-node">{isOptional ? <DsIcon glyph={s.icon} size={15} /> : i + 1}</span>
       <div style={{ flex: 1, minWidth: 0 }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: 'var(--lp-spacing-300)' }}>
           <span style={{ fontSize: 'var(--lp-font-size-200)', fontWeight: 'var(--lp-font-weight-semibold)' }}>{s.title}</span>

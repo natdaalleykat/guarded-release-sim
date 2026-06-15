@@ -50,20 +50,19 @@ export default function App() {
       <div className="main">
         <TopBar />
         <div className="content">
-          <AnimatePresence mode="wait">
-            <motion.div
-              key={dir}
-              initial={{ opacity: 0, y: 8 }}
-              animate={{ opacity: 1, y: 0 }}
-              exit={{ opacity: 0, y: -8 }}
-              transition={{ duration: 0.28, ease: [0.16, 1, 0.3, 1] }}
-            >
-              {dir === 'split' && <HomeV2Split product={product} onProduct={setProduct} onWatch={open} />}
-              {dir === 'unified' && <HomeV2Split product={product} onProduct={setProduct} onWatch={open} unified />}
-              {dir === 'ds-split' && <HomeDSSplit product={product} onProduct={setProduct} onWatch={open} />}
-              {dir === 'ds-unified' && <HomeDSSplit product={product} onProduct={setProduct} onWatch={open} unified />}
-            </motion.div>
-          </AnimatePresence>
+          {/* keyed fade-in per concept; no AnimatePresence mode="wait" so a
+              switch can never hang waiting on an exit animation */}
+          <motion.div
+            key={dir}
+            initial={{ opacity: 0, y: 8 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.28, ease: [0.16, 1, 0.3, 1] }}
+          >
+            {dir === 'split' && <HomeV2Split product={product} onProduct={setProduct} onWatch={open} />}
+            {dir === 'unified' && <HomeV2Split product={product} onProduct={setProduct} onWatch={open} unified />}
+            {dir === 'ds-split' && <HomeDSSplit product={product} onProduct={setProduct} onWatch={open} />}
+            {dir === 'ds-unified' && <HomeDSSplit product={product} onProduct={setProduct} onWatch={open} unified />}
+          </motion.div>
         </div>
       </div>
 

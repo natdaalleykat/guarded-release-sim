@@ -47,7 +47,7 @@ export function HomeV2Split({
       style={{ alignItems: 'center', padding: '11px 12px' }}
     >
       <span className="road-node" style={{ fontSize: 12.5, fontWeight: 700 }}>
-        {isOptional ? '+' : i + 1}
+        {isOptional ? <GlyphIcon icon={s.icon} size={15} /> : i + 1}
       </span>
       <div style={{ flex: 1, minWidth: 0 }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: 7 }}>
