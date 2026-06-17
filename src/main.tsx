@@ -1,4 +1,5 @@
 import { createRoot } from 'react-dom/client'
+import { BrowserRouter } from 'react-router-dom'
 // Launchpad design system (used by the "design system" home options).
 // Imported before index.css so our custom theme's body rules win for the
 // non-design-system options.
@@ -19,4 +20,11 @@ spriteHost.setAttribute('aria-hidden', 'true')
 spriteHost.innerHTML = sprite
 document.body.prepend(spriteHost)
 
-createRoot(document.getElementById('root')!).render(<App />)
+// In production the app is served from /guarded-release-sim/; in dev from /.
+const basename = import.meta.env.BASE_URL.replace(/\/$/, '')
+
+createRoot(document.getElementById('root')!).render(
+  <BrowserRouter basename={basename}>
+    <App />
+  </BrowserRouter>,
+)
