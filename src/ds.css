@@ -170,3 +170,72 @@
 .ds-mini-cell { width: 13px; height: 13px; border-radius: var(--lp-border-radius-regular); background: var(--lp-color-bg-ui-tertiary); }
 .ds-mini-cell.on { background: var(--lp-color-fill-interactive-primary); }
 .ds-mini-cell.bad { background: var(--lp-color-fill-feedback-error); }
+
+/* journey rail (concept 4) */
+.ds-journey-node {
+  display: flex;
+  align-items: center;
+  gap: var(--lp-spacing-300);
+  padding: var(--lp-spacing-300) var(--lp-spacing-400);
+  border-radius: var(--lp-border-radius-medium);
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  text-align: left;
+  transition: background 0.12s ease;
+}
+.ds-journey-node:hover { background: var(--lp-color-bg-ui-secondary); }
+.ds-journey-node[data-state='current'] { background: var(--lp-color-bg-interactive-selected); }
+.ds-journey-ic {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  display: grid;
+  place-items: center;
+  flex: 0 0 auto;
+  background: var(--lp-color-bg-ui-tertiary);
+  color: var(--lp-color-text-ui-secondary);
+}
+.ds-journey-line { flex: 1; height: 2px; min-width: 16px; background: var(--lp-color-border-ui-primary); }
+.ds-journey-line[data-done] { background: rgb(0, 131, 68); }
+
+/* control-plane track cards (concept 5) */
+.ds-track {
+  display: flex;
+  align-items: center;
+  gap: var(--lp-spacing-400);
+  padding: var(--lp-spacing-500);
+  border-radius: var(--lp-border-radius-medium);
+  border: 1.5px solid var(--lp-color-border-ui-primary);
+  background: var(--lp-color-bg-ui-primary);
+  cursor: pointer;
+  position: relative;
+  transition: border-color 0.12s ease, box-shadow 0.12s ease;
+}
+.ds-track:hover { border-color: var(--lp-color-border-ui-secondary); }
+.ds-track.on { border-color: var(--tc); box-shadow: 0 0 0 1px var(--tc); }
+.ds-track-ic {
+  width: 40px;
+  height: 40px;
+  border-radius: var(--lp-border-radius-medium);
+  display: grid;
+  place-items: center;
+  flex: 0 0 auto;
+  color: #fff;
+}
+
+/* plane rows (concept 6) */
+.ds-plane-row {
+  display: flex;
+  align-items: center;
+  gap: var(--lp-spacing-300);
+  padding: var(--lp-spacing-300) var(--lp-spacing-400);
+  border-radius: var(--lp-border-radius-medium);
+  border: 1px solid var(--lp-color-border-ui-primary);
+  background: var(--lp-color-bg-ui-primary);
+  cursor: pointer;
+  text-align: left;
+  transition: border-color 0.12s ease, background 0.12s ease;
+}
+.ds-plane-row:hover { background: var(--lp-color-bg-ui-secondary); }
+.ds-plane-row.on { border-color: var(--lp-color-border-interactive-selected); background: var(--lp-color-bg-interactive-selected); }

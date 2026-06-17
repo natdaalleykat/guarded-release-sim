@@ -4,15 +4,19 @@ import { Sidebar } from './product/Sidebar'
 import { TopBar } from './product/TopBar'
 import { HomeDSSplit } from './product/HomeDSSplit'
 import { HomeV2SplitActive } from './product/HomeV2SplitActive'
+import { HomeDSJourney, HomeDSTracks, HomeDSPlanes } from './product/HomeConcepts'
 import { SimWizard } from './sim/SimWizard'
 import type { ProductKey } from './data/home'
 
-type Dir = 'ds-split' | 'ds-unified' | 'active'
+type Dir = 'ds-split' | 'ds-unified' | 'active' | 'journey' | 'tracks' | 'planes'
 
 const DIRS: { key: Dir; label: string; thesis: string }[] = [
   { key: 'ds-split', label: '1 · Split pane', thesis: 'Roadmap left, learning pane right' },
   { key: 'ds-unified', label: '2 · Unified', thesis: 'Flags and guarded releases as one, no separate guarded tile' },
   { key: 'active', label: '3 · Active pane', thesis: 'Right pane does the step: real SDK key, snippet, live connect' },
+  { key: 'journey', label: '4 · Journey', thesis: 'Set up one product, then the next, with progress across the platform' },
+  { key: 'tracks', label: '5 · Code vs Agent', thesis: 'Two control planes; pick a side, then a product (toggle)' },
+  { key: 'planes', label: '6 · Two planes', thesis: 'CodeControl and AgentControl side by side; pick any product' },
 ]
 
 const UNIFIED = new Set<Dir>(['ds-unified', 'active'])
@@ -60,6 +64,9 @@ export default function App() {
             {dir === 'ds-split' && <HomeDSSplit product={product} onProduct={setProduct} onWatch={open} />}
             {dir === 'ds-unified' && <HomeDSSplit product={product} onProduct={setProduct} onWatch={open} unified />}
             {dir === 'active' && <HomeV2SplitActive product={product} onProduct={setProduct} onWatch={open} unified />}
+            {dir === 'journey' && <HomeDSJourney onWatch={open} />}
+            {dir === 'tracks' && <HomeDSTracks onWatch={open} />}
+            {dir === 'planes' && <HomeDSPlanes onWatch={open} />}
           </motion.div>
         </div>
       </div>

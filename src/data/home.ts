@@ -720,3 +720,60 @@ export const ROADMAPS_UNIFIED: Record<ProductKey, RoadmapStepV2[]> = {
   ...ROADMAPS,
   flags: FLAGS_UNIFIED,
 }
+
+/* =========================================================================
+   Control-plane framing (concepts 5 and 6). LaunchDarkly splits the platform
+   into CodeControl ("control your code in production") and AgentControl
+   ("control your agents in production"), under the hero "Move at AI speed.
+   Stay in control." Each plane groups products that reuse the roadmaps above.
+   Source: launchdarkly.com.
+   ========================================================================= */
+
+export interface TrackProduct {
+  key: string
+  roadmapKey: ProductKey
+  unified?: boolean
+  label: string
+  blurb: string
+  icon: Glyph
+  color: string
+}
+
+export interface ControlTrack {
+  key: 'code' | 'agent'
+  label: string
+  tagline: string
+  blurb: string
+  icon: Glyph
+  color: string
+  products: TrackProduct[]
+}
+
+export const TRACKS: ControlTrack[] = [
+  {
+    key: 'code',
+    label: 'CodeControl',
+    tagline: 'Ship confidently, with control built in',
+    blurb: 'Control your code in production',
+    icon: 'flag',
+    color: 'rgb(66,94,255)',
+    products: [
+      { key: 'flags', roadmapKey: 'flags', unified: true, label: 'Feature flags', blurb: 'Targeting + guarded rollouts', icon: 'flag', color: 'rgb(66,94,255)' },
+      { key: 'experiments', roadmapKey: 'experiments', label: 'Experimentation', blurb: 'Measure what works', icon: 'beaker', color: 'rgb(214,122,0)' },
+      { key: 'observability', roadmapKey: 'observability', label: 'Observability', blurb: 'Replay, errors, logs, traces', icon: 'pulse', color: 'rgb(0,131,68)' },
+    ],
+  },
+  {
+    key: 'agent',
+    label: 'AgentControl',
+    tagline: 'Keep agent behavior under control',
+    blurb: 'Control your agents in production',
+    icon: 'hub',
+    color: 'rgb(135,23,205)',
+    products: [
+      { key: 'aiconfigs', roadmapKey: 'aiconfigs', label: 'AI Configs', blurb: 'Models, prompts, playground', icon: 'hub', color: 'rgb(135,23,205)' },
+      { key: 'agent-exp', roadmapKey: 'experiments', label: 'Agent experiments', blurb: 'A/B prompts and models', icon: 'beaker', color: 'rgb(214,122,0)' },
+      { key: 'agent-o11y', roadmapKey: 'observability', label: 'Agent observability', blurb: 'LLM traces, evals, insights', icon: 'pulse', color: 'rgb(0,131,68)' },
+    ],
+  },
+]
