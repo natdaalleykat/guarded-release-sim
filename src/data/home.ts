@@ -135,7 +135,7 @@ export const PRODUCTS: ProductDef[] = [
   { key: 'guarded', label: 'Guarded releases', blurb: 'Ship safely, auto-rollback', icon: 'shield', color: 'rgb(66,94,255)' },
   { key: 'flags', label: 'Feature flags', blurb: 'Control what ships, to whom', icon: 'flag', color: 'rgb(8,150,180)' },
   { key: 'experiments', label: 'Experimentation', blurb: 'Measure what works', icon: 'beaker', color: 'rgb(214,122,0)' },
-  { key: 'aiconfigs', label: 'AI Configs', blurb: 'Models and prompts, live', icon: 'hub', color: 'rgb(135,23,205)' },
+  { key: 'aiconfigs', label: 'AgentControl', blurb: 'Control your agents in production', icon: 'hub', color: 'rgb(135,23,205)' },
   { key: 'observability', label: 'Observability', blurb: 'Session replay, errors, logs, traces', icon: 'pulse', color: 'rgb(0,131,68)' },
 ]
 
@@ -443,41 +443,28 @@ export const ROADMAPS: Record<ProductKey, RoadmapStepV2[]> = {
   ],
   aiconfigs: [
     {
-      key: 'config',
-      title: 'Create an AI Config',
-      blurb: 'Model + messages as a variation.',
-      cta: 'Create AI Config',
-      icon: 'hub',
-      est: '~3 min',
-      docs: [{ label: 'AI Configs quickstart', href: 'https://launchdarkly.com/docs/home/ai-configs/quickstart' }],
+      key: 'playground',
+      title: 'Try it in the playground',
+      blurb: 'Compare prompts and models. No code.',
+      cta: 'Open the playground',
+      icon: 'playground',
+      est: 'No code',
       learn: {
-        what: 'Create an AI Config and add its first variation: the model plus your system and user messages. Completion mode is the right default (agent and judge modes are there when you need them). It is targeted like a flag, so you can change models and prompts at runtime with no deploy.',
-        ideas: ['GPT vs Claude', 'Prompt v2', 'Runtime swap'],
+        what: 'The fastest way to feel the value, with zero setup: compare models and prompts side by side right in LaunchDarkly, no SDK and no code. During the trial we cover the LLM cost, so you do not even need your own provider key to start. Whatever you settle on is saved as an AI Config you can take to your app next.',
+        ideas: ['Compare models', 'Compare prompts', 'Trial covers the LLM cost'],
       },
     },
     {
       key: 'sdk',
-      title: 'Install the AI SDK and serve it',
-      blurb: 'Same SDK key as flags. Your provider client.',
+      title: 'Bring it into your app',
+      blurb: 'Install the AI SDK and serve your config.',
       cta: 'Install AI SDK',
       icon: 'plug',
       est: '~10 min',
+      docs: [{ label: 'AI Configs quickstart', href: 'https://launchdarkly.com/docs/home/ai-configs/quickstart' }],
       learn: {
-        what: 'Add the AI package on top of the server SDK; it uses the same SDK key as flags, with no separate AI key. Fetch the config with a context and a fallback value, then call your own provider client with what it returns. LaunchDarkly delivers the config; the model call stays yours.',
+        what: 'When you are ready for production, add the AI package on top of the server SDK; it uses the same SDK key as flags, with no separate AI key. Fetch the AI Config you built with a context and a fallback, then call your own provider client with what it returns. LaunchDarkly delivers the config; the model call stays yours.',
         ideas: ['server-sdk-ai', 'Your provider client', 'Context + fallback'],
-      },
-    },
-    {
-      key: 'playground',
-      title: 'Try it in the playground',
-      blurb: 'No code. Bring your provider key.',
-      cta: 'Open playground',
-      icon: 'playground',
-      optional: true,
-      est: 'No code',
-      learn: {
-        what: 'The fastest proof it works, with no code: run your variation against real prompts right in LaunchDarkly. You paste your own OpenAI or Anthropic key, LaunchDarkly runs the prompt for that session, and the key is dropped afterward. In production the model call goes through your own client.',
-        ideas: ['Side-by-side outputs', 'Token counts', 'Key dropped after session'],
       },
     },
     {
@@ -515,7 +502,7 @@ export const ROADMAPS: Record<ProductKey, RoadmapStepV2[]> = {
       optional: true,
       est: '~5 min',
       learn: {
-        what: 'When two prompts disagree, run an experiment on the AI Config and let your metric decide, the same experimentation engine pointed at models.',
+        what: 'When two prompts disagree, run an experiment on the AI Config and let your metric decide, the same experimentation engine pointed at models. A natural next step once traffic is flowing.',
         ideas: ['Prompt A/B', 'Cost vs quality'],
       },
     },
@@ -623,7 +610,7 @@ export const ROADMAPS: Record<ProductKey, RoadmapStepV2[]> = {
 export const PRODUCTS_UNIFIED: ProductDef[] = [
   { key: 'flags', label: 'Feature flags', blurb: 'Targeting + guarded rollouts', icon: 'flag', color: 'rgb(66,94,255)' },
   { key: 'experiments', label: 'Experimentation', blurb: 'Measure what works', icon: 'beaker', color: 'rgb(214,122,0)' },
-  { key: 'aiconfigs', label: 'AI Configs', blurb: 'Models and prompts, live', icon: 'hub', color: 'rgb(135,23,205)' },
+  { key: 'aiconfigs', label: 'AgentControl', blurb: 'Control your agents in production', icon: 'hub', color: 'rgb(135,23,205)' },
   { key: 'observability', label: 'Observability', blurb: 'Session replay, errors, logs, traces', icon: 'pulse', color: 'rgb(0,131,68)' },
 ]
 

@@ -65,9 +65,9 @@ export function HomeDSSplit({
       <div style={{ margin: 'var(--lp-spacing-800) 0 var(--lp-spacing-400)' }}>
         <div style={{ display: 'flex', alignItems: 'baseline', justifyContent: 'space-between', gap: 12, marginBottom: 'var(--lp-spacing-400)' }}>
           <h2 className="ds-display" style={{ fontSize: 'var(--lp-font-size-400)' }}>
-            {unified ? 'One platform. What do you want to try first?' : 'What do you want to try first?'}
+            {unified ? 'One platform. Where do you want to start?' : 'Where do you want to start?'}
           </h2>
-          <span className="ds-muted" style={{ fontSize: 'var(--lp-font-size-200)' }}>just a starting point, change anytime</span>
+          <span className="ds-muted" style={{ fontSize: 'var(--lp-font-size-200)' }}>set these up over time, in any order. start with whatever matters most today</span>
         </div>
         <DsProductPicker value={activeProduct} onChange={onProduct} products={products} />
       </div>

@@ -2,25 +2,24 @@ import { useEffect, useState } from 'react'
 import { AnimatePresence, motion } from 'framer-motion'
 import { Sidebar } from './product/Sidebar'
 import { TopBar } from './product/TopBar'
-import { HomeV2Split } from './product/HomeV2Split'
 import { HomeDSSplit } from './product/HomeDSSplit'
+import { HomeV2SplitActive } from './product/HomeV2SplitActive'
 import { SimWizard } from './sim/SimWizard'
 import type { ProductKey } from './data/home'
 
-type Dir = 'split' | 'unified' | 'ds-split' | 'ds-unified'
+type Dir = 'ds-split' | 'ds-unified' | 'active'
 
 const DIRS: { key: Dir; label: string; thesis: string }[] = [
-  { key: 'split', label: '1 · Split pane', thesis: 'Roadmap left, learning pane right' },
-  { key: 'unified', label: '2 · Unified', thesis: 'Flags and guarded releases as one, no separate Guardian' },
-  { key: 'ds-split', label: '3 · Split pane (LP)', thesis: 'Same as 1, restyled in the Launchpad design system' },
-  { key: 'ds-unified', label: '4 · Unified (LP)', thesis: 'Same as 2, restyled in the Launchpad design system' },
+  { key: 'ds-split', label: '1 · Split pane', thesis: 'Roadmap left, learning pane right' },
+  { key: 'ds-unified', label: '2 · Unified', thesis: 'Flags and guarded releases as one, no separate guarded tile' },
+  { key: 'active', label: '3 · Active pane', thesis: 'Right pane does the step: real SDK key, snippet, live connect' },
 ]
 
-const UNIFIED = new Set<Dir>(['unified', 'ds-unified'])
+const UNIFIED = new Set<Dir>(['ds-unified', 'active'])
 
 export default function App() {
   const [wizardOpen, setWizardOpen] = useState(false)
-  const [dir, setDir] = useState<Dir>('split')
+  const [dir, setDir] = useState<Dir>('ds-split')
   const [product, setProduct] = useState<ProductKey>('guarded')
 
   useEffect(() => {
@@ -58,10 +57,9 @@ export default function App() {
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.28, ease: [0.16, 1, 0.3, 1] }}
           >
-            {dir === 'split' && <HomeV2Split product={product} onProduct={setProduct} onWatch={open} />}
-            {dir === 'unified' && <HomeV2Split product={product} onProduct={setProduct} onWatch={open} unified />}
             {dir === 'ds-split' && <HomeDSSplit product={product} onProduct={setProduct} onWatch={open} />}
             {dir === 'ds-unified' && <HomeDSSplit product={product} onProduct={setProduct} onWatch={open} unified />}
+            {dir === 'active' && <HomeV2SplitActive product={product} onProduct={setProduct} onWatch={open} unified />}
           </motion.div>
         </div>
       </div>
