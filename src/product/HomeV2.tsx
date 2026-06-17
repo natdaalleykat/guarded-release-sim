@@ -109,7 +109,7 @@ function InlineCreatePane({ kind, step, color, nextLabel, onAdvance }: { kind: '
           <p className="ds-muted" style={{ fontSize: 'var(--lp-font-size-300)', lineHeight: 1.55, maxWidth: 520 }}>
             {kind === 'flag'
               ? 'Nice, that’s a live flag. On its own it does nothing yet, so let’s keep going.'
-              : 'Your experiment exists, but it won’t collect data until a live SDK serves the flag and sends the event. Confirm the setup, then wire it up.'}
+              : 'That’s a complete experiment running on a sample flag and metric, so you’ve seen the shape end to end. Now set up one on your own product.'}
           </p>
           <div style={{ marginTop: 'var(--lp-spacing-600)', display: 'flex', alignItems: 'center', gap: 'var(--lp-spacing-400)' }}>
             <DsButton variant="primary" onClick={onAdvance}>
@@ -238,9 +238,9 @@ export function HomeDSExperiment({ onWatch }: { onWatch: () => void }) {
       <DsWelcomeRow title="Run your first experiment" subtitle="Test a hypothesis, collect real data, ship the winner, starting from one we built for you." />
       <div className="ds-card ds-card-pad" style={{ marginBottom: 'var(--lp-spacing-700)', borderLeft: `4px solid ${def.color}` }}>
         <span className="ds-chip brand" style={{ marginBottom: 'var(--lp-spacing-300)' }}><LpIcon name="flask" size={13} /> Experimentation</span>
-        <h2 className="ds-display" style={{ fontSize: 'var(--lp-font-size-400)' }}>You don’t start from a blank page.</h2>
+        <h2 className="ds-display" style={{ fontSize: 'var(--lp-font-size-400)' }}>See one work, then build your own.</h2>
         <p className="ds-muted" style={{ fontSize: 'var(--lp-font-size-300)', marginTop: 'var(--lp-spacing-300)', maxWidth: 620, lineHeight: 1.5 }}>
-          LaunchDarkly scaffolds a complete experiment for you (a flag, two variations, a metric, and a 50/50 test), so the only thing left is to wire up your SDK and start it. The classic sample tests which button copy converts better.
+          Start by running a sample experiment we scaffold for you (a flag, two variations, a metric, and a 50/50 test). Once you’ve seen it end to end, the rest of the path is how you set up your own for real.
         </p>
       </div>
       <RoadmapV2 steps={steps} def={def} onWatch={onWatch} />
