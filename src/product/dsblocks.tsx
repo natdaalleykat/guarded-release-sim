@@ -77,7 +77,7 @@ export function DsWelcomeRow({ title, subtitle }: { title: string; subtitle: str
   )
 }
 
-function DsMiniRollout() {
+export function DsMiniRollout() {
   const N = 22
   const [phase, setPhase] = useState(0)
   useEffect(() => {
@@ -116,13 +116,6 @@ export function DsSimHero({ onWatch }: { onWatch: () => void }) {
           <DsButton size="large" variant="primary" onClick={onWatch}>
             <LpIcon name="bolt" size={16} /> Watch the 30-second simulation
           </DsButton>
-        </div>
-        <div style={{ marginTop: 'var(--lp-spacing-700)' }}>
-          <div className="ds-section-label" style={{ marginBottom: 'var(--lp-spacing-300)' }}>What you will watch</div>
-          <DsMiniRollout />
-          <div className="ds-muted" style={{ fontSize: 'var(--lp-font-size-100)', marginTop: 'var(--lp-spacing-300)' }}>
-            ramp to 10% · regression detected · automatic rollback in ~200 ms
-          </div>
         </div>
       </div>
     </div>

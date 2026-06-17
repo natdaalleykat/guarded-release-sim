@@ -126,15 +126,6 @@ export function SimHero({ onWatch }: { onWatch: () => void }) {
             <Bolt size={16} /> Watch the 30-second simulation
           </button>
         </div>
-        <div style={{ marginTop: 26 }}>
-          <div className="faint" style={{ fontSize: 11, fontWeight: 600, letterSpacing: '0.05em', textTransform: 'uppercase', marginBottom: 7 }}>
-            What you will watch
-          </div>
-          <MiniRollout />
-          <div className="faint" style={{ fontSize: 12, marginTop: 8 }}>
-            ramp to 10% · regression detected · automatic rollback in ~200 ms
-          </div>
-        </div>
       </div>
     </div>
   )
