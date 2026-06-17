@@ -5,6 +5,7 @@ import { Sidebar } from './product/Sidebar'
 import { TopBar } from './product/TopBar'
 import { HomeDSSplit } from './product/HomeDSSplit'
 import { HomeV2SplitActive } from './product/HomeV2SplitActive'
+import { HomeDSSplitV2, HomeDSExperiment } from './product/HomeV2'
 import { SimWizard } from './sim/SimWizard'
 import type { ProductKey } from './data/home'
 
@@ -12,16 +13,19 @@ import type { ProductKey } from './data/home'
    (/home/split, /home/unified, /home/active) so it can be linked and reviewed
    like a routed product surface. CTAs and checklist steps are intentionally
    inert in this prototype. */
-type Concept = 'split' | 'unified' | 'active'
+type Concept = 'split' | 'unified' | 'active' | 'split-v2' | 'experiment'
 
 const CONCEPTS: { key: Concept; label: string; thesis: string }[] = [
   { key: 'split', label: '1 · Split pane', thesis: 'Roadmap left, learning pane right' },
   { key: 'unified', label: '2 · Unified', thesis: 'Flags and guarded releases as one, no separate guarded tile' },
   { key: 'active', label: '3 · Active pane', thesis: 'Right pane does the step: real SDK key, snippet, live connect' },
+  { key: 'split-v2', label: '4 · Split pane v2', thesis: 'Create-first: each path opens with an inline “make something”, SDK wiring comes after (test/staging)' },
+  { key: 'experiment', label: '5 · Experiment-led', thesis: 'Experimentation starting from a pre-scaffolded experiment (Better button copy)' },
 ]
 
 const UNIFIED = new Set<Concept>(['unified', 'active'])
-const isConcept = (s?: string): s is Concept => s === 'split' || s === 'unified' || s === 'active'
+const isConcept = (s?: string): s is Concept =>
+  s === 'split' || s === 'unified' || s === 'active' || s === 'split-v2' || s === 'experiment'
 
 function HomeRoute() {
   const { concept } = useParams()
@@ -70,6 +74,8 @@ function HomeRoute() {
             {c === 'split' && <HomeDSSplit product={product} onProduct={setProduct} onWatch={open} />}
             {c === 'unified' && <HomeDSSplit product={product} onProduct={setProduct} onWatch={open} unified />}
             {c === 'active' && <HomeV2SplitActive product={product} onProduct={setProduct} onWatch={open} unified />}
+            {c === 'split-v2' && <HomeDSSplitV2 onWatch={open} />}
+            {c === 'experiment' && <HomeDSExperiment onWatch={open} />}
           </motion.div>
         </div>
       </div>

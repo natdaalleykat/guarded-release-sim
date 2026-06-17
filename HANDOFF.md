@@ -28,6 +28,8 @@ Real client-side routes (react-router, BrowserRouter):
 - `/home/split` — concept 1, split pane (roadmap left, learning pane right)
 - `/home/unified` — concept 2, unified (flags + guarded releases as one product)
 - `/home/active` — concept 3, active right pane (real SDK key, snippet, live-connect mock)
+- `/home/split-v2` — concept 4, split pane v2 (test/staging): create-first roadmaps; the first step of each path is an inline "create it here" surface, SDK wiring comes after
+- `/home/experiment` — concept 5, experiment-led: the whole home is the pre-scaffolded "Better button copy" experiment flow
 - anything else redirects to `/home/split`
 
 The bottom "Home concept" switcher navigates between these. It is a review tool,
@@ -50,6 +52,7 @@ new standalone modal.
 - `src/App.tsx` — routes + the Home shell (sidebar, top bar, active concept, switcher, sim modal)
 - `src/product/HomeDSSplit.tsx` — concepts 1 & 2 (Launchpad split pane; `unified` prop)
 - `src/product/HomeV2SplitActive.tsx` — concept 3 (active right pane)
+- `src/product/HomeV2.tsx` — concepts 4 & 5 (split pane v2 + experiment-led; inline create panes)
 - `src/product/dsblocks.tsx` — Launchpad-token building blocks (icon, button, picker, hero)
 - `src/product/blocks.tsx` — custom-styled blocks used by concept 3
 - `src/product/Sidebar.tsx`, `TopBar.tsx` — chrome
@@ -65,6 +68,13 @@ source + launchdarkly.com/docs: context kinds auto-register on first evaluation
 code); auto-rollback is opt-in per metric (notify is always on); observability
 is an SDK plugin; the AI Configs (AgentControl) playground covers the LLM cost
 during the trial. See the header comment in `src/data/home.ts`.
+
+## Concepts 4 & 5 — feasibility notes
+These explore an ideal "create something satisfying first, wire up the SDK later" flow, squared against what gonfalon actually does:
+- **Inline boolean-flag creation** (concept 4, step 1) is real: the Quickstart's first step makes a boolean flag from one field with no code, and the real order is create → install SDK → toggle. The "create" in the prototype is a gesture (no real resource is made).
+- **Flag-type pills** map to real flag templates (release / kill-switch / experiment / migration) plus documented use cases (config / entitlement).
+- **The experiment scaffold** (concept 5, step 1) mirrors the shipped "Better button copy" templated experiment (gated behind `enableExperimentationGetStarted`): one click scaffolds a flag (Buy now / Get started), a `button-clicked` conversion metric, a "Test users" rule, and a frequentist 50/50 experiment. The real gate afterward is a **live SDK** — Start stays hidden until LD detects SDK traffic. Caveats: frequentist-only, uses a custom `track('button-clicked')` event (not auto click-tracking), and the in-product Launch step is still being built (`packages/experiments/src/templated/` + `empty-state/useCreateFrontendTemplatedExperiment.ts`).
+- **Observability and AI Configs are unchanged** in v2 — they are SDK/create-first by nature, so there's no satisfying "create" to lead with.
 
 ## Known non-functional / mocked
 - All CTAs, checklist step clicks, sidebar nav, search, and the Create button are inert.

@@ -168,6 +168,9 @@ export interface RoadmapStepV2 {
   est?: string
   /* inline "learn more" links to the real docs */
   docs?: { label: string; href: string }[]
+  /* concept "Split pane v2": the first step is a do-it-here inline surface
+     instead of a learning pane. Only the first step of a roadmap sets this. */
+  inline?: 'flag' | 'experiment'
   learn: { what: string; ideas: string[] }
 }
 
@@ -719,4 +722,266 @@ const FLAGS_UNIFIED: RoadmapStepV2[] = [
 export const ROADMAPS_UNIFIED: Record<ProductKey, RoadmapStepV2[]> = {
   ...ROADMAPS,
   flags: FLAGS_UNIFIED,
+}
+
+/* =========================================================================
+   Concept "Split pane v2" (test/staging). Ideal-but-feasible reorder: every
+   roadmap opens with a satisfying "create something" moment, and the first
+   step is a do-it-here INLINE surface; SDK wiring comes after. Grounded in
+   gonfalon: inline boolean-flag creation is the real Quickstart step 1, the
+   real order is create -> install SDK -> toggle, and the experiment scaffold
+   is the shipped "Better button copy" templated experiment.
+   Observability and AI Configs are unchanged (they are create/SDK-first by
+   nature), so v2 only overrides flags, guarded, and experiments.
+   ========================================================================= */
+
+const FLAGS_V2: RoadmapStepV2[] = [
+  {
+    key: 'create',
+    title: 'Create a flag, right here',
+    blurb: 'A basic on/off boolean flag. No code.',
+    cta: 'Create flag',
+    icon: 'flag',
+    inline: 'flag',
+    est: '~1 min',
+    learn: {
+      what: 'Name it and hit create. That is a real boolean flag in your account, made with no code. It starts as a simple on/off you can grow into anything teams use flags for.',
+      ideas: ['Kill switch', 'Progressive rollout', 'Experiment', 'Migration', 'Config / entitlement'],
+    },
+  },
+  {
+    key: 'wire',
+    title: 'Wire it into your app',
+    blurb: 'Install the SDK and read the flag.',
+    cta: 'Set up an SDK',
+    icon: 'plug',
+    est: '~5 min',
+    learn: {
+      what: 'Now make your app read it. Install the SDK with your environment key (client-side ID in the browser, SDK key on a server) and call variation() with a context. The install snippet already includes that call and a sample context, so one paste wires the flag in. Evaluations run locally in microseconds.',
+      ideas: ['Node', 'React', 'Go', 'Mobile'],
+    },
+  },
+  {
+    key: 'toggle',
+    title: 'Toggle it on and off',
+    blurb: 'Flip it, watch your app react live.',
+    cta: 'Open the flag',
+    icon: 'play',
+    est: 'Instant',
+    learn: {
+      what: 'Flip the flag in LaunchDarkly and rerun or refresh your app to watch it react, with no redeploy. This is the moment a config value becomes a live control you change in seconds, for everyone or no one.',
+      ideas: ['Serve true', 'Instant kill switch', 'No redeploy'],
+    },
+  },
+  {
+    key: 'target',
+    title: 'Target who sees it',
+    blurb: 'Individuals, rules, segments, cohorts.',
+    cta: 'Open targeting',
+    icon: 'venn',
+    optional: true,
+    est: '~3 min',
+    docs: [{ label: 'Targeting and segments', href: 'https://launchdarkly.com/docs/home/flags/target' }],
+    learn: {
+      what: 'Go past on and off: target individual contexts, attribute rules, or a percentage rollout. Build a reusable segment when you want the same audience across more than one flag. No segment is required to start.',
+      ideas: ['Internal first', 'Beta cohort', '10% canary'],
+    },
+  },
+  {
+    key: 'guard',
+    title: 'Graduate to guarded rollouts',
+    blurb: 'Let releases protect themselves.',
+    cta: 'Try a guarded rollout',
+    icon: 'shield',
+    optional: true,
+    est: '~3 min',
+    docs: [{ label: 'Guarded rollouts', href: 'https://launchdarkly.com/docs/home/releases/guarded-rollouts' }],
+    learn: {
+      what: 'Once a flag matters, stop flipping it for everyone at once. A guarded rollout ramps progressively, watches a metric, and rolls back automatically when something breaks.',
+      ideas: ['Guarded rollout', 'Auto-rollback'],
+    },
+  },
+  {
+    key: 'coderefs',
+    title: 'Connect GitHub and Slack',
+    blurb: 'Find every flag in code; hear every change.',
+    cta: 'Browse integrations',
+    icon: 'mcp',
+    optional: true,
+    est: 'One-time',
+    learn: {
+      what: 'Code references index where each flag lives in your repos, which makes cleanup safe later. Slack keeps the team on top of flag changes without checking the dashboard.',
+      ideas: ['Code references', 'Slack updates', 'Flag triggers'],
+    },
+  },
+]
+
+const GUARDED_V2: RoadmapStepV2[] = [
+  {
+    key: 'flag',
+    title: 'Create the flag you’ll roll out',
+    blurb: 'A basic boolean for the risky change. No code.',
+    cta: 'Create flag',
+    icon: 'flag',
+    inline: 'flag',
+    est: '~1 min',
+    learn: {
+      what: 'Start with the thing you want to ship safely: create a boolean flag for the risky change, right here, no code. A guarded rollout is just a smarter way to turn this flag on.',
+      ideas: ['New checkout flow', 'Pricing change', 'Search ranking v2', 'Risky dependency'],
+    },
+  },
+  {
+    key: 'metric',
+    title: 'Give it a metric to watch',
+    blurb: 'Clicks and page views need no code.',
+    cta: 'Create a metric',
+    icon: 'ruler',
+    est: 'No-code option',
+    docs: [{ label: 'Creating metrics', href: 'https://launchdarkly.com/docs/home/metrics/create-metrics' }],
+    learn: {
+      what: 'Pick the number that should not get worse when you ship: a click or page-view metric (no code), an error-rate or latency guardrail from observability, or a custom track() call. The rollout watches it, and it has to share the context kind your flag evaluates.',
+      ideas: ['Checkout error rate', 'p95 latency', 'Conversion rate'],
+    },
+  },
+  {
+    key: 'sdk',
+    title: 'Wire up the SDK',
+    blurb: 'So the flag evaluates and the metric gets events.',
+    cta: 'Set up an SDK',
+    icon: 'plug',
+    est: '~5 min',
+    learn: {
+      what: 'Install the SDK and evaluate the flag with a context. This is what makes the rollout real: the flag has to be evaluating and the metric receiving events before LaunchDarkly can watch the release.',
+      ideas: ['Node', 'Python', 'Go', 'iOS'],
+    },
+  },
+  {
+    key: 'rollout',
+    title: 'Start the guarded rollout',
+    blurb: 'Ramp progressively; roll back on a regression.',
+    cta: 'Start guarded rollout',
+    icon: 'shield',
+    est: '~3 min',
+    docs: [
+      { label: 'Create a guarded rollout', href: 'https://launchdarkly.com/docs/home/releases/creating-guarded-rollouts' },
+      { label: 'Health checks', href: 'https://launchdarkly.com/docs/home/releases/guarded-health-checks' },
+    ],
+    learn: {
+      what: 'On the flag’s Targeting tab, Serve a Guarded rollout: pick your metric and a monitoring window (24 hours by default), and decide per metric whether a regression rolls back automatically or just alerts you. Health checks confirm the flag is evaluating and the metric has events, and a rollout needs a minimum number of contexts per stage (about 30) to measure.',
+      ideas: ['Health checks first', '24-hour window', 'Auto-rollback or notify'],
+    },
+  },
+  {
+    key: 'o11y',
+    title: 'Add observability guardrails',
+    blurb: 'Guard on error rate or latency.',
+    cta: 'Add the plugins',
+    icon: 'pulse',
+    optional: true,
+    est: '~10 min',
+    docs: [{ label: 'Guardrails from telemetry', href: 'https://launchdarkly.com/docs/home/metrics/autogen-metrics' }],
+    learn: {
+      what: 'Add the observability plugins, or dual-send your existing Datadog or OTEL data. LaunchDarkly generates error-rate and latency metrics from that telemetry to guard on, with no track() calls to write.',
+      ideas: ['Error-rate guardrail', 'p95 guardrail', 'Reuse Datadog/OTEL'],
+    },
+  },
+  {
+    key: 'alerts',
+    title: 'Wire up Slack alerts',
+    blurb: 'Hear it the moment a release rolls back.',
+    cta: 'Connect Slack',
+    icon: 'sparkle',
+    optional: true,
+    est: 'One-time',
+    learn: {
+      what: 'In-app and email notifications are built in. Connect Slack or a webhook so the team hears the moment a regression is detected or a release rolls back. Approvals and scheduled rollouts slot in here too.',
+      ideas: ['Slack', 'Webhooks', 'Approvals'],
+    },
+  },
+]
+
+const EXPERIMENTS_V2: RoadmapStepV2[] = [
+  {
+    key: 'scaffold',
+    title: 'Start from a sample experiment',
+    blurb: 'We build the flag, metric, and test for you.',
+    cta: 'Create sample experiment',
+    icon: 'beaker',
+    inline: 'experiment',
+    est: '~1 min',
+    learn: {
+      what: 'Skip the blank page. LaunchDarkly scaffolds a complete experiment for you: a flag with two variations, a conversion metric, and a 50/50 test, so you see the whole shape before wiring anything up. The classic sample tests which button copy gets more clicks.',
+      ideas: ['Button copy', 'Checkout flow', 'Onboarding steps', 'Pricing page'],
+    },
+  },
+  {
+    key: 'audience',
+    title: 'Confirm audience and variations',
+    blurb: 'Edit the two things you’re testing.',
+    cta: 'Review settings',
+    icon: 'venn',
+    est: '~2 min',
+    learn: {
+      what: 'The scaffold pre-fills a hypothesis, a 50/50 split, and two variations (the sample uses “Buy now” vs “Get started”). Adjust the audience and the two things you’re comparing, then you’re ready to wire it up.',
+      ideas: ['50/50 split', 'Randomize by user', 'Edit the variations'],
+    },
+  },
+  {
+    key: 'sdk',
+    title: 'Wire up the SDK to serve it',
+    blurb: 'Serve the flag and send the metric event.',
+    cta: 'Set up an SDK',
+    icon: 'plug',
+    est: '~5 min',
+    learn: {
+      what: 'This is the real gate: an experiment cannot start until LaunchDarkly sees a live SDK. Point a client-side SDK at this environment, serve the flag’s variations, and send the conversion event with track(). Start stays locked until traffic shows up.',
+      ideas: ['JavaScript', 'React', "track('button-clicked')", 'Match the context kind'],
+    },
+  },
+  {
+    key: 'start',
+    title: 'Start it and read results',
+    blurb: 'Stats are preset. Results need volume.',
+    cta: 'Start iteration',
+    icon: 'play',
+    est: '~1 min',
+    learn: {
+      what: 'Once traffic is flowing, start the iteration and watch results roll in. The statistics are pre-configured (the sample runs a frequentist 50/50), so there is nothing to tune. Give it real event volume before reading too much into early numbers.',
+      ideas: ['Preset stats', 'Live results', 'Ship the winner'],
+    },
+  },
+  {
+    key: 'holdout',
+    title: 'Add a holdout or layer',
+    blurb: 'Long-term impact; no collisions.',
+    cta: 'Explore holdouts',
+    icon: 'venn',
+    optional: true,
+    est: '~3 min',
+    learn: {
+      what: 'Holdouts keep a slice of traffic out of all experiments so you can measure long-term impact. Layers make experiments mutually exclusive so they don’t contaminate each other.',
+      ideas: ['Holdout', 'Layers'],
+    },
+  },
+  {
+    key: 'funnel',
+    title: 'Group metrics into a funnel',
+    blurb: 'Measure the journey, not one step.',
+    cta: 'Create metric group',
+    icon: 'ruler',
+    optional: true,
+    est: '~3 min',
+    learn: {
+      what: 'Metric groups let one experiment read a whole funnel, from view to add-to-cart to purchase, instead of a single conversion step.',
+      ideas: ['Funnel group', 'Standard group'],
+    },
+  },
+]
+
+/* v2 overrides flags / guarded / experiments; o11y + aiconfigs inherited as-is. */
+export const ROADMAPS_V2: Record<ProductKey, RoadmapStepV2[]> = {
+  ...ROADMAPS,
+  flags: FLAGS_V2,
+  guarded: GUARDED_V2,
+  experiments: EXPERIMENTS_V2,
 }
