@@ -1,0 +1,12 @@
+{
+  "version": "0.0.1",
+  "configurations": [
+    {
+      "name": "guarded-sim",
+      "runtimeExecutable": "npm",
+      "runtimeArgs": ["--prefix", "/Users/natalie/Downloads/guarded-release-simulator", "run", "dev"],
+      "cwd": "/Users/natalie/Downloads/guarded-release-simulator",
+      "port": 5173
+    }
+  ]
+}
