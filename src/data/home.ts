@@ -783,7 +783,7 @@ const FLAGS_V2: RoadmapStepV2[] = [
     est: '~3 min',
     docs: [{ label: 'Targeting and segments', href: 'https://launchdarkly.com/docs/home/flags/target' }],
     learn: {
-      what: 'Go past on and off: target individual contexts, attribute rules, or a percentage rollout. Build a reusable segment when you want the same audience across more than one flag. No segment is required to start.',
+      what: 'Target individual contexts, attribute rules, or a percentage rollout. The dimensions you target on (user, account, device) are context kinds; they come from the contexts your app sends, so you define those in the SDK snippet, not here. Build a reusable segment when you want the same audience across more than one flag. No segment is required to start.',
       ideas: ['Internal first', 'Beta cohort', '10% canary'],
     },
   },

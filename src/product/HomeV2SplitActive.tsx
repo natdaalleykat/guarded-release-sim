@@ -33,6 +33,8 @@ await client.waitForInitialization()
 
 const showCheckout = await client.variation(
   'release-new-checkout',
+  // "kind" is a context kind: the type of thing you target on (user, account, device...).
+  // No setup needed; kinds register automatically. Send a multi-context to target more than one.
   { kind: 'user', key: 'user-123' },
   false,
 )`,
@@ -44,6 +46,8 @@ client = ldclient.get()
 
 show_checkout = client.variation(
     'release-new-checkout',
+    # "kind" is a context kind: the type of thing you target on (user, account, device...).
+    # No setup needed; kinds register automatically. Use a multi-context to target more than one.
     {"kind": "user", "key": "user-123"},
     False,
 )`,
@@ -53,6 +57,8 @@ client, _ := ld.MakeClient("${SDK_KEY}", 5*time.Second)
 
 show, _ := client.BoolVariation(
   "release-new-checkout",
+  // ldcontext.New builds a "user" context kind: the type of thing you target on.
+  // Kinds register automatically; use ldcontext.NewMulti to target account/device too.
   ldcontext.New("user-123"),
   false,
 )`,
@@ -61,6 +67,8 @@ show, _ := client.BoolVariation(
 const EVALUATE_SNIPPET = `// Anywhere you read a config value today, ask LaunchDarkly instead
 const showCheckout = await client.variation(
   'release-new-checkout',
+  // "kind" is a context kind (user, account, device...). It auto-registers, no setup.
+  // Send a multi-context to target more than one kind, no reinstall.
   { kind: 'user', key: currentUser.id },
   false,
 )
