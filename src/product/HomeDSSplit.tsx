@@ -126,7 +126,6 @@ export function HomeDSSplit({
               {step.cta}
               <LpIcon name="arrow-right-thin" size={16} />
             </DsButton>
-            {step.est && <span className="ds-muted" style={{ fontSize: 'var(--lp-font-size-100)' }}>{step.est}</span>}
           </div>
 
           {step.docs && step.docs.length > 0 && (

@@ -1063,7 +1063,6 @@ const withDest = (steps: RoadmapStepV2[], dests: Record<string, string>): Roadma
 export const ROADMAPS_SPEC: Record<ProductKey, RoadmapStepV2[]> = {
   ...ROADMAPS_V2,
   guarded: withDest(GUARDED_V2, {
-    flag: 'inline (no navigation)',
     metric: 'toCreateMetric',
     sdk: 'toSdkSetup',
     rollout: 'toFlagTargeting (created flag) · fallback toGuardedRollouts',
@@ -1071,7 +1070,6 @@ export const ROADMAPS_SPEC: Record<ProductKey, RoadmapStepV2[]> = {
     alerts: 'toIntegrations (Slack app) → toFlagWorkflows (trigger)',
   }),
   flags: withDest(FLAGS_V2, {
-    create: 'inline (no navigation)',
     wire: 'toSdkSetup',
     toggle: 'toFlagTargeting (created flag)',
     target: 'toFlagTargeting (rules)',
@@ -1079,7 +1077,7 @@ export const ROADMAPS_SPEC: Record<ProductKey, RoadmapStepV2[]> = {
     coderefs: 'toIntegrations (repo) · needs ld-find-code-refs in CI',
   }),
   experiments: withDest(EXPERIMENTS_V2, {
-    scaffold: 'inline scaffold · then toExperimentDesign (created experiment)',
+    scaffold: 'toExperimentDesign (after scaffold)',
     metric: 'toCreateMetric',
     instrument: 'toSdkSetup',
     start: 'toExperiments (scaffolded experiment)',

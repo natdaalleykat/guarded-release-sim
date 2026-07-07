@@ -67,7 +67,7 @@ function InlineCreatePane({ kind, step, color, nextLabel, onAdvance, onOpenCreat
       <div style={{ display: 'flex', alignItems: 'center', gap: 'var(--lp-spacing-400)', marginBottom: 'var(--lp-spacing-400)' }}>
         <span className="ds-step-ic" style={{ background: color }}><DsIcon glyph={step.icon} size={19} /></span>
         <div>
-          <div className="ds-section-label">Step 1 · do it here</div>
+          <div className="ds-section-label">Step 1</div>
           <h2 className="ds-display" style={{ fontSize: 'var(--lp-font-size-400)', marginTop: 2 }}>{step.title}</h2>
         </div>
       </div>
@@ -92,13 +92,12 @@ function InlineCreatePane({ kind, step, color, nextLabel, onAdvance, onOpenCreat
           </div>
           <div style={{ marginTop: 'var(--lp-spacing-500)' }}>
             <div className="ds-section-label" style={{ marginBottom: 'var(--lp-spacing-300)' }}>What teams build with flags</div>
-            <div style={{ display: 'flex', gap: 'var(--lp-spacing-300)', flexWrap: 'wrap' }}>
+            <div style={{ display: 'flex', gap: 'var(--lp-spacing-300)', flexWrap: 'wrap', maxHeight: 28, overflow: 'hidden' }}>
               {step.learn.ideas.map((i) => <span key={i} className="ds-chip">{i}</span>)}
             </div>
           </div>
           <div style={{ marginTop: 'var(--lp-spacing-700)', display: 'flex', alignItems: 'center', gap: 'var(--lp-spacing-400)' }}>
             <DsButton variant="primary" onClick={() => setDone(true)}><LpIcon name="flag" size={16} /> {step.cta}</DsButton>
-            <span className="ds-muted" style={{ fontSize: 'var(--lp-font-size-100)' }}>{step.est}</span>
           </div>
           <DestNote dest={step.dest} />
         </>
@@ -108,13 +107,12 @@ function InlineCreatePane({ kind, step, color, nextLabel, onAdvance, onOpenCreat
         <>
           <div style={{ marginTop: 'var(--lp-spacing-500)' }}>
             <div className="ds-section-label" style={{ marginBottom: 'var(--lp-spacing-300)' }}>Ideas to test</div>
-            <div style={{ display: 'flex', gap: 'var(--lp-spacing-300)', flexWrap: 'wrap' }}>
+            <div style={{ display: 'flex', gap: 'var(--lp-spacing-300)', flexWrap: 'wrap', maxHeight: 28, overflow: 'hidden' }}>
               {step.learn.ideas.map((i) => <span key={i} className="ds-chip">{i}</span>)}
             </div>
           </div>
           <div style={{ marginTop: 'var(--lp-spacing-700)', display: 'flex', alignItems: 'center', gap: 'var(--lp-spacing-400)' }}>
             <DsButton variant="primary" onClick={() => setDone(true)}><LpIcon name="flask" size={16} /> {step.cta}</DsButton>
-            <span className="ds-muted" style={{ fontSize: 'var(--lp-font-size-100)' }}>{step.est}</span>
           </div>
           <DestNote dest={step.dest} />
         </>
@@ -225,7 +223,7 @@ function InlineO11yPane({ step, color, nextLabel, onAdvance, onFallback }: { ste
       <div style={{ display: 'flex', alignItems: 'center', gap: 'var(--lp-spacing-400)', marginBottom: 'var(--lp-spacing-400)' }}>
         <span className="ds-step-ic" style={{ background: color }}><DsIcon glyph={step.icon} size={19} /></span>
         <div>
-          <div className="ds-section-label">Step 1 · do it here</div>
+          <div className="ds-section-label">Step 1</div>
           <h2 className="ds-display" style={{ fontSize: 'var(--lp-font-size-400)', marginTop: 2 }}>{step.title}</h2>
         </div>
       </div>
@@ -256,7 +254,6 @@ function InlineO11yPane({ step, color, nextLabel, onAdvance, onFallback }: { ste
         <DsButton variant="primary" onClick={onAdvance}>
           Next: {nextLabel} <LpIcon name="arrow-right-thin" size={16} />
         </DsButton>
-        <span className="ds-muted" style={{ fontSize: 'var(--lp-font-size-100)' }}>{step.est}</span>
       </div>
       <DestNote dest={step.dest} />
     </motion.div>
@@ -345,7 +342,7 @@ function RoadmapV2({ steps, def, onWatch, onDest, initialStep, onStub }: {
           <p className="ds-muted" style={{ fontSize: 'var(--lp-font-size-300)', lineHeight: 1.55, maxWidth: 560 }}>{step.learn.what}</p>
           <div style={{ marginTop: 'var(--lp-spacing-600)' }}>
             <div className="ds-section-label" style={{ marginBottom: 'var(--lp-spacing-300)' }}>Ways teams do this</div>
-            <div style={{ display: 'flex', gap: 'var(--lp-spacing-300)', flexWrap: 'wrap' }}>
+            <div style={{ display: 'flex', gap: 'var(--lp-spacing-300)', flexWrap: 'wrap', maxHeight: 28, overflow: 'hidden' }}>
               {step.learn.ideas.map((idea) => <span key={idea} className="ds-chip">{idea}</span>)}
             </div>
           </div>
@@ -355,7 +352,6 @@ function RoadmapV2({ steps, def, onWatch, onDest, initialStep, onStub }: {
               {step.cta}
               <LpIcon name="arrow-right-thin" size={16} />
             </DsButton>
-            {step.est && <span className="ds-muted" style={{ fontSize: 'var(--lp-font-size-100)' }}>{step.est}</span>}
           </div>
           <DestNote dest={step.dest} />
           {step.docs && step.docs.length > 0 && (
