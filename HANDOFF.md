@@ -25,16 +25,20 @@ npm run build    # static dist/
 
 ## Routes
 Real client-side routes (react-router, BrowserRouter):
-- `/home/split` — concept 1, split pane (roadmap left, learning pane right)
-- `/home/unified` — concept 2, unified (flags + guarded releases as one product)
-- `/home/active` — concept 3, active right pane (real SDK key, snippet, live-connect mock)
-- `/home/split-v2` — concept 4, split pane v2 (test/staging): create-first roadmaps; the first step of each path is an inline "create it here" surface, SDK wiring comes after
-- `/home/experiment` — concept 5, experiment-led: the whole home is the pre-scaffolded "Better button copy" experiment flow
-- anything else redirects to `/home/split`
+- `/home/spec` — THE home page: split pane v2 with the change spec applied (single trial surface, four tiles, create-first roadmaps with inline create step, every CTA wired to a stub of its real gonfalon destination). Reads `?firstAction=` (welcome-survey preselect) and `?product=`/`?step=` (selection restore when returning from a stub).
+- `/welcome` — one-question welcome survey mock, incl. the Guarded release option and its Marketo payload annotation; Continue routes into `/home/spec`, AgentControl routes away to its own interstitial.
+- `/dest/:page` — stub wireframes of the real destinations (flag targeting, create metric, SDK setup, integrations, triggers, sessions, new alert, observe, experiment design), each showing the real route + navigator helper, with Back-to-Home.
+- everything else (including the old concept URLs `/home/split`, `/home/unified`, `/home/active`, `/home/split-v2`, `/home/experiment`) redirects to `/home/spec`.
 
-The bottom "Home concept" switcher navigates between these. It is a review tool,
-not part of the real product. basename comes from Vite's `base`; GitHub Pages
-deep links/refreshes work via a `404.html` copy of `index.html`.
+The earlier review concepts 1-5 were removed on 2026-07-06 once the direction
+settled; they live in git history (`HomeDSSplit.tsx`, `HomeV2SplitActive.tsx`,
+`HomeDSSplitV2`/`HomeDSExperiment` in `HomeV2.tsx`) if a comparison is ever
+needed. The bottom switcher is a review tool (Survey vs Home), not part of the
+real product. basename comes from Vite's `base`; GitHub Pages deep
+links/refreshes work via a `404.html` copy of `index.html`.
+
+Live deploy: https://natdaalleykat.github.io/guarded-release-sim/ (redeploy
+with `npm run deploy`).
 
 ## Where this maps in gonfalon
 The real get-started / onboarding flow lives in:

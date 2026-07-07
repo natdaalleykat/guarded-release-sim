@@ -370,31 +370,7 @@ function RoadmapV2({ steps, def, onWatch, onDest, initialStep, onStub }: {
   )
 }
 
-/* Concept 4: Split pane v2 — same chrome as concept 1, create-first roadmaps. */
-export function HomeDSSplitV2({ onWatch }: { onWatch: () => void }) {
-  const [product, setProduct] = useState<ProductKey>('guarded')
-  const steps = ROADMAPS_V2[product]
-  const def = PRODUCTS.find((p) => p.key === product)!
-  const dest = useDest()
-
-  return (
-    <div className="content-inner ds-scope">
-      <DsWelcomeRow title="Welcome, Natalie" subtitle="Make something first, wire it up second. Pick where to start." />
-      <DsSimHero onWatch={onWatch} />
-      <div style={{ margin: 'var(--lp-spacing-800) 0 var(--lp-spacing-400)' }}>
-        <div style={{ display: 'flex', alignItems: 'baseline', justifyContent: 'space-between', gap: 12, marginBottom: 'var(--lp-spacing-400)' }}>
-          <h2 className="ds-display" style={{ fontSize: 'var(--lp-font-size-400)' }}>Where do you want to start?</h2>
-          <span className="ds-muted" style={{ fontSize: 'var(--lp-font-size-200)' }}>each path opens with something you create in under a minute</span>
-        </div>
-        <DsProductPicker value={product} onChange={setProduct} products={PRODUCTS} />
-      </div>
-      <RoadmapV2 steps={steps} def={def} onWatch={onWatch} onDest={dest.open} />
-      {dest.node}
-    </div>
-  )
-}
-
-/* Concept 6: Spec — Split pane v2 modified per home-page-spec-michael.md.
+/* The shipped Home: Split pane v2 modified per home-page-spec-michael.md.
    The trial chip + Upgrade move to the global bar above the top bar (§2, the
    single trial surface), the welcome row goes plain, AgentControl leaves the
    picker (§4, the welcome survey routes it away before Home), and every CTA
@@ -449,24 +425,3 @@ export function HomeDSSpec({ onWatch, firstAction, productParam, stepParam }: {
   )
 }
 
-/* Concept 5: Experiment-led — the whole home is the pre-scaffolded experiment flow. */
-export function HomeDSExperiment({ onWatch }: { onWatch: () => void }) {
-  const steps = ROADMAPS_V2.experiments
-  const def = PRODUCTS.find((p) => p.key === 'experiments')!
-  const dest = useDest()
-
-  return (
-    <div className="content-inner ds-scope">
-      <DsWelcomeRow title="Run your first experiment" subtitle="Test a hypothesis, collect real data, ship the winner, starting from one we built for you." />
-      <div className="ds-card ds-card-pad" style={{ marginBottom: 'var(--lp-spacing-700)', borderLeft: `4px solid ${def.color}` }}>
-        <span className="ds-chip brand" style={{ marginBottom: 'var(--lp-spacing-300)' }}><LpIcon name="flask" size={13} /> Experimentation</span>
-        <h2 className="ds-display" style={{ fontSize: 'var(--lp-font-size-400)' }}>See one work, then build your own.</h2>
-        <p className="ds-muted" style={{ fontSize: 'var(--lp-font-size-300)', marginTop: 'var(--lp-spacing-300)', maxWidth: 620, lineHeight: 1.5 }}>
-          Start by running a sample experiment we scaffold for you (a flag, two variations, a metric, and a 50/50 test). Once you’ve seen it end to end, the rest of the path is how you set up your own for real.
-        </p>
-      </div>
-      <RoadmapV2 steps={steps} def={def} onWatch={onWatch} onDest={dest.open} />
-      {dest.node}
-    </div>
-  )
-}
