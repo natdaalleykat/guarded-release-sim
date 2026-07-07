@@ -178,6 +178,23 @@ a { color: inherit; text-decoration: none; }
   gap: 1px;
 }
 
+/* ---- Global trial bar (concept "Spec") ---------------------------------- */
+/* Mocks gonfalon's app-level trial banner: the single trial surface. */
+
+.trialbar {
+  flex: 0 0 auto;
+  height: 36px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 0 18px;
+  background: var(--blue-tint);
+  border-bottom: 1px solid var(--blue-tint-2);
+  font-size: 12.5px;
+  font-weight: 600;
+}
+
 /* ---- Top bar ------------------------------------------------------------ */
 
 .main {

@@ -1,13 +1,19 @@
 import { useEffect, useState } from 'react'
 import { motion } from 'framer-motion'
+import { useNavigate } from 'react-router-dom'
 import {
   ROADMAPS_V2,
+  ROADMAPS_SPEC,
   PRODUCTS,
+  PRODUCTS_SPEC,
+  specProductFor,
   type ProductKey,
   type RoadmapStepV2,
   type Glyph,
 } from '../data/home'
 import { DsWelcomeRow, DsSimHero, DsProductPicker, DsIcon, LpIcon, DsButton } from './dsblocks'
+import { destFor, SdkDrawer, DestinationModal, Code, type Dest } from './Destinations'
+import { stubForSpec } from './DestPages'
 
 /* =========================================================================
    "Split pane v2" + the experiment-led home.
@@ -21,9 +27,32 @@ import { DsWelcomeRow, DsSimHero, DsProductPicker, DsIcon, LpIcon, DsButton } fr
 
 const ANIM = { initial: { opacity: 0, x: 10 }, animate: { opacity: 1, x: 0 }, transition: { duration: 0.25, ease: [0.16, 1, 0.3, 1] } }
 
+/* concept "Spec": the real gonfalon destination under a step's primary CTA.
+   Only the ROADMAPS_SPEC data sets `dest`, so other concepts render nothing. */
+function DestNote({ dest }: { dest?: string }) {
+  if (!dest) return null
+  return <div className="ds-dest-note" style={{ marginTop: 'var(--lp-spacing-300)' }}>→ {dest}</div>
+}
+
+/* opens the SDK drawer, a destination wireframe, or a docs link for a CTA */
+function useDest() {
+  const [dest, setDest] = useState<Dest | null>(null)
+  const open = (step: RoadmapStepV2) => {
+    const d = destFor(step)
+    if (typeof d === 'object') window.open(d.docs, '_blank', 'noopener')
+    else setDest(d)
+  }
+  const node = dest === 'sdk'
+    ? <SdkDrawer onClose={() => setDest(null)} />
+    : dest
+      ? <DestinationModal kind={dest} onClose={() => setDest(null)} />
+      : null
+  return { open, node }
+}
+
 /* The first step rendered as a do-it-here surface rather than a reading pane.
    The "create" is a prototype gesture (no real resource is created). */
-function InlineCreatePane({ kind, step, color, nextLabel, onAdvance }: { kind: 'flag' | 'experiment'; step: RoadmapStepV2; color: string; nextLabel: string; onAdvance: () => void }) {
+function InlineCreatePane({ kind, step, color, nextLabel, onAdvance, onOpenCreated }: { kind: 'flag' | 'experiment'; step: RoadmapStepV2; color: string; nextLabel: string; onAdvance: () => void; onOpenCreated?: () => void }) {
   const [done, setDone] = useState(false)
   const [flagKey, setFlagKey] = useState('release-new-checkout')
 
@@ -71,6 +100,7 @@ function InlineCreatePane({ kind, step, color, nextLabel, onAdvance }: { kind: '
             <DsButton variant="primary" onClick={() => setDone(true)}><LpIcon name="flag" size={16} /> {step.cta}</DsButton>
             <span className="ds-muted" style={{ fontSize: 'var(--lp-font-size-100)' }}>{step.est}</span>
           </div>
+          <DestNote dest={step.dest} />
         </>
       )}
 
@@ -86,6 +116,7 @@ function InlineCreatePane({ kind, step, color, nextLabel, onAdvance }: { kind: '
             <DsButton variant="primary" onClick={() => setDone(true)}><LpIcon name="flask" size={16} /> {step.cta}</DsButton>
             <span className="ds-muted" style={{ fontSize: 'var(--lp-font-size-100)' }}>{step.est}</span>
           </div>
+          <DestNote dest={step.dest} />
         </>
       )}
 
@@ -111,10 +142,16 @@ function InlineCreatePane({ kind, step, color, nextLabel, onAdvance }: { kind: '
               ? 'Nice, that’s a live flag. On its own it does nothing yet, so let’s keep going.'
               : 'That’s a complete experiment running on a sample flag and metric, so you’ve seen the shape end to end. Now set up one on your own product.'}
           </p>
-          <div style={{ marginTop: 'var(--lp-spacing-600)', display: 'flex', alignItems: 'center', gap: 'var(--lp-spacing-400)' }}>
+          <div style={{ marginTop: 'var(--lp-spacing-600)', display: 'flex', alignItems: 'center', gap: 'var(--lp-spacing-400)', flexWrap: 'wrap' }}>
             <DsButton variant="primary" onClick={onAdvance}>
               Next: {nextLabel} <LpIcon name="arrow-right-thin" size={16} />
             </DsButton>
+            {/* concept "Spec": §7 "then toExperimentDesign (created experiment)" */}
+            {kind === 'experiment' && onOpenCreated && (
+              <button className="ds-btn minimal" onClick={onOpenCreated} style={{ fontSize: 'var(--lp-font-size-100)' }}>
+                Open the experiment <span className="ds-dest-note">· toExperimentDesign</span>
+              </button>
+            )}
             <button className="ds-btn minimal" onClick={() => setDone(false)} style={{ fontSize: 'var(--lp-font-size-100)' }}>Start over</button>
           </div>
         </>
@@ -123,13 +160,126 @@ function InlineCreatePane({ kind, step, color, nextLabel, onAdvance }: { kind: '
   )
 }
 
+/* Concept "Spec", observability step 1: setup instructions rendered INLINE in
+   the learning pane, mirroring gonfalon's ObservabilitySetupInstructions
+   (§7: NOT toSdkSetup — that page has no plugin instructions). Same
+   do-it-here pattern as InlineCreatePane; snippets are faithful mocks. */
+const O11Y_SNIPPETS = [
+  {
+    key: 'js',
+    label: 'JavaScript',
+    install: 'npm install @launchdarkly/observability @launchdarkly/session-replay',
+    init: `import { initialize } from 'launchdarkly-js-client-sdk';
+import Observability from '@launchdarkly/observability';
+import SessionReplay from '@launchdarkly/session-replay';
+
+// one init: replays, errors, console, network, performance
+const client = initialize('<client-side-id>', context, {
+  plugins: [new Observability(), new SessionReplay()],
+});`,
+  },
+  {
+    key: 'node',
+    label: 'Node.js',
+    install: 'npm install @launchdarkly/observability-node',
+    init: `import { init } from '@launchdarkly/node-server-sdk';
+import Observability from '@launchdarkly/observability-node';
+
+// server side: errors, logs, and traces on the same SDK
+const client = init('<sdk-key>', {
+  plugins: [new Observability()],
+});`,
+  },
+  {
+    key: 'python',
+    label: 'Python',
+    install: 'pip install launchdarkly-observability',
+    init: `import ldclient
+from ldclient.config import Config
+from ldobserve import ObservabilityPlugin
+
+# server side: errors, logs, and traces on the same SDK
+ldclient.set_config(Config('<sdk-key>',
+    plugins=[ObservabilityPlugin()]))`,
+  },
+  {
+    key: 'react',
+    label: 'React',
+    install: 'npm install @launchdarkly/observability @launchdarkly/session-replay',
+    init: `import { LDProvider } from 'launchdarkly-react-client-sdk';
+import Observability from '@launchdarkly/observability';
+import SessionReplay from '@launchdarkly/session-replay';
+
+<LDProvider clientSideID="<client-side-id>"
+  options={{ plugins: [new Observability(), new SessionReplay()] }}>
+  <App />
+</LDProvider>`,
+  },
+]
+
+function InlineO11yPane({ step, color, nextLabel, onAdvance, onFallback }: { step: RoadmapStepV2; color: string; nextLabel: string; onAdvance: () => void; onFallback?: () => void }) {
+  const [lang, setLang] = useState(O11Y_SNIPPETS[0])
+
+  return (
+    <motion.div key={`inline-o11y-${lang.key}`} className="ds-card ds-card-pad" {...ANIM} style={{ minHeight: 320 }}>
+      <div style={{ display: 'flex', alignItems: 'center', gap: 'var(--lp-spacing-400)', marginBottom: 'var(--lp-spacing-400)' }}>
+        <span className="ds-step-ic" style={{ background: color }}><DsIcon glyph={step.icon} size={19} /></span>
+        <div>
+          <div className="ds-section-label">Step 1 · do it here</div>
+          <h2 className="ds-display" style={{ fontSize: 'var(--lp-font-size-400)', marginTop: 2 }}>{step.title}</h2>
+        </div>
+      </div>
+
+      <p className="ds-muted" style={{ fontSize: 'var(--lp-font-size-300)', lineHeight: 1.55, maxWidth: 560 }}>{step.learn.what}</p>
+
+      <div style={{ margin: 'var(--lp-spacing-500) 0 var(--lp-spacing-400)', display: 'flex', gap: 'var(--lp-spacing-300)', flexWrap: 'wrap' }}>
+        {O11Y_SNIPPETS.map((s) => (
+          <button key={s.key} className={`ds-chip ${lang.key === s.key ? 'brand' : ''}`} style={{ cursor: 'pointer', padding: '4px var(--lp-spacing-400)' }} onClick={() => setLang(s)}>{s.label}</button>
+        ))}
+      </div>
+
+      <div className="ds-section-label" style={{ marginBottom: 'var(--lp-spacing-300)' }}>1 · Install</div>
+      <Code code={lang.install} />
+      <div className="ds-section-label" style={{ margin: 'var(--lp-spacing-400) 0 var(--lp-spacing-300)' }}>2 · Pass the plugins on init</div>
+      <Code code={lang.init} />
+
+      <div className="ds-muted" style={{ fontSize: 'var(--lp-font-size-100)', lineHeight: 1.5, marginTop: 'var(--lp-spacing-400)' }}>
+        Fallback: the Sessions page empty state carries these same setup pointers.
+        {onFallback && (
+          <button className="ds-btn minimal" onClick={onFallback} style={{ fontSize: 'var(--lp-font-size-100)', marginLeft: 6 }}>
+            Open Sessions <span className="ds-dest-note">· toSessions</span>
+          </button>
+        )}
+      </div>
+
+      <div style={{ marginTop: 'var(--lp-spacing-600)', display: 'flex', alignItems: 'center', gap: 'var(--lp-spacing-400)' }}>
+        <DsButton variant="primary" onClick={onAdvance}>
+          Next: {nextLabel} <LpIcon name="arrow-right-thin" size={16} />
+        </DsButton>
+        <span className="ds-muted" style={{ fontSize: 'var(--lp-font-size-100)' }}>{step.est}</span>
+      </div>
+      <DestNote dest={step.dest} />
+    </motion.div>
+  )
+}
+
 /* roadmap list + right pane; the first step can be an inline create surface */
-function RoadmapV2({ steps, def, onWatch }: { steps: RoadmapStepV2[]; def: { label: string; color: string }; onWatch: () => void }) {
+function RoadmapV2({ steps, def, onWatch, onDest, initialStep, onStub }: {
+  steps: RoadmapStepV2[]
+  def: { label: string; color: string }
+  onWatch: () => void
+  onDest: (step: RoadmapStepV2) => void
+  /* concept "Spec": step to preselect when returning from a /dest/* stub */
+  initialStep?: string | null
+  /* concept "Spec": navigate to a /dest/* stub from an inline pane's links */
+  onStub?: (page: string, stepKey: string) => void
+}) {
   const required = steps.filter((s) => !s.optional)
   const optional = steps.filter((s) => s.optional)
-  const [sel, setSel] = useState(steps[0].key)
+  const restore = (init?: string | null) => (init && steps.some((s) => s.key === init) ? init : steps[0].key)
+  const [sel, setSel] = useState(restore(initialStep))
   // eslint-disable-next-line react-hooks/exhaustive-deps
-  useEffect(() => setSel(steps[0].key), [def.label])
+  useEffect(() => setSel(restore(initialStep)), [def.label, initialStep])
 
   const idx = Math.max(0, steps.findIndex((s) => s.key === sel))
   const step = steps[idx]
@@ -163,7 +313,24 @@ function RoadmapV2({ steps, def, onWatch }: { steps: RoadmapStepV2[]; def: { lab
       </div>
 
       {inlineFirst ? (
-        <InlineCreatePane kind={step.inline!} step={step} color={def.color} nextLabel={steps[1]?.title ?? 'Continue'} onAdvance={() => setSel(steps[1].key)} />
+        step.inline === 'o11y' ? (
+          <InlineO11yPane
+            step={step}
+            color={def.color}
+            nextLabel={steps[1]?.title ?? 'Continue'}
+            onAdvance={() => setSel(steps[1].key)}
+            onFallback={onStub ? () => onStub('sessions', step.key) : undefined}
+          />
+        ) : (
+          <InlineCreatePane
+            kind={step.inline!}
+            step={step}
+            color={def.color}
+            nextLabel={steps[1]?.title ?? 'Continue'}
+            onAdvance={() => setSel(steps[1].key)}
+            onOpenCreated={onStub ? () => onStub('experiment-design', step.key) : undefined}
+          />
+        )
       ) : (
         <motion.div key={`${def.label}-${sel}`} className="ds-card ds-card-pad" {...ANIM} style={{ minHeight: 320 }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: 'var(--lp-spacing-400)', marginBottom: 'var(--lp-spacing-400)' }}>
@@ -183,13 +350,14 @@ function RoadmapV2({ steps, def, onWatch }: { steps: RoadmapStepV2[]; def: { lab
             </div>
           </div>
           <div style={{ marginTop: 'var(--lp-spacing-700)', display: 'flex', alignItems: 'center', gap: 'var(--lp-spacing-400)' }}>
-            <DsButton variant="primary" onClick={step.sim ? onWatch : undefined}>
+            <DsButton variant="primary" onClick={step.sim ? onWatch : () => onDest(step)}>
               {step.sim && <LpIcon name="shield-heart" size={16} />}
               {step.cta}
               <LpIcon name="arrow-right-thin" size={16} />
             </DsButton>
             {step.est && <span className="ds-muted" style={{ fontSize: 'var(--lp-font-size-100)' }}>{step.est}</span>}
           </div>
+          <DestNote dest={step.dest} />
           {step.docs && step.docs.length > 0 && (
             <div style={{ marginTop: 'var(--lp-spacing-400)', display: 'flex', alignItems: 'center', gap: 'var(--lp-spacing-400)', flexWrap: 'wrap' }}>
               <span className="ds-section-label">Docs</span>
@@ -211,6 +379,7 @@ export function HomeDSSplitV2({ onWatch }: { onWatch: () => void }) {
   const [product, setProduct] = useState<ProductKey>('guarded')
   const steps = ROADMAPS_V2[product]
   const def = PRODUCTS.find((p) => p.key === product)!
+  const dest = useDest()
 
   return (
     <div className="content-inner ds-scope">
@@ -223,7 +392,63 @@ export function HomeDSSplitV2({ onWatch }: { onWatch: () => void }) {
         </div>
         <DsProductPicker value={product} onChange={setProduct} products={PRODUCTS} />
       </div>
-      <RoadmapV2 steps={steps} def={def} onWatch={onWatch} />
+      <RoadmapV2 steps={steps} def={def} onWatch={onWatch} onDest={dest.open} />
+      {dest.node}
+    </div>
+  )
+}
+
+/* Concept 6: Spec — Split pane v2 modified per home-page-spec-michael.md.
+   The trial chip + Upgrade move to the global bar above the top bar (§2, the
+   single trial surface), the welcome row goes plain, AgentControl leaves the
+   picker (§4, the welcome survey routes it away before Home), and every CTA
+   carries a mono annotation of its real gonfalon destination (§7).
+   `firstAction` is the welcome survey's preselect (§3, ?firstAction= query);
+   `productParam`/`stepParam` (?product= & ?step=) restore the selection when
+   returning from a /dest/* stub or when the sim's summary CTA lands here. */
+const isSpecProduct = (s?: string | null): s is ProductKey => PRODUCTS_SPEC.some((p) => p.key === s)
+
+export function HomeDSSpec({ onWatch, firstAction, productParam, stepParam }: {
+  onWatch: () => void
+  firstAction?: string | null
+  productParam?: string | null
+  stepParam?: string | null
+}) {
+  const navigate = useNavigate()
+  const [product, setProduct] = useState<ProductKey>(isSpecProduct(productParam) ? productParam : specProductFor(firstAction))
+  const steps = ROADMAPS_SPEC[product]
+  const def = PRODUCTS_SPEC.find((p) => p.key === product)!
+  const dest = useDest()
+
+  /* the sim's "Set up guarded releases for real" navigates in place
+     (?product=guarded&step=rollout), so track the param after mount too */
+  useEffect(() => {
+    if (isSpecProduct(productParam)) setProduct(productParam)
+  }, [productParam])
+
+  /* §7: steps the destination table maps to a stub page navigate for real;
+     ?product= and ?step= let the stub's "Back to Home" restore this spot.
+     Everything else keeps the concept-4 drawer/modal/docs behavior. */
+  const goStub = (page: string, stepKey: string) => navigate(`/dest/${page}?product=${product}&step=${stepKey}`)
+  const openStep = (step: RoadmapStepV2) => {
+    const stub = stubForSpec(product, step.key)
+    if (stub) goStub(stub, step.key)
+    else dest.open(step)
+  }
+
+  return (
+    <div className="content-inner ds-scope">
+      <DsWelcomeRow plain title="Welcome, Natalie" subtitle="Make something first, wire it up second. Pick where to start." />
+      <DsSimHero onWatch={onWatch} />
+      <div style={{ margin: 'var(--lp-spacing-800) 0 var(--lp-spacing-400)' }}>
+        <div style={{ display: 'flex', alignItems: 'baseline', justifyContent: 'space-between', gap: 12, marginBottom: 'var(--lp-spacing-400)' }}>
+          <h2 className="ds-display" style={{ fontSize: 'var(--lp-font-size-400)' }}>Where do you want to start?</h2>
+          <span className="ds-muted" style={{ fontSize: 'var(--lp-font-size-200)' }}>each path opens with something you create in under a minute</span>
+        </div>
+        <DsProductPicker value={product} onChange={setProduct} products={PRODUCTS_SPEC} />
+      </div>
+      <RoadmapV2 steps={steps} def={def} onWatch={onWatch} onDest={openStep} initialStep={product === productParam ? stepParam : undefined} onStub={goStub} />
+      {dest.node}
     </div>
   )
 }
@@ -232,6 +457,7 @@ export function HomeDSSplitV2({ onWatch }: { onWatch: () => void }) {
 export function HomeDSExperiment({ onWatch }: { onWatch: () => void }) {
   const steps = ROADMAPS_V2.experiments
   const def = PRODUCTS.find((p) => p.key === 'experiments')!
+  const dest = useDest()
 
   return (
     <div className="content-inner ds-scope">
@@ -243,7 +469,8 @@ export function HomeDSExperiment({ onWatch }: { onWatch: () => void }) {
           Start by running a sample experiment we scaffold for you (a flag, two variations, a metric, and a 50/50 test). Once you’ve seen it end to end, the rest of the path is how you set up your own for real.
         </p>
       </div>
-      <RoadmapV2 steps={steps} def={def} onWatch={onWatch} />
+      <RoadmapV2 steps={steps} def={def} onWatch={onWatch} onDest={dest.open} />
+      {dest.node}
     </div>
   )
 }

@@ -60,17 +60,21 @@ export function DsIcon({ glyph, size = 16 }: { glyph: Glyph; size?: number }) {
   return <LpIcon name={ICON[glyph]} size={size} />
 }
 
-export function DsWelcomeRow({ title, subtitle }: { title: string; subtitle: string }) {
+/* `plain` (concept "Spec") drops the trial chip + Upgrade button: the global
+   trial bar above the top bar is the only trial surface on that concept. */
+export function DsWelcomeRow({ title, subtitle, plain }: { title: string; subtitle: string; plain?: boolean }) {
   return (
     <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', gap: 16, marginBottom: 'var(--lp-spacing-700)' }}>
       <div>
         <h1 className="ds-display" style={{ fontSize: 'var(--lp-font-size-600)' }}>{title}</h1>
         <p className="ds-muted" style={{ fontSize: 'var(--lp-font-size-300)', marginTop: 'var(--lp-spacing-200)' }}>{subtitle}</p>
       </div>
-      <div style={{ display: 'flex', alignItems: 'center', gap: 'var(--lp-spacing-300)', flex: '0 0 auto' }}>
-        <span className="ds-chip warning" style={{ height: 28, padding: '0 var(--lp-spacing-400)' }}>Trial · 14 days left</span>
-        <DsButton size="medium" variant="default"><LpIcon name="bolt" size={14} /> Upgrade</DsButton>
-      </div>
+      {!plain && (
+        <div style={{ display: 'flex', alignItems: 'center', gap: 'var(--lp-spacing-300)', flex: '0 0 auto' }}>
+          <span className="ds-chip warning" style={{ height: 28, padding: '0 var(--lp-spacing-400)' }}>Trial · 14 days left</span>
+          <DsButton size="medium" variant="default"><LpIcon name="bolt" size={14} /> Upgrade</DsButton>
+        </div>
+      )}
     </div>
   )
 }

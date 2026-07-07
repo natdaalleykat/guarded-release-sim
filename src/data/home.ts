@@ -169,8 +169,14 @@ export interface RoadmapStepV2 {
   /* inline "learn more" links to the real docs */
   docs?: { label: string; href: string }[]
   /* concept "Split pane v2": the first step is a do-it-here inline surface
-     instead of a learning pane. Only the first step of a roadmap sets this. */
-  inline?: 'flag' | 'experiment'
+     instead of a learning pane. Only the first step of a roadmap sets this.
+     'o11y' (concept "Spec" only) renders the observability setup-instructions
+     pane, mirroring gonfalon's ObservabilitySetupInstructions (§7). */
+  inline?: 'flag' | 'experiment' | 'o11y'
+  /* concept "Spec": the real gonfalon destination this CTA wires to (§7 of
+     the change spec; `to*` names are @gonfalon/navigator helpers). Rendered
+     as a mono annotation under the CTA. */
+  dest?: string
   learn: { what: string; ideas: string[] }
 }
 
@@ -1024,4 +1030,64 @@ export const ROADMAPS_V2: Record<ProductKey, RoadmapStepV2[]> = {
   flags: FLAGS_V2,
   guarded: GUARDED_V2,
   experiments: EXPERIMENTS_V2,
+}
+
+/* =========================================================================
+   Concept "Spec" (home-page-spec-michael.md applied to Split pane v2).
+   One trial surface (the global bar), a plain welcome row, four product
+   tiles, and every CTA annotated with its real gonfalon destination.
+   ========================================================================= */
+
+/* Spec §4: AgentControl is off the home page entirely. The welcome survey
+   routes 'ai' to toAIConfigsWelcome before Home, so no tile renders here. */
+export const PRODUCTS_SPEC: ProductDef[] = PRODUCTS.filter((p) => p.key !== 'aiconfigs')
+
+/* Spec §3: survey value → home product preselect. An explicit table, not
+   survey value == product key. 'ai' never reaches Home; anything unknown
+   falls back to guarded. */
+export function specProductFor(firstAction?: string | null): ProductKey {
+  switch (firstAction) {
+    case 'flags': return 'flags'
+    case 'experiments': return 'experiments'
+    case 'observability': return 'observability'
+    default: return 'guarded'
+  }
+}
+
+const withDest = (steps: RoadmapStepV2[], dests: Record<string, string>): RoadmapStepV2[] =>
+  steps.map((s) => (dests[s.key] ? { ...s, dest: dests[s.key] } : s))
+
+/* The v2 create-first roadmaps plus the standard observability roadmap, with
+   the §7 destination table applied per step. Steps the table does not cover
+   (extra experiment steps, o11y traces/connect/privacy) stay un-annotated. */
+export const ROADMAPS_SPEC: Record<ProductKey, RoadmapStepV2[]> = {
+  ...ROADMAPS_V2,
+  guarded: withDest(GUARDED_V2, {
+    flag: 'inline (no navigation)',
+    metric: 'toCreateMetric',
+    sdk: 'toSdkSetup',
+    rollout: 'toFlagTargeting (created flag) · fallback toGuardedRollouts',
+    o11y: 'toObserve · metrics auto-generate · ~10 min',
+    alerts: 'toIntegrations (Slack app) → toFlagWorkflows (trigger)',
+  }),
+  flags: withDest(FLAGS_V2, {
+    create: 'inline (no navigation)',
+    wire: 'toSdkSetup',
+    toggle: 'toFlagTargeting (created flag)',
+    target: 'toFlagTargeting (rules)',
+    guard: 'toFlagTargeting (created flag)',
+    coderefs: 'toIntegrations (repo) · needs ld-find-code-refs in CI',
+  }),
+  experiments: withDest(EXPERIMENTS_V2, {
+    scaffold: 'inline scaffold · then toExperimentDesign (created experiment)',
+    metric: 'toCreateMetric',
+    instrument: 'toSdkSetup',
+    start: 'toExperiments (scaffolded experiment)',
+  }),
+  observability: withDest(ROADMAPS.observability, {
+    plugins: 'inline ObservabilitySetupInstructions · fallback toSessions',
+    sessions: 'toSessions',
+    alerts: 'toNewAlert',
+    guard: 'toFlagTargeting (auto-generated error-rate metric in picker)',
+  }).map((s) => (s.key === 'plugins' ? { ...s, inline: 'o11y' as const } : s)),
 }

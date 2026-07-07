@@ -239,3 +239,84 @@
 }
 .ds-plane-row:hover { background: var(--lp-color-bg-ui-secondary); }
 .ds-plane-row.on { border-color: var(--lp-color-border-interactive-selected); background: var(--lp-color-bg-interactive-selected); }
+
+/* =========================================================================
+   CTA destinations (v2): the slide-in SDK setup drawer + page wireframes
+   that mirror where each CTA goes in the real product.
+   ========================================================================= */
+.ds-overlay { position: fixed; inset: 0; z-index: 60; background: rgba(7, 8, 12, 0.45); display: flex; }
+.ds-drawer {
+  margin-left: auto; height: 100%; width: min(560px, 96vw);
+  background: var(--lp-color-bg-ui-primary);
+  border-left: 1px solid var(--lp-color-border-ui-primary);
+  display: flex; flex-direction: column; overflow: hidden;
+}
+.ds-modal {
+  margin: auto; width: min(700px, 94vw); max-height: 88vh;
+  background: var(--lp-color-bg-ui-primary);
+  border: 1px solid var(--lp-color-border-ui-primary);
+  border-radius: var(--lp-border-radius-large);
+  display: flex; flex-direction: column; overflow: hidden;
+}
+.ds-dest-head {
+  display: flex; align-items: flex-start; justify-content: space-between; gap: var(--lp-spacing-400);
+  padding: var(--lp-spacing-500) var(--lp-spacing-600);
+  border-bottom: 1px solid var(--lp-color-border-ui-primary);
+}
+.ds-dest-body { padding: var(--lp-spacing-600); overflow: auto; }
+.ds-breadcrumb {
+  font-size: var(--lp-font-size-100); color: var(--lp-color-text-ui-secondary);
+  display: flex; align-items: center; gap: 6px; margin-bottom: var(--lp-spacing-200);
+}
+.ds-iconbtn { border: none; background: transparent; color: var(--lp-color-text-ui-secondary); cursor: pointer; padding: 4px; border-radius: var(--lp-border-radius-regular); flex: 0 0 auto; }
+.ds-iconbtn:hover { background: var(--lp-color-bg-ui-secondary); }
+.ds-tab { padding: 6px 12px; border-radius: var(--lp-border-radius-medium); font-size: var(--lp-font-size-200); font-weight: var(--lp-font-weight-semibold); border: none; background: transparent; color: var(--lp-color-text-ui-secondary); cursor: pointer; }
+.ds-tab.on { background: var(--lp-color-bg-interactive-selected); color: var(--lp-color-fill-interactive-primary); }
+.ds-wire-label { font-size: var(--lp-font-size-100); font-weight: var(--lp-font-weight-semibold); color: var(--lp-color-text-ui-secondary); margin-bottom: 4px; }
+.ds-wire-field {
+  border: 1px solid var(--lp-color-border-ui-primary); border-radius: var(--lp-border-radius-medium);
+  padding: var(--lp-spacing-300) var(--lp-spacing-400); background: var(--lp-color-bg-ui-secondary);
+  color: var(--lp-color-text-ui-secondary); font-size: var(--lp-font-size-200);
+}
+.ds-wire-field.hl { border-color: var(--lp-color-fill-interactive-primary); box-shadow: 0 0 0 1px var(--lp-color-fill-interactive-primary); background: var(--lp-color-bg-ui-primary); color: var(--lp-color-text-ui-primary-base); }
+.ds-code {
+  background: #11161f; color: #d6deeb; border-radius: var(--lp-border-radius-medium);
+  padding: var(--lp-spacing-400) var(--lp-spacing-500); font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+  font-size: 12.5px; line-height: 1.6; overflow: auto; white-space: pre; position: relative;
+}
+.ds-code .cmt { color: #7f93b3; }
+.ds-copy { position: absolute; top: 8px; right: 8px; font-size: 11px; padding: 3px 8px; border-radius: var(--lp-border-radius-regular); border: 1px solid rgba(255,255,255,0.18); background: rgba(255,255,255,0.06); color: #d6deeb; cursor: pointer; }
+.ds-switch { width: 40px; height: 23px; border-radius: 999px; background: var(--lp-color-bg-interactive-primary-base); position: relative; flex: 0 0 auto; }
+.ds-switch::after { content: ''; position: absolute; top: 2px; left: 19px; width: 19px; height: 19px; border-radius: 50%; background: #fff; }
+/* =========================================================================
+   Concept "Spec" + the /welcome survey mock.
+   ========================================================================= */
+/* mono annotation: the real gonfalon destination a CTA wires to */
+.ds-dest-note {
+  font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+  font-size: 11.5px;
+  color: var(--lp-color-text-ui-secondary);
+}
+/* hand-built radio dot for the survey options */
+.ds-radio {
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  border: 2px solid var(--lp-color-border-ui-primary);
+  display: grid;
+  place-items: center;
+  flex: 0 0 auto;
+}
+.ds-plane-row.on .ds-radio { border-color: var(--lp-color-fill-interactive-primary); }
+.ds-plane-row.on .ds-radio::after {
+  content: '';
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: var(--lp-color-fill-interactive-primary);
+}
+
+.ds-serve-menu { border: 1px solid var(--lp-color-border-ui-primary); border-radius: var(--lp-border-radius-medium); overflow: hidden; }
+.ds-serve-item { padding: var(--lp-spacing-300) var(--lp-spacing-400); font-size: var(--lp-font-size-200); border-bottom: 1px solid var(--lp-color-border-ui-primary); display: flex; align-items: center; gap: var(--lp-spacing-300); }
+.ds-serve-item:last-child { border-bottom: none; }
+.ds-serve-item.on { background: var(--lp-color-bg-interactive-selected); color: var(--lp-color-fill-interactive-primary); font-weight: var(--lp-font-weight-semibold); }
