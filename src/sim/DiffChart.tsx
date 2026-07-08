@@ -12,7 +12,9 @@ interface Props {
 }
 
 const W = 1000
-const H = 250
+/* kept shallow so the run view (chart + log + summary CTA) fits above the
+   fold in the modal on laptop-height viewports */
+const H = 205
 const padL = 54
 const padR = 16
 const padT = 16

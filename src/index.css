@@ -459,7 +459,7 @@ a { color: inherit; text-decoration: none; }
 .modal {
   width: 100%;
   max-width: 1000px;
-  max-height: calc(100vh - 56px);
+  max-height: calc(100vh - 32px);
   background: var(--bg);
   border-radius: var(--r-xl);
   box-shadow: var(--shadow-modal);
@@ -611,10 +611,10 @@ a { color: inherit; text-decoration: none; }
 /* ---- Results step ------------------------------------------------------- */
 
 .stat-tile {
-  border: 1px solid var(--border); border-radius: var(--r-md); padding: 16px; background: var(--bg-sub);
+  border: 1px solid var(--border); border-radius: var(--r-md); padding: 10px 14px; background: var(--bg-sub);
 }
 .stat-tile .k { font-size: 11.5px; font-weight: 600; letter-spacing: 0.04em; text-transform: uppercase; color: var(--text-3); }
-.stat-tile .v { font-size: 26px; font-weight: 750; letter-spacing: -0.02em; margin-top: 5px; }
+.stat-tile .v { font-size: 22px; font-weight: 750; letter-spacing: -0.02em; margin-top: 3px; }
 
 .check-step { display: flex; gap: 13px; align-items: flex-start; padding: 14px 0; border-bottom: 1px solid var(--border-soft); }
 .check-step:last-child { border-bottom: none; }
@@ -884,7 +884,9 @@ a { color: inherit; text-decoration: none; }
   display: flex;
   flex-direction: column;
   justify-content: flex-end;
-  height: 178px;
+  /* 4 visible lines — kept short so the summary CTA below stays above the
+     fold on laptop-height viewports */
+  height: 115px;
   overflow: hidden;
 }
 .logline {

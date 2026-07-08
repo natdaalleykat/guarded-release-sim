@@ -46,7 +46,7 @@ export function StepRun({
   const sign = diff >= 0 ? '+' : '−'
 
   // events are stored newest-first; logs read oldest -> newest
-  const logs = [...state.events].reverse().slice(-7)
+  const logs = [...state.events].reverse().slice(-4)
 
   return (
     <div>
@@ -102,7 +102,7 @@ export function StepRun({
               display: 'flex',
               alignItems: 'center',
               gap: 12,
-              padding: '10px 16px',
+              padding: '6px 16px',
               borderBottom: '1px solid var(--border-soft)',
               flexWrap: 'wrap',
             }}
@@ -124,7 +124,7 @@ export function StepRun({
             </span>
           </div>
 
-          <div style={{ padding: '12px 16px 10px' }}>
+          <div style={{ padding: '8px 16px 6px' }}>
             {chartVariant === 'gonfalon' ? (
               <GonfalonChart metric={m} context={c} state={state} />
             ) : (
@@ -140,7 +140,7 @@ export function StepRun({
         </div>
 
         {/* live log lines */}
-        <div className="logterm" style={{ marginTop: 14 }}>
+        <div className="logterm" style={{ marginTop: 10 }}>
           <AnimatePresence initial={false}>
             {logs.map((e) => (
               <motion.div
@@ -160,7 +160,7 @@ export function StepRun({
         {/* value summary, in place of a results page */}
         <AnimatePresence>
           {showValue && (
-            <motion.div initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.4, ease: [0.16, 1, 0.3, 1] }} style={{ marginTop: 16 }}>
+            <motion.div initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.4, ease: [0.16, 1, 0.3, 1] }} style={{ marginTop: 10 }}>
               <div className="cols grid-3" style={{ gap: 12 }}>
                 <div className="stat-tile">
                   <div className="k">Max blast radius</div>
