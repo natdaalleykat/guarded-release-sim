@@ -233,7 +233,7 @@ export const DEBRIEF = {
   with: [
     'LaunchDarkly ramps it up a step at a time.',
     'It watches your metric on every context, around the clock.',
-    'The second the metric breaks its guardrail, it rolls back on its own.',
+    'The moment the new variation runs measurably worse than control, it rolls back on its own.',
     'No page. No incident. You were getting coffee.',
   ],
   kicker:

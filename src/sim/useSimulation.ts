@@ -43,22 +43,29 @@ export interface SimState {
 // --- timeline constants (sim seconds) ---
 // A 30-second run: ramp 1% -> 5% -> 10%, regression hits ~10s in,
 // auto-rollback, recover, and the value summary lands by ~24s.
+// Detection semantics (per the Guardian team): a regression is the new
+// variation running significantly WORSE THAN CONTROL, not a metric crossing
+// a fixed threshold. Rollback is instant — traffic snaps to 0, and treatment
+// data simply stops (nothing left to measure).
 const REG_START = 10
 const REG_PEAK = 14
-const REC_START = 15.5
-const REC_END = 21
-const ROLLBACK_START = 14.6
-const RECOVERED_T = 21.5
+/** the moment the regression is called on the feed/chart */
+export const REG_DETECT_T = 13.6
+export const ROLLBACK_START = 14.6
+// with traffic snapped to control, the metric recovers almost immediately
+const REC_START = 14.7
+const REC_END = 16
+const RECOVERED_T = 17
 export const END_T = 30
 /** when the in-run value summary (blast radius etc.) appears */
 export const VALUE_T = 24
 
-// An early "safe blip": the metric rises toward the guardrail, the system
-// shows it's tracked, it stays under the line, and recovers — no rollback.
+// An early "safe blip": the new variation drifts above control, the system
+// shows the gap is tracked, it isn't significant, and it recovers — no rollback.
 const SPIKE_START = 3.2
 const SPIKE_PEAK = 5.4
 const SPIKE_END = 8.2
-const SPIKE_FACTOR = 0.8 // fraction of the way from baseline to the guardrail
+const SPIKE_FACTOR = 0.8 // fraction of the way from baseline to the (internal) trip level
 
 const GATE: [number, number][] = [
   [0, 0],
@@ -68,7 +75,7 @@ const GATE: [number, number][] = [
   [7.6, 5],
   [8.6, 10],
   [14.6, 10],
-  [18.5, 0],
+  [14.72, 0], // rollback is instant: one frame, not a ramp-down
   [END_T, 0],
 ]
 
@@ -159,21 +166,22 @@ interface EventDef {
 
 function buildEvents(): EventDef[] {
   const v = (p: FrameParams, t: number) => fmtMetric(p.m, metricAt(p.m, t))
+  const ctrl = (p: FrameParams) => fmtMetric(p.m, p.m.baseline)
   return [
-    { t: 0.4, kind: 'info', build: (p) => `Guarded release started. Serving new variation to 1% of ${p.c.plural}.` },
-    { t: 2.2, kind: 'check', build: (p) => `Guardrail check passed. ${cap(p.m.short)} ${v(p, 2.2)}.` },
+    { t: 0.4, kind: 'info', build: (p) => `Guarded release started. Serving the new variation to 1% of ${p.c.plural}, measured against control.` },
+    { t: 2.2, kind: 'check', build: (p) => `Regression check passed. New variation level with control (${v(p, 2.2)} vs ${ctrl(p)}).` },
     { t: 4.4, kind: 'stage', build: () => `Ramped to 5%.` },
-    { t: 5.2, kind: 'info', build: (p) => `${cap(p.m.short)} ticking up — ${v(p, 5.2)}. Tracking against the guardrail.` },
-    { t: 6.0, kind: 'check', build: (p) => `${cap(p.m.short)} ${v(p, 6.0)}, still under the guardrail. Holding, no rollback.` },
-    { t: 7.8, kind: 'good', build: (p) => `Blip cleared. ${cap(p.m.short)} back to ${v(p, 7.8)}. Stayed in the safe zone.` },
+    { t: 5.2, kind: 'info', build: (p) => `${cap(p.m.short)} ticking up on the new variation — ${v(p, 5.2)} vs control ${ctrl(p)}. Watching the gap.` },
+    { t: 6.0, kind: 'check', build: () => `Gap is not significant. Holding — noise alone never triggers a rollback.` },
+    { t: 7.8, kind: 'good', build: (p) => `Blip cleared. New variation back level with control at ${v(p, 7.8)}.` },
     { t: 8.8, kind: 'stage', build: () => `Ramped to 10%.` },
-    { t: 10.8, kind: 'info', build: () => `Running guardrail check...` },
-    { t: 11.8, kind: 'warn', build: (p) => `${p.m.label} is crossing the guardrail. ${v(p, 11.8)}.` },
-    { t: 13.6, kind: 'warn', build: (p) => `Regression detected on ${p.m.label}. Guardrail: ${p.m.guardrailPhrase}.` },
-    { t: 14.7, kind: 'act', build: (p) => `Automatic rollback executed in ~${ROLLBACK_MS} ms. Returning ${p.c.plural} to the stable version.` },
-    { t: 16.5, kind: 'act', build: () => `Rollback propagating. New-variation traffic falling.` },
-    { t: 19.5, kind: 'good', build: (p) => `Rollback complete. All ${p.c.plural} are back on the stable version.` },
-    { t: 21.8, kind: 'good', build: (p) => `Guarded release stopped. ${cap(p.m.short)} recovered to ${v(p, 22.5)}.` },
+    { t: 10.8, kind: 'info', build: () => `Running regression check...` },
+    { t: 11.8, kind: 'warn', build: (p) => `New variation pulling away from control: ${v(p, 11.8)} vs ${ctrl(p)}.` },
+    { t: REG_DETECT_T, kind: 'warn', build: (p) => `Regression detected. ${p.m.label} is significantly worse than control.` },
+    { t: 14.7, kind: 'act', build: (p) => `Automatic rollback executed in ~${ROLLBACK_MS} ms. 100% of ${p.c.plural} instantly back on the stable version.` },
+    { t: 16.4, kind: 'good', build: () => `New-variation traffic: 0%. No one else gets exposed.` },
+    { t: 18.2, kind: 'good', build: (p) => `${cap(p.m.short)} back at the control baseline (${ctrl(p)}).` },
+    { t: 21.8, kind: 'good', build: (p) => `Guarded release stopped. Nothing to revert by hand — ${p.c.plural} never noticed.` },
     { t: 23.4, kind: 'good', build: (p) => `${BLAST.protected}% of ${p.c.plural} were never exposed to the regression.` },
   ]
 }
@@ -246,10 +254,15 @@ export function useSimulation(m: MetricOption, c: ContextOption, autoStart = tru
         }
       })
 
-      // sample history
-      if (t - lastSample.current >= SAMPLE_DT || t >= END_T) {
+      // sample history — treatment data ends at rollback (no traffic on the
+      // new variation means nothing left to measure). Close the line with one
+      // final sample exactly at the rollback moment.
+      if (t <= ROLLBACK_START && (t - lastSample.current >= SAMPLE_DT || t >= END_T)) {
         lastSample.current = t
         history.current = [...history.current, { t, v: f.metricValue }]
+      } else if (t > ROLLBACK_START && lastSample.current < ROLLBACK_START) {
+        lastSample.current = ROLLBACK_START
+        history.current = [...history.current, { t: ROLLBACK_START, v: metricAt(m, ROLLBACK_START) }]
       }
 
       // throttle React updates
