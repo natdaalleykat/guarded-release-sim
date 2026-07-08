@@ -168,19 +168,19 @@ function buildEvents(): EventDef[] {
   const v = (p: FrameParams, t: number) => fmtMetric(p.m, metricAt(p.m, t))
   const ctrl = (p: FrameParams) => fmtMetric(p.m, p.m.baseline)
   return [
-    { t: 0.4, kind: 'info', build: (p) => `Guarded release started. Serving the new variation to 1% of ${p.c.plural}, measured against control.` },
-    { t: 2.2, kind: 'check', build: (p) => `Regression check passed. New variation level with control (${v(p, 2.2)} vs ${ctrl(p)}).` },
+    { t: 0.4, kind: 'info', build: (p) => `Guarded release started. Serving the new variation to 1% of ${p.c.plural}; everyone else stays on the stable version.` },
+    { t: 2.2, kind: 'check', build: (p) => `Regression check passed. New variation level with the stable version (${v(p, 2.2)} vs ${ctrl(p)}).` },
     { t: 4.4, kind: 'stage', build: () => `Ramped to 5%.` },
-    { t: 5.2, kind: 'info', build: (p) => `${cap(p.m.short)} ticking up on the new variation — ${v(p, 5.2)} vs control ${ctrl(p)}. Watching the gap.` },
+    { t: 5.2, kind: 'info', build: (p) => `${cap(p.m.short)} ticking up on the new variation — ${v(p, 5.2)} vs ${ctrl(p)} on the stable version. Watching the gap.` },
     { t: 6.0, kind: 'check', build: () => `Gap is not significant. Holding — noise alone never triggers a rollback.` },
-    { t: 7.8, kind: 'good', build: (p) => `Blip cleared. New variation back level with control at ${v(p, 7.8)}.` },
+    { t: 7.8, kind: 'good', build: (p) => `Blip cleared. New variation back level with the stable version at ${v(p, 7.8)}.` },
     { t: 8.8, kind: 'stage', build: () => `Ramped to 10%.` },
     { t: 10.8, kind: 'info', build: () => `Running regression check...` },
-    { t: 11.8, kind: 'warn', build: (p) => `New variation pulling away from control: ${v(p, 11.8)} vs ${ctrl(p)}.` },
-    { t: REG_DETECT_T, kind: 'warn', build: (p) => `Regression detected. ${p.m.label} is significantly worse than control.` },
+    { t: 11.8, kind: 'warn', build: (p) => `New variation pulling away from the stable version: ${v(p, 11.8)} vs ${ctrl(p)}.` },
+    { t: REG_DETECT_T, kind: 'warn', build: (p) => `Regression detected. ${p.m.label} is significantly worse than the stable version.` },
     { t: 14.7, kind: 'act', build: (p) => `Automatic rollback executed in ~${ROLLBACK_MS} ms. 100% of ${p.c.plural} instantly back on the stable version.` },
     { t: 16.4, kind: 'good', build: () => `New-variation traffic: 0%. No one else gets exposed.` },
-    { t: 18.2, kind: 'good', build: (p) => `${cap(p.m.short)} back at the control baseline (${ctrl(p)}).` },
+    { t: 18.2, kind: 'good', build: (p) => `${cap(p.m.short)} back at the stable-version baseline (${ctrl(p)}).` },
     { t: 21.8, kind: 'good', build: (p) => `Guarded release stopped. Nothing to revert by hand — ${p.c.plural} never noticed.` },
     { t: 23.4, kind: 'good', build: (p) => `${BLAST.protected}% of ${p.c.plural} were never exposed to the regression.` },
   ]

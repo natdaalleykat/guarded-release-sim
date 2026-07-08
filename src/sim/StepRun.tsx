@@ -87,7 +87,7 @@ export function StepRun({
             <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
               {showEstimate && (
                 <span className={`estimate-tag ${breach ? 'bad' : 'neutral'}`}>
-                  {sign}{fmtDiff(diff)} vs control
+                  {sign}{fmtDiff(diff)} vs stable
                 </span>
               )}
               <span className="mono" style={{ fontSize: 18, fontWeight: 700, color: breach ? 'var(--red)' : 'var(--green)' }}>
@@ -131,8 +131,8 @@ export function StepRun({
               <>
                 <DiffChart metric={m} history={state.history} tNow={state.t} treatmentNow={state.metricValue} controlNow={control} breach={breach} />
                 <div className="diff-legend" style={{ margin: '6px 2px 8px' }}>
-                  <span className="k"><span className="ln" style={{ background: 'var(--blue)' }} /> {TREATMENT.name} (treatment)</span>
-                  <span className="k"><span className="ln" style={{ borderTop: '2px dashed var(--text-3)', background: 'transparent', height: 0 }} /> {CONTROL.name} (control)</span>
+                  <span className="k"><span className="ln" style={{ background: 'var(--blue)' }} /> {TREATMENT.name} (new variation)</span>
+                  <span className="k"><span className="ln" style={{ background: 'rgba(7,8,12,0.55)', height: 2.4 }} /> {CONTROL.name} (stable version)</span>
                 </div>
               </>
             )}
