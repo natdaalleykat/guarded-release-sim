@@ -21,12 +21,12 @@ const padT = 16
 const padB = 26
 
 /* Detection semantics per the Guardian team: a regression is the new
-   variation running significantly worse than the STABLE VERSION — there is
+   variation running significantly worse than the ORIGINAL VARIATION — there is
    no fixed threshold line. The chart shades the gap between the variations:
    amber while it is being watched, red once the regression is called. After
    rollback the treatment line simply ends: no traffic, no data. The word
    "control" is deliberately avoided — day-0 trialists don't have the A/B
-   vocabulary; "stable version" says the same thing in plain terms. */
+   vocabulary; "original variation" says the same thing in plain terms. */
 function DiffChartInner({ metric, history, tNow, controlNow, breach }: Props) {
   const { yMin, yMax, betterDirection } = metric
   const x = (t: number) => padL + (t / END_T) * (W - padL - padR)
@@ -74,10 +74,10 @@ function DiffChartInner({ metric, history, tNow, controlNow, breach }: Props) {
       {/* gap once the regression is called */}
       {detected && calledGap && <path d={calledGap} fill="rgba(219,34,81,0.14)" stroke="none" />}
 
-      {/* the stable version — the line the release is judged against */}
+      {/* the original variation — the line the release is judged against */}
       <line x1={padL} y1={y(controlNow)} x2={x(tNow)} y2={y(controlNow)} stroke="rgba(7,8,12,0.55)" strokeWidth="2.4" />
       <text x={x(tNow) - 6} y={y(controlNow) + 17} textAnchor="end" fill="rgba(7,8,12,0.62)" fontSize="11.5" fontWeight="700">
-        stable version · {fmtU(controlNow)}
+        original variation · {fmtU(controlNow)}
       </text>
 
       {/* regression called: where the gap became sustained */}
