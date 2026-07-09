@@ -8,7 +8,13 @@ import { CheckoutApp } from './CheckoutApp'
 import type { ConfigValue, ChartVariant } from './SimWizard'
 import { CheckCircle, AlertDiamond, Rollback, ArrowRight, Replay } from '../components/icons'
 
-function statusBadge(phase: Phase) {
+function statusBadge(phase: Phase, autoRollback: boolean, t: number) {
+  if (!autoRollback && phase === 'regression') {
+    // notify-only ending: the alert fires at ~14.7 and nothing else happens
+    return t >= 14.7
+      ? { cls: 'red', label: 'Alert sent · regression ongoing', icon: <AlertDiamond size={13} /> }
+      : { cls: 'red', label: 'Regression detected', icon: <AlertDiamond size={13} /> }
+  }
   switch (phase) {
     case 'regression':
       return { cls: 'red', label: 'Regression detected', icon: <AlertDiamond size={13} /> }
@@ -34,8 +40,8 @@ export function StepRun({
 }) {
   const m = getMetric(config.metric)
   const c = getContext(config.context)
-  const { state } = useSimulation(m, c)
-  const sb = statusBadge(state.phase)
+  const { state } = useSimulation(m, c, true, config.autoRollback)
+  const sb = statusBadge(state.phase, config.autoRollback, state.t)
   const breach = state.breach
   const showValue = state.t >= VALUE_T
 
@@ -129,7 +135,7 @@ export function StepRun({
               <GonfalonChart metric={m} context={c} state={state} />
             ) : (
               <>
-                <DiffChart metric={m} history={state.history} tNow={state.t} treatmentNow={state.metricValue} controlNow={control} breach={breach} />
+                <DiffChart metric={m} history={state.history} tNow={state.t} treatmentNow={state.metricValue} controlNow={control} breach={breach} autoRollback={config.autoRollback} />
                 <div className="diff-legend" style={{ margin: '6px 2px 8px' }}>
                   <span className="k"><span className="ln" style={{ background: 'var(--blue)' }} /> {TREATMENT.name} (new variation)</span>
                   <span className="k"><span className="ln" style={{ background: 'rgba(7,8,12,0.55)', height: 2.4 }} /> {CONTROL.name} (original variation)</span>
@@ -164,23 +170,35 @@ export function StepRun({
               <div className="cols grid-3" style={{ gap: 12 }}>
                 <div className="stat-tile">
                   <div className="k">Max blast radius</div>
-                  <div className="v">{BLAST.exposed}%</div>
-                  <div className="faint" style={{ fontSize: 12, marginTop: 3 }}>caught at the {BLAST.exposed}% step</div>
+                  <div className="v" style={config.autoRollback ? undefined : { color: 'var(--red)' }}>{BLAST.exposed}%</div>
+                  <div className="faint" style={{ fontSize: 12, marginTop: 3 }}>
+                    {config.autoRollback ? `caught at the ${BLAST.exposed}% step` : 'and still exposed right now'}
+                  </div>
                 </div>
                 <div className="stat-tile">
                   <div className="k">{c.plural} protected</div>
                   <div className="v" style={{ color: 'var(--green)' }}>{BLAST.protected}%</div>
-                  <div className="faint" style={{ fontSize: 12, marginTop: 3 }}>never saw the bad release</div>
+                  <div className="faint" style={{ fontSize: 12, marginTop: 3 }}>
+                    {config.autoRollback ? 'never saw the bad release' : 'so far — the other 10% is waiting on you'}
+                  </div>
                 </div>
                 <div className="stat-tile">
                   <div className="k">Rolled back in</div>
-                  <div className="v">~{ROLLBACK_MS} ms</div>
-                  <div className="faint" style={{ fontSize: 12, marginTop: 3 }}>automatically, no human</div>
+                  <div className="v" style={config.autoRollback ? undefined : { color: 'var(--red)' }}>
+                    {config.autoRollback ? `~${ROLLBACK_MS} ms` : '—'}
+                  </div>
+                  <div className="faint" style={{ fontSize: 12, marginTop: 3 }}>
+                    {config.autoRollback ? 'automatically, no human' : 'auto-rollback was off'}
+                  </div>
                 </div>
               </div>
               <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 12, marginTop: 14, flexWrap: 'wrap' }}>
                 <span className="muted" style={{ fontSize: 13.5 }}>
-                  No page. No incident. You guarded <strong style={{ color: 'var(--text)' }}>{m.short}</strong> and it worked.
+                  {config.autoRollback ? (
+                    <>No page. No incident. You guarded <strong style={{ color: 'var(--text)' }}>{m.short}</strong> and it worked.</>
+                  ) : (
+                    <>The alert went out; the regression is still live. Auto-rollback would have ended this in <strong style={{ color: 'var(--text)' }}>~{ROLLBACK_MS} ms</strong>.</>
+                  )}
                 </span>
                 <div style={{ display: 'flex', gap: 8 }}>
                   <button className="btn minimal" onClick={onReplay}>

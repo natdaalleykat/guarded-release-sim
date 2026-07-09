@@ -172,6 +172,8 @@ export const DEFAULTS = {
   metric: 'error_rate' as MetricKey,
   context: 'user' as ContextKey,
   pace: 'balanced' as PaceKey,
+  /* pre-selected, but changeable: turning it off runs the notify-only ending */
+  autoRollback: true,
 }
 
 /* ---- Cold open --------------------------------------------------------- */

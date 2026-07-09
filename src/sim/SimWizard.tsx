@@ -22,6 +22,8 @@ export interface ConfigValue {
   metric: MetricKey
   context: ContextKey
   pace: PaceKey
+  /* pre-selected on; turning it off plays the notify-only ending */
+  autoRollback: boolean
 }
 
 export type ChartVariant = 'default' | 'gonfalon'
@@ -186,7 +188,7 @@ function StepConfigure({
           ))}
         </CfgRow>
 
-        {/* locked auto-rollback */}
+        {/* auto-rollback: pre-selected, but the user decides */}
         <div
           style={{
             display: 'flex',
@@ -200,16 +202,17 @@ function StepConfigure({
           }}
         >
           <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
-            <span style={{ color: 'var(--green)' }}><ShieldHeart size={16} /></span>
+            <span style={{ color: config.autoRollback ? 'var(--green)' : 'var(--text-3)' }}><ShieldHeart size={16} /></span>
             <div>
               <div style={{ fontWeight: 600, fontSize: 13 }}>Automatically roll back if a regression is detected</div>
-              <div className="faint" style={{ fontSize: 11.5 }}>On by default. Required for a guarded release.</div>
+              <div className="faint" style={{ fontSize: 11.5 }}>
+                {config.autoRollback
+                  ? 'On by default. Turn it off and a regression only alerts you.'
+                  : 'Off: a regression sends an alert and keeps running until someone acts.'}
+              </div>
             </div>
           </div>
-          <div style={{ display: 'flex', alignItems: 'center', gap: 9, flex: '0 0 auto' }}>
-            <span className="badge">Required</span>
-            <LockedToggleOn />
-          </div>
+          <Toggle on={config.autoRollback} onClick={() => onChange({ autoRollback: !config.autoRollback })} />
         </div>
       </div>
 
@@ -257,25 +260,28 @@ function Pill({ on, onClick, children }: { on: boolean; onClick: () => void; chi
   )
 }
 
-function LockedToggleOn() {
+function Toggle({ on, onClick }: { on: boolean; onClick: () => void }) {
   return (
-    <span
+    <button
       role="switch"
-      aria-checked="true"
-      aria-disabled="true"
-      title="Required for guarded releases"
+      aria-checked={on}
+      title={on ? 'Auto-rollback on' : 'Auto-rollback off — regressions only alert'}
+      onClick={onClick}
       style={{
         width: 36,
         height: 21,
         borderRadius: 999,
-        background: 'var(--green)',
+        border: 'none',
+        padding: 0,
+        background: on ? 'var(--green)' : 'var(--border)',
         position: 'relative',
         display: 'inline-block',
-        cursor: 'not-allowed',
+        cursor: 'pointer',
         flex: '0 0 auto',
+        transition: 'background 0.15s ease',
       }}
     >
-      <span style={{ position: 'absolute', top: 3, left: 18, width: 15, height: 15, borderRadius: '50%', background: '#fff', boxShadow: '0 1px 2px rgba(7,8,12,0.25)' }} />
-    </span>
+      <span style={{ position: 'absolute', top: 3, left: on ? 18 : 3, width: 15, height: 15, borderRadius: '50%', background: '#fff', boxShadow: '0 1px 2px rgba(7,8,12,0.25)', transition: 'left 0.15s ease' }} />
+    </button>
   )
 }

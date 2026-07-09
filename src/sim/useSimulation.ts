@@ -79,6 +79,18 @@ const GATE: [number, number][] = [
   [END_T, 0],
 ]
 
+/* auto-rollback off: nothing rolls back — the release keeps serving 10%
+   and the regression keeps running until a human steps in */
+const GATE_NOTIFY: [number, number][] = [
+  [0, 0],
+  [1.5, 1],
+  [3.6, 1],
+  [4.6, 5],
+  [7.6, 5],
+  [8.6, 10],
+  [END_T, 10],
+]
+
 function lerp(a: number, b: number, t: number) {
   return a + (b - a) * t
 }
@@ -101,8 +113,8 @@ function lerpKeyframes(t: number, kf: [number, number][]) {
   return kf[kf.length - 1][1]
 }
 
-function metricAt(m: MetricOption, t: number): number {
-  // early blip rises toward, but stays under, the guardrail
+function metricAt(m: MetricOption, t: number, autoRollback = true): number {
+  // early blip rises toward, but stays under, the (internal) trip level
   const near = m.baseline + (m.threshold - m.baseline) * SPIKE_FACTOR
   let base: number
   if (t < SPIKE_START) base = m.baseline
@@ -110,6 +122,7 @@ function metricAt(m: MetricOption, t: number): number {
   else if (t < SPIKE_END) base = lerp(near, m.baseline, easeInOut((t - SPIKE_PEAK) / (SPIKE_END - SPIKE_PEAK)))
   else if (t < REG_START) base = m.baseline
   else if (t < REG_PEAK) base = lerp(m.baseline, m.regressed, easeInOut((t - REG_START) / (REG_PEAK - REG_START)))
+  else if (!autoRollback) base = m.regressed // nobody rolled it back; it stays broken
   else if (t < REC_START) base = m.regressed
   else if (t < REC_END) base = lerp(m.regressed, m.baseline, easeInOut((t - REC_START) / (REC_END - REC_START)))
   else base = m.baseline
@@ -129,8 +142,12 @@ function severityAt(m: MetricOption, v: number): number {
   return clamp(past / span, 0, 1)
 }
 
-export function phaseAt(m: MetricOption, t: number): Phase {
+export function phaseAt(m: MetricOption, t: number, autoRollback = true): Phase {
   if (t < 0.15) return 'idle'
+  if (!autoRollback) {
+    // no rollback ever happens; once the regression is real it stays
+    return isBreach(m, metricAt(m, t, false)) ? 'regression' : 'ramping'
+  }
   if (t >= RECOVERED_T) return 'recovered'
   if (t >= ROLLBACK_START) return 'rollback'
   if (isBreach(m, metricAt(m, t))) return 'regression'
@@ -140,19 +157,20 @@ export function phaseAt(m: MetricOption, t: number): Phase {
 interface FrameParams {
   m: MetricOption
   c: ContextOption
+  autoRollback: boolean
 }
 
-function frameAt(t: number, { m, c }: FrameParams) {
-  const pct = lerpKeyframes(t, GATE)
+function frameAt(t: number, { m, c, autoRollback }: FrameParams) {
+  const pct = lerpKeyframes(t, autoRollback ? GATE : GATE_NOTIFY)
   const newShare = pct / 100
-  const value = metricAt(m, t)
+  const value = metricAt(m, t, autoRollback)
   return {
     rolloutPct: pct,
     newShare,
     metricValue: value,
     breach: isBreach(m, value),
     severity: severityAt(m, value),
-    phase: phaseAt(m, t),
+    phase: phaseAt(m, t, autoRollback),
     contextsOnNew: Math.round(newShare * c.population),
   }
 }
@@ -164,10 +182,10 @@ interface EventDef {
   build: (p: FrameParams) => string
 }
 
-function buildEvents(): EventDef[] {
-  const v = (p: FrameParams, t: number) => fmtMetric(p.m, metricAt(p.m, t))
+function buildEvents(autoRollback: boolean): EventDef[] {
+  const v = (p: FrameParams, t: number) => fmtMetric(p.m, metricAt(p.m, t, autoRollback))
   const ctrl = (p: FrameParams) => fmtMetric(p.m, p.m.baseline)
-  return [
+  const shared: EventDef[] = [
     { t: 0.4, kind: 'info', build: (p) => `Guarded release started. Serving the new variation to 1% of ${p.c.plural}; everyone else stays on the original variation.` },
     { t: 2.2, kind: 'check', build: (p) => `Regression check passed. New variation level with the original variation (${v(p, 2.2)} vs ${ctrl(p)}).` },
     { t: 4.4, kind: 'stage', build: () => `Ramped to 5%.` },
@@ -178,11 +196,25 @@ function buildEvents(): EventDef[] {
     { t: 10.8, kind: 'info', build: () => `Running regression check...` },
     { t: 11.8, kind: 'warn', build: (p) => `New variation pulling away from the original variation: ${v(p, 11.8)} vs ${ctrl(p)}.` },
     { t: REG_DETECT_T, kind: 'warn', build: (p) => `Regression detected. ${p.m.label} is significantly worse than the original variation.` },
-    { t: 14.7, kind: 'act', build: (p) => `Automatic rollback executed in ~${ROLLBACK_MS} ms. 100% of ${p.c.plural} instantly back on the original variation.` },
-    { t: 16.4, kind: 'good', build: () => `New-variation traffic: 0%. No one else gets exposed.` },
-    { t: 18.2, kind: 'good', build: (p) => `${cap(p.m.short)} back at the original variation's baseline (${ctrl(p)}).` },
-    { t: 21.8, kind: 'good', build: (p) => `Guarded release stopped. Nothing to revert by hand — ${p.c.plural} never noticed.` },
-    { t: 23.4, kind: 'good', build: (p) => `${BLAST.protected}% of ${p.c.plural} were never exposed to the regression.` },
+  ]
+  if (autoRollback) {
+    return [
+      ...shared,
+      { t: 14.7, kind: 'act', build: (p) => `Automatic rollback executed in ~${ROLLBACK_MS} ms. 100% of ${p.c.plural} instantly back on the original variation.` },
+      { t: 16.4, kind: 'good', build: () => `New-variation traffic: 0%. No one else gets exposed.` },
+      { t: 18.2, kind: 'good', build: (p) => `${cap(p.m.short)} back at the original variation's baseline (${ctrl(p)}).` },
+      { t: 21.8, kind: 'good', build: (p) => `Guarded release stopped. Nothing to revert by hand — ${p.c.plural} never noticed.` },
+      { t: 23.4, kind: 'good', build: (p) => `${BLAST.protected}% of ${p.c.plural} were never exposed to the regression.` },
+    ]
+  }
+  // the notify-only ending: the alert fires, and the regression keeps running
+  return [
+    ...shared,
+    { t: 14.7, kind: 'act', build: (p) => `Alert sent: regression on ${p.m.label}. Auto-rollback is off, so the release keeps running.` },
+    { t: 16.4, kind: 'warn', build: (p) => `Still serving 10% of ${p.c.plural}. ${cap(p.m.short)} holding at ${v(p, 16.4)}.` },
+    { t: 18.2, kind: 'warn', build: () => `Waiting on a human to see the alert and revert by hand.` },
+    { t: 21.8, kind: 'warn', build: (p) => `Regression ongoing. Every minute at 10% is more ${p.c.plural} hitting the bad version.` },
+    { t: 23.4, kind: 'info', build: () => `With auto-rollback on, this would have been over at 15 seconds — flip it back on and replay.` },
   ]
 }
 
@@ -200,7 +232,7 @@ export function fmtElapsed(t: number): string {
 const SAMPLE_DT = 0.14 // seconds between chart samples
 const UI_DT = 42 // ms between React state pushes
 
-export function useSimulation(m: MetricOption, c: ContextOption, autoStart = true) {
+export function useSimulation(m: MetricOption, c: ContextOption, autoStart = true, autoRollback = true) {
   const [state, setState] = useState<SimState>(() => ({
     t: 0,
     phase: 'idle',
@@ -227,7 +259,7 @@ export function useSimulation(m: MetricOption, c: ContextOption, autoStart = tru
   const events = useRef<SimEvent[]>([])
   const checks = useRef(0)
   const maxPct = useRef(0)
-  const eventDefs = useRef<EventDef[]>(buildEvents())
+  const eventDefs = useRef<EventDef[]>(buildEvents(autoRollback))
   const running = useRef(false)
 
   function start() {
@@ -239,7 +271,7 @@ export function useSimulation(m: MetricOption, c: ContextOption, autoStart = tru
     const tick = (now: number) => {
       if (startedAt.current === null) startedAt.current = now
       const t = Math.min((now - startedAt.current) / 1000, END_T)
-      const f = frameAt(t, { m, c })
+      const f = frameAt(t, { m, c, autoRollback })
       maxPct.current = Math.max(maxPct.current, f.rolloutPct)
 
       // emit due events
@@ -248,19 +280,20 @@ export function useSimulation(m: MetricOption, c: ContextOption, autoStart = tru
           emitted.current.add(i)
           if (def.kind === 'check') checks.current += 1
           events.current = [
-            { id: i, t: def.t, kind: def.kind, text: def.build({ m, c }) },
+            { id: i, t: def.t, kind: def.kind, text: def.build({ m, c, autoRollback }) },
             ...events.current,
           ]
         }
       })
 
-      // sample history — treatment data ends at rollback (no traffic on the
-      // new variation means nothing left to measure). Close the line with one
-      // final sample exactly at the rollback moment.
-      if (t <= ROLLBACK_START && (t - lastSample.current >= SAMPLE_DT || t >= END_T)) {
+      // sample history — with auto-rollback on, treatment data ends at
+      // rollback (no traffic on the new variation means nothing left to
+      // measure); close the line with one final sample exactly at that
+      // moment. With it off, the line keeps going: the regression is live.
+      if ((!autoRollback || t <= ROLLBACK_START) && (t - lastSample.current >= SAMPLE_DT || t >= END_T)) {
         lastSample.current = t
         history.current = [...history.current, { t, v: f.metricValue }]
-      } else if (t > ROLLBACK_START && lastSample.current < ROLLBACK_START) {
+      } else if (autoRollback && t > ROLLBACK_START && lastSample.current < ROLLBACK_START) {
         lastSample.current = ROLLBACK_START
         history.current = [...history.current, { t: ROLLBACK_START, v: metricAt(m, ROLLBACK_START) }]
       }

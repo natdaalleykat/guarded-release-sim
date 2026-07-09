@@ -9,6 +9,8 @@ interface Props {
   treatmentNow: number
   controlNow: number
   breach: boolean
+  /* notify-only mode keeps the treatment line alive (nothing rolled back) */
+  autoRollback?: boolean
 }
 
 const W = 1000
@@ -27,7 +29,7 @@ const padB = 26
    rollback the treatment line simply ends: no traffic, no data. The word
    "control" is deliberately avoided — day-0 trialists don't have the A/B
    vocabulary; "original variation" says the same thing in plain terms. */
-function DiffChartInner({ metric, history, tNow, controlNow, breach }: Props) {
+function DiffChartInner({ metric, history, tNow, controlNow, breach, autoRollback = true }: Props) {
   const { yMin, yMax, betterDirection } = metric
   const x = (t: number) => padL + (t / END_T) * (W - padL - padR)
   const y = (v: number) => padT + (1 - (v - yMin) / (yMax - yMin)) * (H - padT - padB)
@@ -55,7 +57,7 @@ function DiffChartInner({ metric, history, tNow, controlNow, breach }: Props) {
 
   const ticks = [0, 0.5, 1].map((f) => yMin + (yMax - yMin) * f)
   const detected = tNow >= REG_DETECT_T
-  const rolledBack = tNow > ROLLBACK_START
+  const rolledBack = autoRollback && tNow > ROLLBACK_START
   const detectX = x(REG_DETECT_T)
 
   return (
