@@ -27,13 +27,6 @@ import { stubForSpec } from './DestPages'
 
 const ANIM = { initial: { opacity: 0, x: 10 }, animate: { opacity: 1, x: 0 }, transition: { duration: 0.25, ease: [0.16, 1, 0.3, 1] } }
 
-/* concept "Spec": the real gonfalon destination under a step's primary CTA.
-   Only the ROADMAPS_SPEC data sets `dest`, so other concepts render nothing. */
-function DestNote({ dest }: { dest?: string }) {
-  if (!dest) return null
-  return <div className="ds-dest-note" style={{ marginTop: 'var(--lp-spacing-300)' }}>→ {dest}</div>
-}
-
 /* opens the SDK drawer, a destination wireframe, or a docs link for a CTA */
 function useDest() {
   const [dest, setDest] = useState<Dest | null>(null)
@@ -99,7 +92,6 @@ function InlineCreatePane({ kind, step, color, nextLabel, onAdvance, onOpenCreat
           <div style={{ marginTop: 'var(--lp-spacing-700)', display: 'flex', alignItems: 'center', gap: 'var(--lp-spacing-400)' }}>
             <DsButton variant="primary" onClick={() => setDone(true)}><LpIcon name="flag" size={16} /> {step.cta}</DsButton>
           </div>
-          <DestNote dest={step.dest} />
         </>
       )}
 
@@ -114,7 +106,6 @@ function InlineCreatePane({ kind, step, color, nextLabel, onAdvance, onOpenCreat
           <div style={{ marginTop: 'var(--lp-spacing-700)', display: 'flex', alignItems: 'center', gap: 'var(--lp-spacing-400)' }}>
             <DsButton variant="primary" onClick={() => setDone(true)}><LpIcon name="flask" size={16} /> {step.cta}</DsButton>
           </div>
-          <DestNote dest={step.dest} />
         </>
       )}
 
@@ -147,7 +138,7 @@ function InlineCreatePane({ kind, step, color, nextLabel, onAdvance, onOpenCreat
             {/* concept "Spec": §7 "then toExperimentDesign (created experiment)" */}
             {kind === 'experiment' && onOpenCreated && (
               <button className="ds-btn minimal" onClick={onOpenCreated} style={{ fontSize: 'var(--lp-font-size-100)' }}>
-                Open the experiment <span className="ds-dest-note">· toExperimentDesign</span>
+                Open the experiment
               </button>
             )}
             <button className="ds-btn minimal" onClick={() => setDone(false)} style={{ fontSize: 'var(--lp-font-size-100)' }}>Start over</button>
@@ -245,7 +236,7 @@ function InlineO11yPane({ step, color, nextLabel, onAdvance, onFallback }: { ste
         Fallback: the Sessions page empty state carries these same setup pointers.
         {onFallback && (
           <button className="ds-btn minimal" onClick={onFallback} style={{ fontSize: 'var(--lp-font-size-100)', marginLeft: 6 }}>
-            Open Sessions <span className="ds-dest-note">· toSessions</span>
+            Open Sessions
           </button>
         )}
       </div>
@@ -255,7 +246,6 @@ function InlineO11yPane({ step, color, nextLabel, onAdvance, onFallback }: { ste
           Next: {nextLabel} <LpIcon name="arrow-right-thin" size={16} />
         </DsButton>
       </div>
-      <DestNote dest={step.dest} />
     </motion.div>
   )
 }
@@ -353,10 +343,8 @@ function RoadmapV2({ steps, def, onWatch, onDest, initialStep, onStub }: {
               <LpIcon name="arrow-right-thin" size={16} />
             </DsButton>
           </div>
-          <DestNote dest={step.dest} />
           {step.docs && step.docs.length > 0 && (
             <div style={{ marginTop: 'var(--lp-spacing-400)', display: 'flex', alignItems: 'center', gap: 'var(--lp-spacing-400)', flexWrap: 'wrap' }}>
-              <span className="ds-section-label">Docs</span>
               {step.docs.map((d) => (
                 <a key={d.href} href={d.href} target="_blank" rel="noreferrer" className="doc-link" style={{ fontSize: 'var(--lp-font-size-200)', color: 'var(--lp-color-fill-interactive-primary)', textDecoration: 'none', fontWeight: 'var(--lp-font-weight-medium)' }}>
                   {d.label} ↗
